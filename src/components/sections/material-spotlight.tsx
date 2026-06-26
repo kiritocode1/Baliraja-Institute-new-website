@@ -18,8 +18,8 @@ const fragmentMain = /* glsl */ `
   float d = distance(vWPos, uHitPoint);
   float reveal = 1.0 - smoothstep(uRadius, uRadius + uSoftness, d);
   float mask = reveal * uActive;
-  roughnessFactor = mix(0.95, 0.45, mask);
-  diffuseColor.rgb *= mix(1.0, 0.5, mask);
+  roughnessFactor = mix(0.95, 0.4, mask);
+  diffuseColor.rgb *= mix(1.0, 0.42, mask);
 `;
 
 export function MaterialSpotlight() {
@@ -37,7 +37,7 @@ export function MaterialSpotlight() {
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     } catch {
-      return; // No WebGL: the section keeps its stone background + overlay text.
+      return; // No WebGL: section keeps its stone background + overlay text.
     }
 
     const scene = new THREE.Scene();
@@ -61,7 +61,7 @@ export function MaterialSpotlight() {
     scene.environment = envTex;
     pmrem.dispose();
 
-    const config = { radius: 0.15, softness: 0.35, lerp: 0.05 };
+    const config = { radius: 0.15, softness: 0.35, lerp: 0.06 };
     const shaders: THREE.WebGLProgramParametersWithUniforms[] = [];
     const uHit = new THREE.Vector3(0, 100, 0);
     const target = new THREE.Vector3(0, 100, 0);
@@ -71,58 +71,87 @@ export function MaterialSpotlight() {
     const planeHit = new THREE.Vector3();
     let uActive = 0;
     let active = false;
-    let model: THREE.Group | null = null;
     let disposed = false;
     let raf = 0;
     let running = false;
+
+    // Stored framing so resize can refit the camera.
+    let halfW = 1;
+    let halfH = 1;
+    const groups: THREE.Object3D[] = [];
+    const geometries = new Set<THREE.BufferGeometry>();
+    const materials = new Set<THREE.Material>();
+
+    function fitCamera() {
+      const fovRad = (camera.fov * Math.PI) / 180;
+      const distH = halfH / Math.tan(fovRad / 2);
+      const distW = halfW / camera.aspect / Math.tan(fovRad / 2);
+      const dist = Math.max(distH, distW) * 1.18;
+      camera.position.set(0, 0, dist);
+      camera.lookAt(0, 0, 0);
+    }
 
     new GLTFLoader().load(
       "/model.glb",
       (gltf) => {
         if (disposed) return;
-        model = gltf.scene;
-        const box = new THREE.Box3().setFromObject(model);
-        model.position.sub(box.getCenter(new THREE.Vector3()));
+        const base = gltf.scene;
 
+        // Center the model on its own origin.
+        const box = new THREE.Box3().setFromObject(base);
+        base.position.sub(box.getCenter(new THREE.Vector3()));
         const size = box.getSize(new THREE.Vector3());
-        const dist =
-          Math.max(size.x, size.y, size.z) /
-          (2 * Math.tan(((camera.fov * Math.PI) / 180) / 2));
-        camera.position.set(0, 0, dist * 1.75);
-        camera.lookAt(0, 0, 0);
 
-        model.traverse((node) => {
+        // Patch every material once with the spotlight shader (shared by both
+        // copies). DoubleSide keeps the mirrored copy's flipped winding clean.
+        base.traverse((node) => {
           const mesh = node as THREE.Mesh;
           if (!mesh.isMesh) return;
+          if (mesh.geometry) geometries.add(mesh.geometry);
           const material = mesh.material as THREE.MeshStandardMaterial;
+          materials.add(material);
           material.roughness = 0.95;
+          material.side = THREE.DoubleSide;
           material.onBeforeCompile = (shader) => {
             shader.uniforms.uHitPoint = { value: uHit };
             shader.uniforms.uActive = { value: 0 };
             shader.uniforms.uRadius = { value: config.radius };
             shader.uniforms.uSoftness = { value: config.softness };
-
             shader.vertexShader = shader.vertexShader
               .replace("#include <common>", `#include <common>\n${vertexPars}`)
               .replace(
                 "#include <worldpos_vertex>",
                 `#include <worldpos_vertex>\n${vertexMain}`,
               );
-
             shader.fragmentShader = shader.fragmentShader
               .replace("#include <common>", `#include <common>\n${fragmentPars}`)
               .replace(
                 "#include <roughnessmap_fragment>",
                 `#include <roughnessmap_fragment>\n${fragmentMain}`,
               );
-
             shaders.push(shader);
           };
           material.needsUpdate = true;
         });
 
-        scene.add(model);
-        renderFrame(); // paint at least once, even when motion is reduced
+        // Two mirrored copies with a centre gap for the wordmark.
+        const offset = size.x * 0.82;
+        const left = new THREE.Group();
+        left.add(base);
+        left.position.x = -offset;
+
+        const right = new THREE.Group();
+        right.add(base.clone(true));
+        right.position.x = offset;
+        right.scale.x = -1; // mirror
+
+        groups.push(left, right);
+        scene.add(left, right);
+
+        halfW = offset + size.x / 2;
+        halfH = size.y / 2;
+        fitCamera();
+        renderFrame(); // paint once even when motion is reduced
       },
       undefined,
       (err) => console.error("Spotlight model failed to load:", err),
@@ -164,9 +193,8 @@ export function MaterialSpotlight() {
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          if (reduced) {
-            renderFrame();
-          } else if (!running) {
+          if (reduced) renderFrame();
+          else if (!running) {
             running = true;
             loop();
           }
@@ -184,6 +212,7 @@ export function MaterialSpotlight() {
       const h = container.clientHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      fitCamera();
       renderer.setSize(w, h);
       if (!running) renderFrame();
     };
@@ -196,16 +225,9 @@ export function MaterialSpotlight() {
       window.removeEventListener("resize", onResize);
       container.removeEventListener("pointermove", onPointerMove);
       container.removeEventListener("pointerleave", onPointerLeave);
-      if (model) {
-        model.traverse((node) => {
-          const mesh = node as THREE.Mesh;
-          if (!mesh.isMesh) return;
-          mesh.geometry?.dispose();
-          const mat = mesh.material;
-          if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
-          else mat?.dispose();
-        });
-      }
+      groups.forEach((g) => scene.remove(g));
+      geometries.forEach((g) => g.dispose());
+      materials.forEach((m) => m.dispose());
       envTex.dispose();
       renderer.dispose();
       renderer.domElement.remove();
@@ -214,27 +236,23 @@ export function MaterialSpotlight() {
 
   return (
     <section
+      id="baliraja"
       aria-label="Baliraja Institute"
-      className="relative isolate h-[88svh] min-h-[34rem] w-full overflow-hidden bg-parchment-deep"
+      className="relative isolate flex h-[90svh] min-h-[36rem] w-full items-center justify-center overflow-hidden bg-parchment-deep"
     >
       <div ref={containerRef} className="absolute inset-0" />
 
-      {/* Brand overlay — does not intercept the cursor */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
-        <div className="mx-auto flex w-full max-w-[100rem] items-center justify-between px-5 pt-10 sm:px-8">
-          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-oxblood/70">
-            {site.place} · Estd. {site.established}
-          </p>
-          <p className="hidden text-[0.62rem] font-medium uppercase tracking-[0.22em] text-ink-soft sm:block">
-            Move your cursor
-          </p>
-        </div>
-
-        <div className="mx-auto w-full max-w-[100rem] px-5 pb-12 sm:px-8 sm:pb-16">
-          <h2 className="max-w-[16ch] font-display text-[clamp(2.4rem,7vw,6.5rem)] font-light leading-[0.95] tracking-[-0.025em] text-oxblood">
-            {site.motto}.
-          </h2>
-        </div>
+      {/* Centre wordmark + quote underneath */}
+      <div className="pointer-events-none relative z-10 flex flex-col items-center px-5 text-center">
+        <h2 className="font-display text-[clamp(3.5rem,13vw,11rem)] font-light leading-[0.9] tracking-[-0.03em] text-oxblood">
+          Baliraja
+        </h2>
+        <p className="mt-6 max-w-md font-display text-[clamp(1.05rem,2.4vw,1.6rem)] italic leading-snug text-ink/80">
+          “{site.motto}.”
+        </p>
+        <p className="mt-4 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-ink-soft">
+          Career Academy · {site.place}
+        </p>
       </div>
     </section>
   );
