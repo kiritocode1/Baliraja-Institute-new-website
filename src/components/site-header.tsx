@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { cn } from "@/lib/utils";
+import { BalirajaCrest } from "@/components/baliraja-crest";
 import { SvgUnderlineLink } from "@/components/links";
 import {
   site,
@@ -29,17 +29,15 @@ function Crest({ light }: { light: boolean }) {
     >
       <span
         className={cn(
-          "grid place-items-center border bg-parchment px-2 py-1.5 transition-colors",
+          "grid place-items-center border px-2.5 py-1.5 transition-colors",
           light ? "border-cream/35" : "border-line-strong",
         )}
       >
-        <Image
-          src="/baliraja-logo.svg"
-          alt=""
-          width={64}
-          height={35}
-          priority
-          className="h-8 w-auto"
+        <BalirajaCrest
+          className={cn(
+            "h-10 w-auto transition-colors",
+            light ? "text-cream" : "text-oxblood",
+          )}
         />
       </span>
       <span className="hidden leading-none sm:block">

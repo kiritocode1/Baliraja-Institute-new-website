@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { BalirajaCrest } from "@/components/baliraja-crest";
 import { SlideUnderlineLink } from "@/components/links";
 import { site, examTracks, socials } from "@/lib/site";
 
@@ -37,14 +37,8 @@ export function SiteFooter() {
         {/* Masthead */}
         <div className="flex flex-col gap-8 border-b border-cream/15 py-14 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex items-center gap-4">
-            <span className="grid place-items-center border border-cream/30 bg-parchment px-2.5 py-2">
-              <Image
-                src="/baliraja-logo.svg"
-                alt=""
-                width={72}
-                height={40}
-                className="h-9 w-auto"
-              />
+            <span className="grid place-items-center border border-cream/30 px-2.5 py-2">
+              <BalirajaCrest className="h-10 w-auto text-cream" />
             </span>
             <div>
               <p className="font-display text-xl leading-none">
