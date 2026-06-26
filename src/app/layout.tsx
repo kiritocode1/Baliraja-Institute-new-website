@@ -21,7 +21,7 @@ const body = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://baliraja-academy.in"),
+  metadataBase: new URL("https://balirajaacademy.in"),
   title: {
     default: `${site.longName}, ${site.place} — ${site.motto}`,
     template: `%s — ${site.name}`,

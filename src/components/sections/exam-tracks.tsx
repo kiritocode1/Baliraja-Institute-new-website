@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { RevealText } from "@/components/reveal-text";
-import { examTracks } from "@/lib/site";
+import { examTracks, featuredExams } from "@/lib/site";
 
 function TrackRow({
   variant,
@@ -240,7 +241,65 @@ export function ExamTracks() {
         </div>
       </div>
 
-      <div className="mx-auto mt-14 max-w-[100rem] px-5 sm:px-8">
+      {/* Featured defence tracks — Army & Navy lead the list */}
+      <div className="mx-auto mt-12 max-w-[100rem] px-5 sm:px-8">
+        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
+          Defence services · the entries asked for first
+        </p>
+        <div className="mt-5 grid gap-6 sm:grid-cols-2">
+          {featuredExams.map((f) => (
+            <Link
+              key={f.key}
+              href={`/admissions?track=${encodeURIComponent(f.title)}`}
+              className="group flex flex-col"
+            >
+              <div className="relative aspect-[5/4] overflow-hidden">
+                <Image
+                  src={f.image}
+                  alt={f.alt}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, oklch(0.2 0.06 25 / 0.05) 35%, oklch(0.2 0.06 25 / 0.82) 100%)",
+                  }}
+                />
+                <span className="absolute left-4 top-4 bg-brass px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-oxblood-deep">
+                  Defence
+                </span>
+                <h3 className="absolute bottom-4 left-5 font-display text-[clamp(2.6rem,6vw,4.5rem)] font-light leading-none text-cream">
+                  {f.title}
+                </h3>
+              </div>
+              <div className="mt-5 flex flex-1 flex-col gap-3">
+                <p className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-oxblood">
+                  {f.exams}
+                </p>
+                <p className="max-w-prose text-[0.96rem] leading-relaxed text-ink-soft">
+                  {f.blurb}
+                </p>
+                <span className="mt-auto inline-flex items-center gap-2 pt-2 text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-oxblood">
+                  <span className="link-hover link-hover--slide">
+                    Prepare for {f.title}
+                  </span>
+                  <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="mx-auto mt-16 max-w-[100rem] px-5 sm:px-8">
+        <p className="mb-5 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
+          And every state and central service
+        </p>
         <div ref={listRef} className="track-list">
           {examTracks.map((t) => (
             <Link
