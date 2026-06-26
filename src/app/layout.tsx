@@ -3,6 +3,7 @@ import { Spectral, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MaterialSpotlight } from "@/components/sections/material-spotlight";
 import { site } from "@/lib/site";
 
 const display = Spectral({
@@ -55,6 +56,7 @@ export default function RootLayout({
         <SiteHeader />
         <main id="top">{children}</main>
         <SiteFooter />
+        <MaterialSpotlight />
       </body>
     </html>
   );
