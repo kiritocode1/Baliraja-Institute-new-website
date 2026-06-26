@@ -1,26 +1,315 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------ *
+ *  Baliraja Institute — design tokens
+ *  Palette: deep oxblood + parchment + brass. Light/parchment ground,
+ *  maroon feature surfaces. OKLCH, neutrals tinted toward the brand hue.
+ * ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand scale */
+  --parchment: oklch(0.957 0.013 83);
+  --parchment-deep: oklch(0.927 0.019 80);
+  --oxblood: oklch(0.33 0.105 25);
+  --oxblood-deep: oklch(0.245 0.072 25);
+  --oxblood-bright: oklch(0.42 0.13 27);
+  --maroon-mid: oklch(0.37 0.12 26);
+  --brass: oklch(0.705 0.095 76);
+  --brass-bright: oklch(0.8 0.105 82);
+  --brass-deep: oklch(0.55 0.088 70);
+  --ink: oklch(0.255 0.022 40);
+  --ink-soft: oklch(0.462 0.022 45);
+  --cream: oklch(0.955 0.015 84);
+  --cream-muted: oklch(0.8 0.035 72);
+  --line: oklch(0.86 0.02 78);
+  --line-strong: oklch(0.78 0.025 76);
+
+  /* shadcn semantic tokens mapped onto the brand */
+  --background: var(--parchment);
+  --foreground: var(--ink);
+  --card: var(--parchment);
+  --card-foreground: var(--ink);
+  --popover: var(--parchment);
+  --popover-foreground: var(--ink);
+  --primary: var(--oxblood);
+  --primary-foreground: var(--cream);
+  --secondary: var(--parchment-deep);
+  --secondary-foreground: var(--ink);
+  --muted: var(--parchment-deep);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--brass);
+  --accent-foreground: oklch(0.26 0.04 40);
+  --destructive: oklch(0.52 0.17 28);
+  --border: var(--line);
+  --input: var(--line-strong);
+  --ring: var(--brass);
+  --radius: 0.25rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Brand utilities: bg-oxblood, text-brass, border-line, etc. */
+  --color-parchment: var(--parchment);
+  --color-parchment-deep: var(--parchment-deep);
+  --color-oxblood: var(--oxblood);
+  --color-oxblood-deep: var(--oxblood-deep);
+  --color-oxblood-bright: var(--oxblood-bright);
+  --color-maroon-mid: var(--maroon-mid);
+  --color-brass: var(--brass);
+  --color-brass-bright: var(--brass-bright);
+  --color-brass-deep: var(--brass-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-cream: var(--cream);
+  --color-cream-muted: var(--cream-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --font-sans: var(--font-body);
+  --font-body: var(--font-body);
+  --font-display: var(--font-display);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 2);
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv01";
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.018em;
+  }
+  ::selection {
+    background: var(--oxblood);
+    color: var(--cream);
+  }
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--brass) 70%, transparent);
+    outline-offset: 3px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ------------------------------------------------------------------ *
+ *  Animated link underline (provided spec)
+ * ------------------------------------------------------------------ */
+.link-hover {
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+  white-space: nowrap;
+  color: currentColor;
+  text-decoration: none;
+  outline: none;
+}
+.link-hover::before,
+.link-hover::after {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  pointer-events: none;
+}
+.link-hover::before {
+  content: "";
+}
+.link-hover:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid color-mix(in srgb, currentColor 45%, transparent);
+  outline-offset: 0.25rem;
+}
+.link-hover--slide::before {
+  transform: scale3d(0, 1, 1);
+  transform-origin: 100% 50%;
+  transition: transform 0.3s ease;
+}
+.link-hover--slide:hover::before,
+.link-hover--slide:focus-visible::before {
+  transform: scale3d(1, 1, 1);
+  transform-origin: 0% 50%;
+}
+
+/* SVG line-draw underline used on the top-bar primary nav */
+.svg-underline {
+  position: relative;
+  display: inline-flex;
+  text-decoration: none;
+  color: currentColor;
+}
+.svg-underline svg {
+  position: absolute;
+  left: 0;
+  bottom: -0.32em;
+  width: 100%;
+  height: 6px;
+  overflow: visible;
+  pointer-events: none;
+}
+.svg-underline svg path {
+  stroke: currentColor;
+  stroke-width: 1.4;
+  fill: none;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.5s var(--ease-out-expo);
+}
+.svg-underline:hover svg path,
+.svg-underline:focus-visible svg path {
+  stroke-dashoffset: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Overlay menu (GSAP). Styles are global so SplitText-generated
+ *  .line nodes are never purged by Tailwind.
+ * ------------------------------------------------------------------ */
+.bal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  visibility: hidden;
+}
+.bal-overlay.is-open {
+  pointer-events: auto;
+  visibility: visible;
+}
+.bal-panel {
+  position: absolute;
+  inset: 0;
+  transform: scaleY(0);
+  transform-origin: top;
+  will-change: transform;
+}
+.bal-panel:nth-child(1) {
+  background: var(--brass);
+}
+.bal-panel:nth-child(2) {
+  background: var(--oxblood-bright);
+}
+.bal-panel:nth-child(3) {
+  background: var(--maroon-mid);
+}
+.bal-panel:nth-child(4) {
+  background: var(--oxblood-deep);
+}
+.bal-menu {
+  position: absolute;
+  inset: 0;
+  background: var(--oxblood-deep);
+  color: var(--cream);
+  clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
+  will-change: clip-path;
+  display: grid;
+  overflow-y: auto;
+}
+.bal-menu a {
+  color: var(--cream);
+  text-decoration: none;
+  display: block;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+.bal-menu .bal-line-wrap .line {
+  transform: translateY(110%);
+  will-change: transform;
+}
+.bal-menu-primary a {
+  font-family: var(--font-display), Georgia, serif;
+  color: var(--cream);
+}
+.bal-menu-primary a:hover {
+  color: var(--brass-bright);
+}
+.bal-menu-secondary a:hover,
+.bal-menu-meta a:hover {
+  color: var(--brass-bright);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Marquee
+ * ------------------------------------------------------------------ */
+.marquee-track {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  will-change: transform;
+  animation: bal-marquee var(--marquee-duration, 32s) linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes bal-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.grain-mask {
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(120% 100% at 50% 0%, #000 55%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  .svg-underline svg path {
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+body.is-locked {
+  overflow: hidden;
 }
