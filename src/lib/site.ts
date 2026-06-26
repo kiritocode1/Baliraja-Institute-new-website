@@ -59,38 +59,49 @@ export type ExamTrack = {
   code: string;
   title: string;
   blurb: string;
+  /** Unsplash preview shown on hover in the exam-track list. */
+  image: string;
 };
+
+const unsplash = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=900&q=80`;
 
 export const examTracks: ExamTrack[] = [
   {
     code: "01",
     title: "MPSC",
     blurb: "Rajyaseva, PSI, STI, ASO and combined group services, with integrated prelims and mains coverage.",
+    image: unsplash("1561089489-f13d5e730d72"),
   },
   {
     code: "02",
     title: "UPSC Civil Services",
     blurb: "Foundation to mains mentoring in Marathi and English mediums, optional subject guidance, and answer writing.",
+    image: unsplash("1513475382585-d06e58bcb0e0"),
   },
   {
     code: "03",
     title: "Banking & Insurance",
     blurb: "IBPS, SBI, RBI and allied recruitment, built around quantitative aptitude, reasoning and daily speed drills.",
+    image: unsplash("1598981457915-aea220950616"),
   },
   {
     code: "04",
     title: "SSC & Railways",
     blurb: "CGL, CHSL, MTS and RRB tracks with sectional tests and a tier-wise practice calendar.",
+    image: unsplash("1574130303188-31a915382726"),
   },
   {
     code: "05",
     title: "Police Bharti",
     blurb: "Written preparation paired with ground and physical-test guidance for constable and driver recruitment.",
+    image: unsplash("1527822618093-743f3e57977c"),
   },
   {
     code: "06",
     title: "Talathi & ZP",
     blurb: "Talathi, Gram Sevak, Zilla Parishad and Saralseva exams, with district-specific current affairs.",
+    image: unsplash("1606761568499-6d2451b23c66"),
   },
 ];
 
