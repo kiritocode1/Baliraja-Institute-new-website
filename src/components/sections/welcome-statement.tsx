@@ -1,4 +1,4 @@
-import { RevealText } from "@/components/reveal-text";
+import { ScrollTextReveal } from "@/components/scroll-text-reveal";
 
 export function WelcomeStatement() {
   return (
@@ -9,22 +9,19 @@ export function WelcomeStatement() {
         </p>
 
         <h2 className="max-w-[20ch] font-display text-[clamp(1.9rem,4.4vw,3.7rem)] font-light leading-[1.12] tracking-[-0.015em]">
-          <RevealText
-            text="A career academy rooted in the soil of Marathwada, where first-generation aspirants are prepared for the services that serve the public."
-            splitBy="words"
-            stagger={0.045}
-            distance={22}
-            amount={0.3}
-            className="text-cream"
-          />{" "}
-          <RevealText
-            text="The discipline of an institution, the attention of a mentor."
-            splitBy="words"
-            stagger={0.04}
-            distance={22}
-            amount={0.3}
-            segmentClassName="text-cream-muted"
-            className="text-cream-muted"
+          <ScrollTextReveal
+            parts={[
+              {
+                text: "A career academy rooted in the soil of Marathwada, where first-generation aspirants are prepared for the services that serve the public.",
+                className: "text-cream",
+                ghostClassName: "text-cream-muted opacity-35",
+              },
+              {
+                text: "The discipline of an institution, the attention of a mentor.",
+                className: "text-cream-muted",
+                ghostClassName: "text-cream-muted opacity-30",
+              },
+            ]}
           />
         </h2>
       </div>
