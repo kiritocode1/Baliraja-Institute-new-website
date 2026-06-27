@@ -2,8 +2,8 @@
 
 import {
   Bold,
+  BookOpen,
   Eye,
-  FileText,
   Heading2,
   Heading3,
   ImageIcon,
@@ -18,7 +18,6 @@ import {
   Save,
   Search,
   Send,
-  Trash2,
   Undo2,
   Upload,
   X,
@@ -26,24 +25,20 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import {
-  createBlogPostAction,
-  deleteBlogPostAction,
-  updateBlogPostAction,
-} from "@/app/crm/actions";
+import { saveCoursePageAction } from "@/app/crm/actions";
 import type {
-  BlogPost,
-  BlogPostInput,
-  BlogPostStatus,
-} from "@/lib/crm/blog-posts";
+  CoursePage,
+  CoursePageInput,
+  CoursePageStatus,
+} from "@/lib/crm/course-pages";
 
-type BlogEditorProps = {
-  posts: BlogPost[];
+type CourseEditorProps = {
+  pages: CoursePage[];
   usesBlobStorage: boolean;
 };
 
 const EMPTY_BODY =
-  "<p>Write the opening paragraph for this guidance article.</p><p>Add exam method, notices, examples, and mentor notes here.</p>";
+  "<h2>What this course covers</h2><p>Write the course promise, exam focus, and preparation structure here.</p><h3>Who should join</h3><p>Add student level, medium, and batch guidance.</p>";
 
 function slugify(value: string) {
   return value
@@ -56,19 +51,6 @@ function slugify(value: string) {
     .replace(/^-|-$/g, "");
 }
 
-function stripHtml(value: string) {
-  return value
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function estimateReadTime(value: string) {
-  const wordCount = stripHtml(value).split(/\s+/).filter(Boolean).length;
-  return `${Math.max(1, Math.ceil(wordCount / 180))} min read`;
-}
-
 function formatDate(value: string | null) {
   if (!value) return "Not published";
 
@@ -78,7 +60,7 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-function getStatusClass(status: BlogPostStatus) {
+function getStatusClass(status: CoursePageStatus) {
   if (status === "published") return "border-brass text-brass-deep";
   if (status === "archived") return "border-line-strong text-ink-soft";
   return "border-oxblood/30 text-oxblood";
@@ -104,12 +86,18 @@ async function uploadEditorImage(file: File) {
   return result.url;
 }
 
-function BlogPostRow({ post, onEdit }: { post: BlogPost; onEdit: () => void }) {
+function CoursePageRow({
+  page,
+  onEdit,
+}: {
+  page: CoursePage;
+  onEdit: () => void;
+}) {
   return (
     <article className="grid gap-4 border-t border-line py-5 lg:grid-cols-[8rem_1fr_auto] lg:items-center">
       <div className="relative aspect-[4/3] overflow-hidden bg-parchment-deep">
         <Image
-          src={post.image}
+          src={page.image}
           alt=""
           fill
           sizes="8rem"
@@ -119,34 +107,36 @@ function BlogPostRow({ post, onEdit }: { post: BlogPost; onEdit: () => void }) {
       <div>
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`border px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] ${getStatusClass(post.status)}`}
+            className={`border px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] ${getStatusClass(page.status)}`}
           >
-            {post.status}
+            {page.status}
           </span>
           <span className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
-            {post.category}
+            {page.category}
           </span>
-          <span className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
-            {post.readTime}
-          </span>
+          {page.seedKey ? (
+            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
+              Seeded
+            </span>
+          ) : null}
         </div>
         <h3 className="mt-3 font-display text-2xl leading-tight text-oxblood">
-          {post.title}
+          {page.title}
         </h3>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-soft">
-          {post.excerpt}
+          {page.summary}
         </p>
         <p className="mt-3 text-[0.72rem] uppercase tracking-[0.14em] text-ink-soft">
-          {post.status === "published" ? "Published" : "Updated"}{" "}
+          {page.status === "published" ? "Published" : "Updated"}{" "}
           {formatDate(
-            post.status === "published" ? post.publishedAt : post.updatedAt,
+            page.status === "published" ? page.publishedAt : page.updatedAt,
           )}
         </p>
       </div>
       <div className="flex flex-wrap gap-2 lg:justify-end">
-        {post.status === "published" ? (
+        {page.status === "published" ? (
           <a
-            href={`/news-events/${post.slug}`}
+            href={`/courses/${page.slug}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 border border-line-strong px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
@@ -160,7 +150,7 @@ function BlogPostRow({ post, onEdit }: { post: BlogPost; onEdit: () => void }) {
           onClick={onEdit}
           className="inline-flex items-center gap-2 bg-oxblood px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
         >
-          <FileText className="size-4" aria-hidden="true" />
+          <BookOpen className="size-4" aria-hidden="true" />
           Edit
         </button>
       </div>
@@ -190,44 +180,49 @@ function ToolbarButton({
   );
 }
 
-function BlogComposer({
-  post,
-  allPosts,
+function CourseComposer({
+  page,
+  allPages,
   usesBlobStorage,
   onClose,
 }: {
-  post: BlogPost | null;
-  allPosts: BlogPost[];
+  page: CoursePage | null;
+  allPages: CoursePage[];
   usesBlobStorage: boolean;
   onClose: () => void;
 }) {
   const router = useRouter();
-  const isEditing = Boolean(post);
+  const isEditing = Boolean(page);
   const editorRef = React.useRef<HTMLDivElement>(null);
   const inlineUploadRef = React.useRef<HTMLInputElement>(null);
   const coverUploadRef = React.useRef<HTMLInputElement>(null);
-  const [title, setTitle] = React.useState(post?.title ?? "");
-  const [slug, setSlug] = React.useState(post?.slug ?? "");
-  const [slugTouched, setSlugTouched] = React.useState(Boolean(post?.slug));
-  const [excerpt, setExcerpt] = React.useState(post?.excerpt ?? "");
-  const [category, setCategory] = React.useState(post?.category ?? "Guidance");
-  const [author, setAuthor] = React.useState(post?.author ?? "");
-  const [readTime, setReadTime] = React.useState(post?.readTime ?? "");
-  const [image, setImage] = React.useState(post?.image ?? "/img-classroom.jpg");
-  const [status, setStatus] = React.useState<BlogPostStatus>(
-    post?.status ?? "draft",
+  const [title, setTitle] = React.useState(page?.title ?? "");
+  const [slug, setSlug] = React.useState(page?.slug ?? "");
+  const [slugTouched, setSlugTouched] = React.useState(Boolean(page?.slug));
+  const [summary, setSummary] = React.useState(page?.summary ?? "");
+  const [category, setCategory] = React.useState(page?.category ?? "Course");
+  const [audience, setAudience] = React.useState(page?.audience ?? "");
+  const [exams, setExams] = React.useState(page?.exams ?? "");
+  const [duration, setDuration] = React.useState(page?.duration ?? "");
+  const [displayOrder, setDisplayOrder] = React.useState(
+    String(page?.displayOrder ?? 100),
   );
-  const [seoTitle, setSeoTitle] = React.useState(post?.seoTitle ?? "");
+  const [image, setImage] = React.useState(page?.image ?? "/img-reading.jpg");
+  const [imageAlt, setImageAlt] = React.useState(page?.imageAlt ?? "");
+  const [status, setStatus] = React.useState<CoursePageStatus>(
+    page?.status ?? "draft",
+  );
+  const [seoTitle, setSeoTitle] = React.useState(page?.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = React.useState(
-    post?.seoDescription ?? "",
+    page?.seoDescription ?? "",
   );
-  const [bodyHtml, setBodyHtml] = React.useState(post?.bodyHtml ?? EMPTY_BODY);
+  const [bodyHtml, setBodyHtml] = React.useState(page?.bodyHtml ?? EMPTY_BODY);
   const [message, setMessage] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
 
   React.useEffect(() => {
-    const initialBody = post?.bodyHtml ?? EMPTY_BODY;
+    const initialBody = page?.bodyHtml ?? EMPTY_BODY;
     setBodyHtml(initialBody);
 
     requestAnimationFrame(() => {
@@ -235,7 +230,7 @@ function BlogComposer({
         editorRef.current.innerHTML = initialBody;
       }
     });
-  }, [post]);
+  }, [page]);
 
   React.useEffect(() => {
     if (!slugTouched) {
@@ -246,11 +241,6 @@ function BlogComposer({
   function syncEditor() {
     const next = editorRef.current?.innerHTML ?? bodyHtml;
     setBodyHtml(next);
-
-    if (!readTime) {
-      setReadTime(estimateReadTime(next));
-    }
-
     return next;
   }
 
@@ -326,25 +316,29 @@ function BlogComposer({
     await handleImageFile(file, "inline");
   }
 
-  function buildPayload(nextStatus = status): BlogPostInput {
+  function buildPayload(nextStatus = status): CoursePageInput {
     const html = syncEditor();
     const selectedSlug = slugify(slug || title);
-    const duplicate = allPosts.find(
-      (item) => item.slug === selectedSlug && item.id !== post?.id,
+    const duplicate = allPages.find(
+      (item) => item.slug === selectedSlug && item.id !== page?.id,
     );
 
     return {
+      seedKey: page?.seedKey ?? null,
       title,
       slug: duplicate ? "" : selectedSlug,
-      excerpt,
+      summary,
       bodyHtml: html,
       category,
-      author,
-      readTime: readTime || estimateReadTime(html),
+      audience,
+      exams,
+      duration,
       image,
+      imageAlt,
       status: nextStatus,
       seoTitle,
       seoDescription,
+      displayOrder: Number(displayOrder || 100),
     };
   }
 
@@ -353,11 +347,10 @@ function BlogComposer({
     setMessage(nextStatus === "published" ? "Publishing..." : "Saving...");
 
     try {
-      const payload = buildPayload(nextStatus);
-      const result =
-        isEditing && post
-          ? await updateBlogPostAction(post.id, payload)
-          : await createBlogPostAction(payload);
+      const result = await saveCoursePageAction(
+        page?.id ?? null,
+        buildPayload(nextStatus),
+      );
 
       if (result.success) {
         setMessage(nextStatus === "published" ? "Published." : "Saved.");
@@ -371,34 +364,16 @@ function BlogComposer({
     }
   }
 
-  async function removePost() {
-    if (!post) return;
-    if (!window.confirm("Delete this blog post permanently?")) return;
-
-    setBusy(true);
-    setMessage("Deleting...");
-
-    try {
-      await deleteBlogPostAction(post.id);
-      router.refresh();
-      onClose();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Delete failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <div className="fixed inset-0 z-[90] bg-oxblood-deep text-cream">
       <div className="flex h-full flex-col">
         <header className="flex min-h-18 shrink-0 items-center justify-between border-b border-cream/12 bg-oxblood-deep px-4 py-3 sm:px-6">
           <div>
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-brass">
-              {isEditing ? "Edit blog post" : "Create blog post"}
+              {isEditing ? "Edit course page" : "Create course page"}
             </p>
             <h2 className="mt-1 max-w-[60vw] truncate font-display text-2xl text-cream">
-              {title || "Untitled article"}
+              {title || "Untitled course"}
             </h2>
           </div>
           <div className="flex items-center gap-2">
@@ -433,7 +408,7 @@ function BlogComposer({
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
-                  placeholder="Current affairs without overwhelm"
+                  placeholder="Army foundation course"
                 />
               </label>
 
@@ -449,7 +424,7 @@ function BlogComposer({
                       setSlug(slugify(event.target.value));
                     }}
                     className="min-w-0 flex-1 border border-cream/15 bg-oxblood-deep px-3 py-2.5 font-mono text-xs text-cream outline-none transition-colors focus:border-brass"
-                    placeholder="article-slug"
+                    placeholder="army"
                   />
                   <button
                     type="button"
@@ -466,15 +441,15 @@ function BlogComposer({
 
               <label className="block">
                 <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
-                  Excerpt
+                  Summary
                 </span>
                 <textarea
-                  value={excerpt}
-                  onChange={(event) => setExcerpt(event.target.value)}
+                  value={summary}
+                  onChange={(event) => setSummary(event.target.value)}
                   rows={4}
-                  maxLength={240}
+                  maxLength={260}
                   className="w-full resize-none border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
-                  placeholder="Short summary used on cards and SEO previews."
+                  placeholder="Short course summary used on cards and SEO previews."
                 />
               </label>
 
@@ -487,41 +462,57 @@ function BlogComposer({
                     value={category}
                     onChange={(event) => setCategory(event.target.value)}
                     className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
-                    placeholder="Strategy"
+                    placeholder="Defence"
                   />
                 </label>
                 <label className="block">
                   <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
-                    Author
+                    Display order
                   </span>
                   <input
-                    value={author}
-                    onChange={(event) => setAuthor(event.target.value)}
+                    value={displayOrder}
+                    onChange={(event) => setDisplayOrder(event.target.value)}
+                    type="number"
                     className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
-                    placeholder="Baliraja faculty"
+                    placeholder="10"
                   />
                 </label>
               </div>
 
               <label className="block">
                 <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
-                  Read time
+                  Audience
                 </span>
-                <div className="flex gap-2">
-                  <input
-                    value={readTime}
-                    onChange={(event) => setReadTime(event.target.value)}
-                    className="min-w-0 flex-1 border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
-                    placeholder="6 min read"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setReadTime(estimateReadTime(syncEditor()))}
-                    className="border border-cream/15 px-3 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-cream-muted transition-colors hover:border-brass hover:text-brass"
-                  >
-                    Auto
-                  </button>
-                </div>
+                <input
+                  value={audience}
+                  onChange={(event) => setAudience(event.target.value)}
+                  className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="Defence aspirants"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
+                  Exams covered
+                </span>
+                <input
+                  value={exams}
+                  onChange={(event) => setExams(event.target.value)}
+                  className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="NDA, CDS, AFCAT, Agniveer"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
+                  Duration / batch note
+                </span>
+                <input
+                  value={duration}
+                  onChange={(event) => setDuration(event.target.value)}
+                  className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="Foundation, crash, and test-series support"
+                />
               </label>
 
               <div>
@@ -533,7 +524,7 @@ function BlogComposer({
                   value={image}
                   onChange={(event) => setImage(event.target.value)}
                   className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 font-mono text-xs text-cream outline-none transition-colors focus:border-brass"
-                  placeholder="/img-classroom.jpg"
+                  placeholder="/img-reading.jpg"
                 />
                 <button
                   type="button"
@@ -575,27 +566,39 @@ function BlogComposer({
                 ) : null}
               </div>
 
+              <label className="block">
+                <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
+                  Image alt text
+                </span>
+                <input
+                  value={imageAlt}
+                  onChange={(event) => setImageAlt(event.target.value)}
+                  className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="Students preparing for defence exams"
+                />
+              </label>
+
               <div>
                 <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
                   Status
                 </span>
                 <div className="grid grid-cols-3 border border-cream/15">
-                  {(["draft", "published", "archived"] as BlogPostStatus[]).map(
-                    (item) => (
-                      <button
-                        key={item}
-                        type="button"
-                        onClick={() => setStatus(item)}
-                        className={`px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] transition-colors ${
-                          status === item
-                            ? "bg-brass text-oxblood-deep"
-                            : "text-cream-muted hover:bg-cream/10 hover:text-cream"
-                        }`}
-                      >
-                        {item}
-                      </button>
-                    ),
-                  )}
+                  {(
+                    ["draft", "published", "archived"] as CoursePageStatus[]
+                  ).map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => setStatus(item)}
+                      className={`px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.12em] transition-colors ${
+                        status === item
+                          ? "bg-brass text-oxblood-deep"
+                          : "text-cream-muted hover:bg-cream/10 hover:text-cream"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -710,7 +713,7 @@ function BlogComposer({
                   aria-multiline="true"
                   tabIndex={0}
                   className="crm-blog-editor min-h-[62vh] outline-none"
-                  aria-label="Blog post body editor"
+                  aria-label="Course page body editor"
                 />
                 {/* biome-ignore-end lint/a11y/useSemanticElements: End contenteditable rich-text surface exception. */}
               </div>
@@ -718,18 +721,18 @@ function BlogComposer({
 
             <footer className="flex shrink-0 flex-col gap-3 border-t border-cream/12 bg-oxblood-deep px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <div className="min-h-5 text-sm text-cream-muted">
-                {message || "Paste or drop images directly into the editor."}
+                {message ||
+                  "Paste or drop images directly into the course body."}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                {post ? (
+                {page ? (
                   <button
                     type="button"
-                    onClick={() => void removePost()}
+                    onClick={() => void save("archived")}
                     disabled={busy}
-                    className="inline-flex items-center gap-2 border border-destructive/50 px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-destructive disabled:opacity-50"
+                    className="inline-flex items-center gap-2 border border-cream/20 px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:border-brass hover:text-brass disabled:opacity-50"
                   >
-                    <Trash2 className="size-4" aria-hidden="true" />
-                    Delete
+                    Archive
                   </button>
                 ) : null}
                 <button
@@ -766,44 +769,45 @@ function BlogComposer({
   );
 }
 
-export function BlogEditor({ posts, usesBlobStorage }: BlogEditorProps) {
+export function CourseEditor({ pages, usesBlobStorage }: CourseEditorProps) {
   const [query, setQuery] = React.useState("");
-  const [editingPost, setEditingPost] = React.useState<BlogPost | null>(null);
+  const [editingPage, setEditingPage] = React.useState<CoursePage | null>(null);
   const [composerOpen, setComposerOpen] = React.useState(false);
-  const filteredPosts = posts.filter((post) => {
+  const filteredPages = pages.filter((page) => {
     const haystack =
-      `${post.title} ${post.excerpt} ${post.category}`.toLowerCase();
+      `${page.title} ${page.summary} ${page.category} ${page.exams ?? ""}`.toLowerCase();
     return haystack.includes(query.toLowerCase());
   });
-  const publishedCount = posts.filter(
-    (post) => post.status === "published",
+  const publishedCount = pages.filter(
+    (page) => page.status === "published",
   ).length;
-  const draftCount = posts.filter((post) => post.status === "draft").length;
+  const draftCount = pages.filter((page) => page.status === "draft").length;
+  const seededCount = pages.filter((page) => page.seedKey).length;
 
   function openNewComposer() {
-    setEditingPost(null);
+    setEditingPage(null);
     setComposerOpen(true);
   }
 
-  function openEditComposer(post: BlogPost) {
-    setEditingPost(post);
+  function openEditComposer(page: CoursePage) {
+    setEditingPage(page);
     setComposerOpen(true);
   }
 
   return (
-    <section id="crm-blog" className="mt-10 bg-parchment px-5 py-7 sm:px-7">
+    <section id="crm-courses" className="mt-10 bg-parchment px-5 py-7 sm:px-7">
       <div className="flex flex-col gap-6 border-b border-line pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-brass-deep">
-            Blog
+            Courses
           </p>
           <h2 className="mt-3 font-display text-4xl leading-none text-oxblood">
-            WYSIWYG editor
+            Special course pages
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
-            Publish preparation insights with formatted headings, lists, links,
-            cover images, and inline media. Public cards update on the home page
-            and news page after publishing.
+            Manage public pages for Army, Navy, MPSC, UPSC, Banking, SSC, Police
+            Bharti, Talathi and ZP. Published pages feed the course grid, course
+            detail routes, and the home-page course links.
           </p>
         </div>
         <button
@@ -812,7 +816,7 @@ export function BlogEditor({ posts, usesBlobStorage }: BlogEditorProps) {
           className="inline-flex w-fit items-center gap-2 bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
         >
           <Plus className="size-4" aria-hidden="true" />
-          New post
+          New course
         </button>
       </div>
 
@@ -835,10 +839,10 @@ export function BlogEditor({ posts, usesBlobStorage }: BlogEditorProps) {
         </div>
         <div className="border border-line bg-parchment-deep p-4">
           <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
-            Media storage
+            Seeded tracks
           </p>
           <p className="mt-2 font-display text-3xl text-oxblood">
-            {usesBlobStorage ? "Blob" : "Local"}
+            {seededCount}
           </p>
         </div>
       </div>
@@ -848,38 +852,38 @@ export function BlogEditor({ posts, usesBlobStorage }: BlogEditorProps) {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search blog posts"
+          placeholder="Search course pages"
           className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-soft"
         />
       </label>
 
       <div className="mt-4">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => (
-            <BlogPostRow
-              key={post.id}
-              post={post}
-              onEdit={() => openEditComposer(post)}
+        {filteredPages.length > 0 ? (
+          filteredPages.map((page) => (
+            <CoursePageRow
+              key={page.id}
+              page={page}
+              onEdit={() => openEditComposer(page)}
             />
           ))
         ) : (
           <div className="border-t border-line py-12 text-center">
             <h3 className="font-display text-3xl text-oxblood">
-              No blog posts yet
+              No course pages yet
             </h3>
             <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
-              Create the first preparation insight, publish it, and it will feed
-              the public insight cards.
+              Create a course page and publish it to make a focused public
+              destination for admissions.
             </p>
           </div>
         )}
       </div>
 
       {composerOpen ? (
-        <BlogComposer
-          key={editingPost?.id ?? "new-post"}
-          post={editingPost}
-          allPosts={posts}
+        <CourseComposer
+          key={editingPage?.id ?? "new-course"}
+          page={editingPage}
+          allPages={pages}
           usesBlobStorage={usesBlobStorage}
           onClose={() => setComposerOpen(false)}
         />

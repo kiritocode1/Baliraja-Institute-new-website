@@ -1,4 +1,15 @@
+import {
+  BookOpen,
+  ExternalLink,
+  FileText,
+  GraduationCap,
+  Inbox,
+  LayoutDashboard,
+  ShieldCheck,
+} from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   addAdminAction,
   logoutAction,
@@ -6,10 +17,12 @@ import {
   updateLeadAction,
 } from "@/app/crm/actions";
 import { BlogEditor } from "@/components/crm/blog-editor";
+import { CourseEditor } from "@/components/crm/course-editor";
 import { type CrmAdmin, listAdmins } from "@/lib/crm/admins";
 import { requireAdminSession } from "@/lib/crm/auth";
 import { listBlogPosts } from "@/lib/crm/blog-posts";
 import { getCrmEnvStatus } from "@/lib/crm/config";
+import { listCoursePages } from "@/lib/crm/course-pages";
 import {
   getLeadStats,
   getStatusLabel,
@@ -56,6 +69,62 @@ function EnvPill({ ok, label }: { ok: boolean; label: string }) {
     >
       {label}: {ok ? "Ready" : "Missing"}
     </span>
+  );
+}
+
+function CrmQuickLink({
+  href,
+  title,
+  body,
+  icon,
+  external = false,
+}: {
+  href: string;
+  title: string;
+  body: string;
+  icon: ReactNode;
+  external?: boolean;
+}) {
+  const className =
+    "group flex min-h-32 flex-col justify-between border border-line bg-parchment p-4 transition-colors hover:border-oxblood";
+  const content = (
+    <>
+      <span className="flex items-center justify-between gap-3">
+        <span className="inline-flex size-10 items-center justify-center bg-parchment-deep text-oxblood transition-colors group-hover:bg-oxblood group-hover:text-cream">
+          {icon}
+        </span>
+        {external ? (
+          <ExternalLink className="size-4 text-ink-soft" aria-hidden="true" />
+        ) : null}
+      </span>
+      <span>
+        <span className="block font-display text-2xl leading-none text-oxblood">
+          {title}
+        </span>
+        <span className="mt-2 block text-sm leading-relaxed text-ink-soft">
+          {body}
+        </span>
+      </span>
+    </>
+  );
+
+  if (external) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {content}
+    </Link>
   );
 }
 
@@ -210,11 +279,12 @@ function LeadRow({ lead }: { lead: Lead }) {
 }
 
 export default async function CrmPage() {
-  const [session, leads, admins, blogPosts] = await Promise.all([
+  const [session, leads, admins, blogPosts, coursePages] = await Promise.all([
     requireAdminSession(),
     listLeads(),
     listAdmins(),
     listBlogPosts(),
+    listCoursePages(),
   ]);
   const stats = getLeadStats(leads);
   const env = getCrmEnvStatus();
@@ -228,11 +298,11 @@ export default async function CrmPage() {
               Baliraja CRM
             </p>
             <h1 className="mt-4 font-display text-5xl leading-none text-oxblood sm:text-6xl">
-              Admission leads
+              CRM workspace
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-soft">
-              Signed in as {session.email}. New admissions form submissions land
-              here with status, assignment, and internal notes.
+              Signed in as {session.email}. Jump between admissions, course
+              pages, blog publishing, and admin access from one dashboard.
             </p>
           </div>
           <form action={logoutAction}>
@@ -260,9 +330,79 @@ export default async function CrmPage() {
           <EnvPill ok={env.sessionSecretConfigured} label="Session secret" />
         </div>
 
+        <section
+          id="crm-overview"
+          className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+          aria-label="CRM quick links"
+        >
+          <CrmQuickLink
+            href="#crm-leads"
+            title="Leads"
+            body="Review enquiries, assign counsellors, and update follow-up notes."
+            icon={<Inbox className="size-5" aria-hidden="true" />}
+          />
+          <CrmQuickLink
+            href="#crm-courses"
+            title="Courses"
+            body="Edit public pages for Army, Navy, MPSC, UPSC and other tracks."
+            icon={<GraduationCap className="size-5" aria-hidden="true" />}
+          />
+          <CrmQuickLink
+            href="#crm-blog"
+            title="Blog"
+            body="Publish guidance articles with rich text, images, and SEO fields."
+            icon={<FileText className="size-5" aria-hidden="true" />}
+          />
+          <CrmQuickLink
+            href="#crm-admins"
+            title="Admins"
+            body="Control who can receive Gmail OTP access to this CRM."
+            icon={<ShieldCheck className="size-5" aria-hidden="true" />}
+          />
+        </section>
+
+        <section
+          className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+          aria-label="Public site shortcuts"
+        >
+          <CrmQuickLink
+            href="/"
+            title="Home"
+            body="Open the public landing page after content changes."
+            icon={<LayoutDashboard className="size-5" aria-hidden="true" />}
+            external
+          />
+          <CrmQuickLink
+            href="/courses"
+            title="Courses"
+            body="Check the public course grid and course-page entry points."
+            icon={<BookOpen className="size-5" aria-hidden="true" />}
+            external
+          />
+          <CrmQuickLink
+            href="/news-events"
+            title="News"
+            body="Preview articles, notices, and latest update cards."
+            icon={<FileText className="size-5" aria-hidden="true" />}
+            external
+          />
+          <CrmQuickLink
+            href="/admissions"
+            title="Admissions"
+            body="Test the enquiry form and track-prefilled submissions."
+            icon={<Inbox className="size-5" aria-hidden="true" />}
+            external
+          />
+        </section>
+
+        <CourseEditor
+          pages={coursePages}
+          usesBlobStorage={env.blobConfigured}
+        />
+
         <BlogEditor posts={blogPosts} usesBlobStorage={env.blobConfigured} />
 
-        <div className="mt-10 bg-parchment px-5 sm:px-7">
+        <section id="crm-leads" className="mt-10 bg-parchment px-5 sm:px-7">
           {leads.length > 0 ? (
             leads.map((lead) => <LeadRow key={lead.id} lead={lead} />)
           ) : (
@@ -276,9 +416,12 @@ export default async function CrmPage() {
               </p>
             </div>
           )}
-        </div>
+        </section>
 
-        <section className="mt-10 bg-parchment px-5 py-7 sm:px-7">
+        <section
+          id="crm-admins"
+          className="mt-10 bg-parchment px-5 py-7 sm:px-7"
+        >
           <div className="grid gap-8 lg:grid-cols-[1fr_24rem]">
             <div>
               <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-brass-deep">

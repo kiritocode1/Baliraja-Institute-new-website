@@ -28,7 +28,22 @@ function TrackRow({
   );
 }
 
-export function ExamTracks() {
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function ExamTracks({
+  courseLinks = {},
+}: {
+  courseLinks?: Record<string, string>;
+}) {
   const listRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -258,7 +273,7 @@ export function ExamTracks() {
           </div>
           <p className="max-w-sm text-pretty text-[0.98rem] leading-relaxed text-ink-soft">
             One academy, six disciplined routes into the services. Hover a track
-            to preview it; choose one to begin an enquiry.
+            to preview it; choose one to view the full course page.
           </p>
         </div>
       </div>
@@ -272,7 +287,7 @@ export function ExamTracks() {
           {featuredExams.map((f) => (
             <Link
               key={f.key}
-              href={`/admissions?track=${encodeURIComponent(f.title)}`}
+              href={courseLinks[`featured-${f.key}`] ?? `/courses/${f.key}`}
               className="group flex flex-col"
             >
               <div className="relative aspect-[5/4] overflow-hidden">
@@ -306,7 +321,7 @@ export function ExamTracks() {
                 </p>
                 <span className="mt-auto inline-flex items-center gap-2 pt-2 text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-oxblood">
                   <span className="link-hover link-hover--slide">
-                    Prepare for {f.title}
+                    View {f.title} course
                   </span>
                   <span
                     aria-hidden="true"
@@ -329,13 +344,16 @@ export function ExamTracks() {
           {examTracks.map((t) => (
             <Link
               key={t.code}
-              href={`/admissions?track=${encodeURIComponent(t.title)}`}
+              href={
+                courseLinks[`track-${slugify(t.title)}`] ??
+                `/courses/${slugify(t.title)}`
+              }
               className="track"
-              aria-label={`${t.title}: ${t.blurb} Enquire.`}
+              aria-label={`${t.title}: ${t.blurb} View course.`}
             >
               <div className="track-wrapper" aria-hidden="true">
                 <TrackRow variant="normal" title={t.title} right={t.code} />
-                <TrackRow variant="invert" title={t.title} right="Enquire →" />
+                <TrackRow variant="invert" title={t.title} right="View" />
                 <TrackRow variant="normal" title={t.title} right={t.code} />
               </div>
             </Link>

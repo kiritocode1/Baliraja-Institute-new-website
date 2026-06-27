@@ -15,6 +15,7 @@ import { Notices } from "@/components/sections/notices";
 import { MissionPromise } from "@/components/sections/promise";
 import { WelcomeStatement } from "@/components/sections/welcome-statement";
 import { WhyBaliraja } from "@/components/sections/why-baliraja";
+import { listCoursePages } from "@/lib/crm/course-pages";
 import {
   campusLifeItems,
   preparationExperiences,
@@ -22,7 +23,13 @@ import {
   studentVoices,
 } from "@/lib/site";
 
-export default function Home() {
+export default async function Home() {
+  const courseLinks = Object.fromEntries(
+    (await listCoursePages())
+      .filter((page) => page.status === "published" && page.seedKey)
+      .map((page) => [page.seedKey as string, `/courses/${page.slug}`]),
+  );
+
   return (
     <>
       <Hero />
@@ -40,7 +47,7 @@ export default function Home() {
         body="Daily preparation is easier to understand when students can see the routine: mentoring, testing, study spaces, current affairs and peer discipline."
         items={campusLifeItems}
       />
-      <ExamTracks />
+      <ExamTracks courseLinks={courseLinks} />
       <AdmissionFeatures />
       <Gallery />
       <MissionPromise />

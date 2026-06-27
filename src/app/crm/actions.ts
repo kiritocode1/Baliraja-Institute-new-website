@@ -11,6 +11,11 @@ import {
   updateBlogPost,
 } from "@/lib/crm/blog-posts";
 import { normalizeEmail } from "@/lib/crm/config";
+import {
+  type CoursePageInput,
+  type CoursePageStatus,
+  saveCoursePage,
+} from "@/lib/crm/course-pages";
 import { parseLeadStatus, updateLead } from "@/lib/crm/leads";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,6 +25,14 @@ function revalidateBlogSurfaces() {
   revalidatePath("/");
   revalidatePath("/news-events");
   revalidatePath("/news-events/[slug]", "page");
+}
+
+function revalidateCourseSurfaces() {
+  revalidatePath("/crm");
+  revalidatePath("/");
+  revalidatePath("/courses");
+  revalidatePath("/courses/[slug]", "page");
+  revalidatePath("/sitemap.xml");
 }
 
 function parseBlogPostInput(input: BlogPostInput): BlogPostInput {
@@ -48,6 +61,42 @@ function parseBlogPostInput(input: BlogPostInput): BlogPostInput {
         : "draft",
     seoTitle: String(input.seoTitle ?? "").trim() || null,
     seoDescription: String(input.seoDescription ?? "").trim() || null,
+  };
+}
+
+function parseCourseStatus(status: CoursePageStatus): CoursePageStatus {
+  if (status === "published" || status === "archived") return status;
+  return "draft";
+}
+
+function parseCoursePageInput(input: CoursePageInput): CoursePageInput {
+  const title = String(input.title ?? "").trim();
+  const summary = String(input.summary ?? "").trim();
+  const bodyHtml = String(input.bodyHtml ?? "").trim();
+  const category = String(input.category ?? "").trim() || "Course";
+  const image = String(input.image ?? "").trim() || "/img-reading.jpg";
+  const displayOrder = Number(input.displayOrder ?? 100);
+
+  if (!title || !summary || !bodyHtml) {
+    throw new Error("Title, summary, and course body are required.");
+  }
+
+  return {
+    seedKey: String(input.seedKey ?? "").trim() || null,
+    title,
+    slug: String(input.slug ?? "").trim(),
+    summary,
+    bodyHtml,
+    category,
+    audience: String(input.audience ?? "").trim() || null,
+    exams: String(input.exams ?? "").trim() || null,
+    duration: String(input.duration ?? "").trim() || null,
+    image,
+    imageAlt: String(input.imageAlt ?? "").trim() || null,
+    status: parseCourseStatus(input.status),
+    seoTitle: String(input.seoTitle ?? "").trim() || null,
+    seoDescription: String(input.seoDescription ?? "").trim() || null,
+    displayOrder: Number.isFinite(displayOrder) ? displayOrder : 100,
   };
 }
 
@@ -137,4 +186,16 @@ export async function deleteBlogPostAction(id: string) {
   revalidateBlogSurfaces();
 
   return { success: true };
+}
+
+export async function saveCoursePageAction(
+  id: string | null,
+  input: CoursePageInput,
+) {
+  await requireAdminSession();
+
+  const page = await saveCoursePage(id || null, parseCoursePageInput(input));
+  revalidateCourseSurfaces();
+
+  return { success: true, page };
 }

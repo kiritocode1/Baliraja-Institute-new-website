@@ -87,6 +87,30 @@ export async function ensureCrmSchema() {
   `;
 
   await db`
+    CREATE TABLE IF NOT EXISTS crm_course_pages (
+      id TEXT PRIMARY KEY,
+      seed_key TEXT UNIQUE,
+      title TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      summary TEXT NOT NULL,
+      body_html TEXT NOT NULL,
+      category TEXT NOT NULL,
+      audience TEXT,
+      exams TEXT,
+      duration TEXT,
+      image TEXT NOT NULL,
+      image_alt TEXT,
+      status TEXT NOT NULL DEFAULT 'published',
+      seo_title TEXT,
+      seo_description TEXT,
+      display_order INTEGER NOT NULL DEFAULT 100,
+      published_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
     CREATE INDEX IF NOT EXISTS crm_admins_active_idx
     ON crm_admins (active)
   `;
@@ -114,6 +138,16 @@ export async function ensureCrmSchema() {
   await db`
     CREATE INDEX IF NOT EXISTS crm_blog_posts_updated_at_idx
     ON crm_blog_posts (updated_at DESC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_course_pages_status_idx
+    ON crm_course_pages (status, display_order ASC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_course_pages_updated_at_idx
+    ON crm_course_pages (updated_at DESC)
   `;
 
   schemaReady = true;

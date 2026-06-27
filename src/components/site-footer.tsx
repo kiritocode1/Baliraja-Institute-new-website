@@ -2,6 +2,17 @@ import { BrandLogo } from "@/components/brand-logo";
 import { SlideUnderlineLink } from "@/components/links";
 import { examTracks, site, socials } from "@/lib/site";
 
+function slugifyCourse(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 const columns: { heading: string; links: { label: string; href: string }[] }[] =
   [
     {
@@ -17,9 +28,10 @@ const columns: { heading: string; links: { label: string; href: string }[] }[] =
       heading: "Exam Tracks",
       links: [
         { label: "All Courses", href: "/courses" },
-        ...examTracks
-          .slice(0, 5)
-          .map((t) => ({ label: t.title, href: "/courses" })),
+        ...examTracks.slice(0, 5).map((t) => ({
+          label: t.title,
+          href: `/courses/${slugifyCourse(t.title)}`,
+        })),
       ],
     },
     {
