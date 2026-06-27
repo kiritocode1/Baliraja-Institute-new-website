@@ -2,14 +2,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { EnquiryForm } from "@/components/enquiry-form";
 import {
+  DiscoveryProcess,
+  FaqBand,
+  GuideCtaPanel,
   NextUpCta,
   PageHero,
   StatBand,
   SupportGrid,
 } from "@/components/page-sections";
 import {
+  admissionsDiscoverySteps,
+  admissionsFaqs,
   examTracks,
   featuredExams,
+  preparationGuide,
   proofStats,
   site,
   supportPoints,
@@ -64,6 +70,13 @@ export default async function AdmissionsPage({
           { href: "/courses", label: "Compare courses" },
           { href: "/scholarships", label: "See concessions" },
         ]}
+      />
+
+      <DiscoveryProcess
+        eyebrow="Discovering you"
+        title="The right batch starts with the right questions"
+        body="The admission conversation is not a sales counter. It is a short review of the student’s exam goal, present level, family context and support needs."
+        steps={admissionsDiscoverySteps}
       />
 
       {/* Form + aside */}
@@ -134,11 +147,20 @@ export default async function AdmissionsPage({
 
       <StatBand stats={proofStats} />
 
+      <GuideCtaPanel guide={preparationGuide} />
+
       <SupportGrid
         eyebrow="Admissions support"
         title="A mentor call before a commitment"
         body="Admissions should help the student choose correctly. The counselling call covers exam track, attempt date, medium, fee support and daily study expectations."
         points={supportPoints}
+      />
+
+      <FaqBand
+        eyebrow="Admissions FAQs"
+        title="Still have questions?"
+        body="The most common questions are practical: track choice, family visits, medium, concessions and test-series access."
+        items={admissionsFaqs}
       />
 
       <NextUpCta

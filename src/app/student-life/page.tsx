@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
 import {
+  FaqBand,
+  GuideCtaPanel,
   ImageCardGrid,
   NextUpCta,
   PageHero,
   SupportGrid,
   VoiceGrid,
 } from "@/components/page-sections";
-import { campusLifeItems, studentVoices, supportPoints } from "@/lib/site";
+import {
+  campusLifeItems,
+  preparationGuide,
+  studentLifeFaqs,
+  studentVoices,
+  supportPoints,
+} from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Student Life",
@@ -44,6 +52,15 @@ export default function StudentLifePage() {
         body="The student-life route should answer a parent’s and student’s practical question: what will daily life feel like after admission?"
         points={supportPoints}
       />
+
+      <FaqBand
+        eyebrow="Practical questions"
+        title="Life after admission"
+        body="Students and families usually need direct answers about study hours, stay arrangements, feedback and defence preparation before they commit."
+        items={studentLifeFaqs}
+      />
+
+      <GuideCtaPanel guide={preparationGuide} />
 
       <NextUpCta
         title="Courses"

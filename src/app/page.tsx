@@ -1,4 +1,9 @@
-import { ImageCardGrid, VoiceGrid } from "@/components/page-sections";
+import {
+  ExperienceExplorer,
+  GuideCtaPanel,
+  ImageCardGrid,
+  VoiceGrid,
+} from "@/components/page-sections";
 import { AdmissionFeatures } from "@/components/sections/admission-features";
 import { Blog } from "@/components/sections/blog";
 import { EnquiryCta } from "@/components/sections/enquiry-cta";
@@ -10,7 +15,12 @@ import { Notices } from "@/components/sections/notices";
 import { MissionPromise } from "@/components/sections/promise";
 import { WelcomeStatement } from "@/components/sections/welcome-statement";
 import { WhyBaliraja } from "@/components/sections/why-baliraja";
-import { campusLifeItems, studentVoices } from "@/lib/site";
+import {
+  campusLifeItems,
+  preparationExperiences,
+  preparationGuide,
+  studentVoices,
+} from "@/lib/site";
 
 export default function Home() {
   return (
@@ -18,6 +28,12 @@ export default function Home() {
       <Hero />
       <WelcomeStatement />
       <WhyBaliraja />
+      <ExperienceExplorer
+        eyebrow="Discover your path"
+        title="The preparation experience"
+        body="Before a student joins, they should be able to picture the work: classes, study hall, test pressure and a mentor who keeps the attempt realistic."
+        items={preparationExperiences}
+      />
       <ImageCardGrid
         eyebrow="Academy life"
         title="More than a classroom"
@@ -29,6 +45,7 @@ export default function Home() {
       <Gallery />
       <MissionPromise />
       <VoiceGrid voices={studentVoices} />
+      <GuideCtaPanel guide={preparationGuide} />
       <LatestUpdates />
       <Notices />
       <Blog />
