@@ -1,4 +1,5 @@
 import {
+  Bell,
   BookOpen,
   ExternalLink,
   FileText,
@@ -6,18 +7,21 @@ import {
   Inbox,
   LayoutDashboard,
   ShieldCheck,
+  Users,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   addAdminAction,
+  convertLeadToStudentAction,
   logoutAction,
   setAdminActiveAction,
   updateLeadAction,
 } from "@/app/crm/actions";
 import { BlogEditor } from "@/components/crm/blog-editor";
 import { CourseEditor } from "@/components/crm/course-editor";
+import { StudentAdminPanel } from "@/components/crm/student-admin-panel";
 import { type CrmAdmin, listAdmins } from "@/lib/crm/admins";
 import { requireAdminSession } from "@/lib/crm/auth";
 import { listBlogPosts } from "@/lib/crm/blog-posts";
@@ -30,6 +34,12 @@ import {
   leadStatuses,
   listLeads,
 } from "@/lib/crm/leads";
+import {
+  type CourseOption,
+  listCourseNotices,
+  listCourseOptions,
+  listStudents,
+} from "@/lib/crm/students";
 
 export const dynamic = "force-dynamic";
 
@@ -177,7 +187,13 @@ function AdminRow({
   );
 }
 
-function LeadRow({ lead }: { lead: Lead }) {
+function LeadRow({
+  lead,
+  courseOptions,
+}: {
+  lead: Lead;
+  courseOptions: CourseOption[];
+}) {
   return (
     <article className="grid gap-5 border-t border-line py-6 xl:grid-cols-[minmax(14rem,1.1fr)_minmax(13rem,0.9fr)_minmax(24rem,1.4fr)]">
       <div>
@@ -274,17 +290,80 @@ function LeadRow({ lead }: { lead: Lead }) {
           Save lead
         </button>
       </form>
+
+      {lead.email ? (
+        <form
+          action={convertLeadToStudentAction}
+          className="border border-line bg-parchment-deep p-4 xl:col-span-3"
+        >
+          <input type="hidden" name="leadId" value={lead.id} />
+          <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+            <div>
+              <label
+                htmlFor={`lead-course-${lead.id}`}
+                className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
+              >
+                Course
+              </label>
+              <select
+                id={`lead-course-${lead.id}`}
+                name="courseKey"
+                className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
+              >
+                <option value="">Match from lead track</option>
+                {courseOptions.map((course) => (
+                  <option key={course.key} value={course.key}>
+                    {course.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor={`lead-batch-${lead.id}`}
+                className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
+              >
+                Batch
+              </label>
+              <input
+                id={`lead-batch-${lead.id}`}
+                name="batchName"
+                placeholder="June 2026 morning"
+                className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-fit bg-brass-deep px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood"
+            >
+              Create student
+            </button>
+          </div>
+        </form>
+      ) : null}
     </article>
   );
 }
 
 export default async function CrmPage() {
-  const [session, leads, admins, blogPosts, coursePages] = await Promise.all([
+  const [
+    session,
+    leads,
+    admins,
+    blogPosts,
+    coursePages,
+    students,
+    courseNotices,
+    courseOptions,
+  ] = await Promise.all([
     requireAdminSession(),
     listLeads(),
     listAdmins(),
     listBlogPosts(),
     listCoursePages(),
+    listStudents(),
+    listCourseNotices(),
+    listCourseOptions(),
   ]);
   const stats = getLeadStats(leads);
   const env = getCrmEnvStatus();
@@ -328,11 +407,16 @@ export default async function CrmPage() {
           <EnvPill ok={env.databaseConfigured} label="Neon DB" />
           <EnvPill ok={env.blobConfigured} label="Blob" />
           <EnvPill ok={env.sessionSecretConfigured} label="Session secret" />
+          <EnvPill
+            ok={env.studentSessionSecretConfigured}
+            label="Student session"
+          />
+          <EnvPill ok={env.razorpayConfigured} label="Razorpay" />
         </div>
 
         <section
           id="crm-overview"
-          className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+          className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-5"
           aria-label="CRM quick links"
         >
           <CrmQuickLink
@@ -352,6 +436,12 @@ export default async function CrmPage() {
             title="Blog"
             body="Publish guidance articles with rich text, images, and SEO fields."
             icon={<FileText className="size-5" aria-hidden="true" />}
+          />
+          <CrmQuickLink
+            href="#crm-students"
+            title="Students"
+            body="Manage portal login, notices, course access, and fee invoices."
+            icon={<Users className="size-5" aria-hidden="true" />}
           />
           <CrmQuickLink
             href="#crm-admins"
@@ -387,6 +477,13 @@ export default async function CrmPage() {
             external
           />
           <CrmQuickLink
+            href="/student/login"
+            title="Student portal"
+            body="Open the student OTP login and fee dashboard entry point."
+            icon={<Bell className="size-5" aria-hidden="true" />}
+            external
+          />
+          <CrmQuickLink
             href="/admissions"
             title="Admissions"
             body="Test the enquiry form and track-prefilled submissions."
@@ -402,9 +499,21 @@ export default async function CrmPage() {
 
         <BlogEditor posts={blogPosts} usesBlobStorage={env.blobConfigured} />
 
+        <StudentAdminPanel
+          students={students}
+          notices={courseNotices}
+          courseOptions={courseOptions}
+        />
+
         <section id="crm-leads" className="mt-10 bg-parchment px-5 sm:px-7">
           {leads.length > 0 ? (
-            leads.map((lead) => <LeadRow key={lead.id} lead={lead} />)
+            leads.map((lead) => (
+              <LeadRow
+                key={lead.id}
+                lead={lead}
+                courseOptions={courseOptions}
+              />
+            ))
           ) : (
             <div className="py-16 text-center">
               <h2 className="font-display text-3xl text-oxblood">

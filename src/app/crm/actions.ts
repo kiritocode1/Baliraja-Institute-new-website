@@ -16,7 +16,18 @@ import {
   type CoursePageStatus,
   saveCoursePage,
 } from "@/lib/crm/course-pages";
-import { parseLeadStatus, updateLead } from "@/lib/crm/leads";
+import { getLeadById, parseLeadStatus, updateLead } from "@/lib/crm/leads";
+import {
+  createCourseNotice,
+  createEnrollment,
+  createFeeInvoice,
+  findCourseOption,
+  listCourseOptions,
+  type NoticeStatus,
+  type NoticeTargetScope,
+  saveStudent,
+  setStudentActive,
+} from "@/lib/crm/students";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -98,6 +109,48 @@ function parseCoursePageInput(input: CoursePageInput): CoursePageInput {
     seoDescription: String(input.seoDescription ?? "").trim() || null,
     displayOrder: Number.isFinite(displayOrder) ? displayOrder : 100,
   };
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function textareaToHtml(value: string) {
+  const trimmed = value.trim();
+
+  if (/<[a-z][\s\S]*>/i.test(trimmed)) return trimmed;
+
+  return trimmed
+    .split(/\n{2,}/)
+    .map(
+      (paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br>")}</p>`,
+    )
+    .join("");
+}
+
+function parseNoticeStatus(value: string): NoticeStatus {
+  if (value === "published" || value === "archived") return value;
+  return "draft";
+}
+
+function parseNoticeTargetScope(value: string): NoticeTargetScope {
+  if (value === "course" || value === "batch" || value === "student") {
+    return value;
+  }
+
+  return "all";
+}
+
+function parseRupeesToPaise(value: string) {
+  const amount = Number(value);
+
+  if (!Number.isFinite(amount)) return 0;
+
+  return Math.round(amount * 100);
 }
 
 export async function logoutAction() {
@@ -198,4 +251,169 @@ export async function saveCoursePageAction(
   revalidateCourseSurfaces();
 
   return { success: true, page };
+}
+
+export async function saveStudentAction(formData: FormData) {
+  await requireAdminSession();
+
+  const id = String(formData.get("id") ?? "").trim() || null;
+  const name = String(formData.get("name") ?? "").trim();
+  const email = normalizeEmail(String(formData.get("email") ?? ""));
+  const phone = String(formData.get("phone") ?? "").trim();
+  const guardianName =
+    String(formData.get("guardianName") ?? "").trim() || null;
+  const guardianPhone =
+    String(formData.get("guardianPhone") ?? "").trim() || null;
+  const notes = String(formData.get("notes") ?? "").trim() || null;
+
+  if (!name || !EMAIL_RE.test(email) || !phone) {
+    throw new Error("Student name, email, and phone are required.");
+  }
+
+  await saveStudent(id, {
+    name,
+    email,
+    phone,
+    guardianName,
+    guardianPhone,
+    active: true,
+    notes,
+  });
+  revalidatePath("/crm");
+  revalidatePath("/student");
+}
+
+export async function setStudentActiveAction(formData: FormData) {
+  await requireAdminSession();
+
+  const id = String(formData.get("id") ?? "").trim();
+  const active = String(formData.get("active") ?? "") === "true";
+
+  if (!id) throw new Error("Invalid student update.");
+
+  await setStudentActive(id, active);
+  revalidatePath("/crm");
+  revalidatePath("/student");
+}
+
+export async function createEnrollmentAction(formData: FormData) {
+  await requireAdminSession();
+
+  const studentId = String(formData.get("studentId") ?? "").trim();
+  const courseKey = String(formData.get("courseKey") ?? "").trim();
+  const batchName = String(formData.get("batchName") ?? "").trim() || null;
+
+  if (!studentId || !courseKey) {
+    throw new Error("Student and course are required.");
+  }
+
+  await createEnrollment({ studentId, courseKey, batchName });
+  revalidatePath("/crm");
+  revalidatePath("/student");
+}
+
+export async function convertLeadToStudentAction(formData: FormData) {
+  await requireAdminSession();
+
+  const leadId = String(formData.get("leadId") ?? "").trim();
+  const courseKey = String(formData.get("courseKey") ?? "").trim();
+  const batchName =
+    String(formData.get("batchName") ?? "").trim() || "Admissions batch";
+  const lead = await getLeadById(leadId);
+
+  if (!lead || !lead.email) {
+    throw new Error("Lead must have an email before student login can work.");
+  }
+
+  const student = await saveStudent(null, {
+    name: lead.name,
+    email: lead.email,
+    phone: lead.phone,
+    active: true,
+    notes: lead.message,
+  });
+
+  if (!student) throw new Error("Unable to create student.");
+
+  const options = await listCourseOptions();
+  const matchedCourse =
+    (courseKey ? await findCourseOption(courseKey) : null) ??
+    options.find(
+      (course) =>
+        course.title.toLowerCase() === lead.track.toLowerCase() ||
+        course.slug.toLowerCase() === lead.track.toLowerCase(),
+    );
+
+  if (matchedCourse) {
+    await createEnrollment({
+      studentId: student.id,
+      courseKey: matchedCourse.key,
+      batchName,
+    });
+  }
+
+  await updateLead(lead.id, {
+    status: "enrolled",
+    assignedTo: lead.assignedTo,
+    notes: lead.notes,
+  });
+  revalidatePath("/crm");
+  revalidatePath("/student");
+}
+
+export async function createCourseNoticeAction(formData: FormData) {
+  await requireAdminSession();
+
+  const title = String(formData.get("title") ?? "").trim();
+  const bodyHtml = textareaToHtml(String(formData.get("body") ?? ""));
+  const status = parseNoticeStatus(String(formData.get("status") ?? ""));
+  const targetScope = parseNoticeTargetScope(
+    String(formData.get("targetScope") ?? ""),
+  );
+
+  await createCourseNotice({
+    title,
+    bodyHtml,
+    status,
+    targetScope,
+    courseKey: String(formData.get("courseKey") ?? "").trim() || null,
+    batchName: String(formData.get("batchName") ?? "").trim() || null,
+    studentId: String(formData.get("studentId") ?? "").trim() || null,
+    attachmentUrl: String(formData.get("attachmentUrl") ?? "").trim() || null,
+    attachmentName: String(formData.get("attachmentName") ?? "").trim() || null,
+    expiresAt: String(formData.get("expiresAt") ?? "").trim() || null,
+  });
+  revalidatePath("/crm");
+  revalidatePath("/student");
+  revalidatePath("/student/notices");
+}
+
+export async function createFeeInvoiceAction(formData: FormData) {
+  await requireAdminSession();
+
+  const studentId = String(formData.get("studentId") ?? "").trim();
+  const enrollmentId =
+    String(formData.get("enrollmentId") ?? "").trim() || null;
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim() || null;
+  const amountPaise = parseRupeesToPaise(
+    String(formData.get("amountRupees") ?? ""),
+  );
+  const dueDate = String(formData.get("dueDate") ?? "").trim() || null;
+
+  if (!studentId || !title || amountPaise < 100) {
+    throw new Error("Student, fee title, and amount are required.");
+  }
+
+  await createFeeInvoice({
+    studentId,
+    enrollmentId,
+    title,
+    description,
+    amountPaise,
+    dueDate,
+  });
+  revalidatePath("/crm");
+  revalidatePath("/student");
+  revalidatePath("/student/fees");
 }
