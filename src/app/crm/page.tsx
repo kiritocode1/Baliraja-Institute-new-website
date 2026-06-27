@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { logoutAction, updateLeadAction } from "@/app/crm/actions";
+import {
+  addAdminAction,
+  logoutAction,
+  setAdminActiveAction,
+  updateLeadAction,
+} from "@/app/crm/actions";
+import { type CrmAdmin, listAdmins } from "@/lib/crm/admins";
 import { requireAdminSession } from "@/lib/crm/auth";
 import { getCrmEnvStatus } from "@/lib/crm/config";
 import {
@@ -48,6 +54,55 @@ function EnvPill({ ok, label }: { ok: boolean; label: string }) {
     >
       {label}: {ok ? "Ready" : "Missing"}
     </span>
+  );
+}
+
+function AdminRow({
+  admin,
+  currentEmail,
+}: {
+  admin: CrmAdmin;
+  currentEmail: string;
+}) {
+  const canDeactivateSelf = admin.email === currentEmail && admin.active;
+
+  return (
+    <article className="grid gap-4 border-t border-line py-5 md:grid-cols-[1fr_auto] md:items-center">
+      <div>
+        <div className="flex flex-wrap items-center gap-3">
+          <h3 className="text-base font-semibold text-ink">{admin.email}</h3>
+          <span
+            className={`border px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em] ${
+              admin.active
+                ? "border-brass text-brass-deep"
+                : "border-line-strong text-ink-soft"
+            }`}
+          >
+            {admin.active ? "Active" : "Inactive"}
+          </span>
+          <span className="text-[0.72rem] uppercase tracking-[0.14em] text-ink-soft">
+            {admin.source}
+          </span>
+        </div>
+        {admin.name && (
+          <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+            {admin.name}
+          </p>
+        )}
+      </div>
+      <form action={setAdminActiveAction}>
+        <input type="hidden" name="id" value={admin.id} />
+        <input type="hidden" name="email" value={admin.email} />
+        <input type="hidden" name="active" value={String(!admin.active)} />
+        <button
+          type="submit"
+          disabled={canDeactivateSelf}
+          className="border border-line-strong px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:border-oxblood hover:text-oxblood disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {admin.active ? "Deactivate" : "Activate"}
+        </button>
+      </form>
+    </article>
   );
 }
 
@@ -153,9 +208,10 @@ function LeadRow({ lead }: { lead: Lead }) {
 }
 
 export default async function CrmPage() {
-  const [session, leads] = await Promise.all([
+  const [session, leads, admins] = await Promise.all([
     requireAdminSession(),
     listLeads(),
+    listAdmins(),
   ]);
   const stats = getLeadStats(leads);
   const env = getCrmEnvStatus();
@@ -194,7 +250,7 @@ export default async function CrmPage() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <EnvPill ok={env.adminEmailsConfigured} label="Admin list" />
+          <EnvPill ok={admins.length > 0} label="Admin table" />
           <EnvPill ok={env.gmailConfigured} label="Gmail OTP" />
           <EnvPill ok={env.databaseConfigured} label="Neon DB" />
           <EnvPill ok={env.sessionSecretConfigured} label="Session secret" />
@@ -215,6 +271,70 @@ export default async function CrmPage() {
             </div>
           )}
         </div>
+
+        <section className="mt-10 bg-parchment px-5 py-7 sm:px-7">
+          <div className="grid gap-8 lg:grid-cols-[1fr_24rem]">
+            <div>
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-brass-deep">
+                Admins
+              </p>
+              <h2 className="mt-3 font-display text-4xl leading-none text-oxblood">
+                CRM access
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
+                Active admin records decide who can receive a login OTP.
+                Bootstrap emails only seed the table when it is empty.
+              </p>
+              <div className="mt-6">
+                {admins.map((admin) => (
+                  <AdminRow
+                    key={admin.id}
+                    admin={admin}
+                    currentEmail={session.email}
+                  />
+                ))}
+              </div>
+            </div>
+            <form
+              action={addAdminAction}
+              className="border-t border-line pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"
+            >
+              <h3 className="font-display text-2xl text-oxblood">Add admin</h3>
+              <label
+                htmlFor="admin-email"
+                className="mt-5 mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
+              >
+                Email
+              </label>
+              <input
+                id="admin-email"
+                name="email"
+                type="email"
+                required
+                placeholder="office@balirajaacademy.in"
+                className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
+              />
+              <label
+                htmlFor="admin-name"
+                className="mt-4 mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
+              >
+                Name
+              </label>
+              <input
+                id="admin-name"
+                name="name"
+                placeholder="Office staff"
+                className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
+              />
+              <button
+                type="submit"
+                className="mt-5 bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
+              >
+                Save admin
+              </button>
+            </form>
+          </div>
+        </section>
       </div>
     </section>
   );

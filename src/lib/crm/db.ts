@@ -25,6 +25,19 @@ export async function ensureCrmSchema() {
   if (schemaReady) return true;
 
   await db`
+    CREATE TABLE IF NOT EXISTS crm_admins (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      name TEXT,
+      role TEXT NOT NULL DEFAULT 'admin',
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      source TEXT NOT NULL DEFAULT 'manual',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
     CREATE TABLE IF NOT EXISTS crm_leads (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -51,6 +64,11 @@ export async function ensureCrmSchema() {
       used_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_admins_active_idx
+    ON crm_admins (active)
   `;
 
   await db`

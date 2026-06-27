@@ -1,11 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { isAdminEmail } from "@/lib/crm/admins";
 import { getAdminSession, setAdminSession } from "@/lib/crm/auth";
 import {
   CRM_OTP_TTL_MINUTES,
   getCrmEnvStatus,
-  isAdminEmail,
   normalizeEmail,
 } from "@/lib/crm/config";
 import { sendAdminOtpEmail } from "@/lib/crm/email";
@@ -36,14 +36,15 @@ export async function requestOtp(
     return { status: "error", message: "Enter a valid admin email address." };
   }
 
-  if (!env.adminEmailsConfigured) {
+  if (!env.databaseConfigured && !env.bootstrapAdminsConfigured) {
     return {
       status: "error",
-      message: "CRM_ADMIN_EMAILS is not configured yet.",
+      message:
+        "Add a database admin row or set CRM_BOOTSTRAP_ADMIN_EMAILS once.",
     };
   }
 
-  if (isAdminEmail(email)) {
+  if (await isAdminEmail(email)) {
     const otp = generateOtp();
 
     try {
@@ -79,7 +80,7 @@ export async function verifyOtpAction(
     };
   }
 
-  if (!isAdminEmail(email)) {
+  if (!(await isAdminEmail(email))) {
     return {
       status: "error",
       message: "This login code is invalid or expired.",

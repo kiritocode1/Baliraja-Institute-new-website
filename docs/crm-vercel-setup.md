@@ -4,7 +4,7 @@ The CRM is designed for a low-cost Vercel deployment:
 
 - Next.js App Router server actions for auth and CRM mutations
 - Gmail SMTP through `nodemailer` for OTP emails
-- Neon Postgres through the Vercel Marketplace for persistent CRM leads and OTPs
+- Neon Postgres through the Vercel Marketplace for admins, CRM leads, and OTPs
 - Signed HTTP-only cookies for admin sessions
 - No Resend dependency
 
@@ -13,7 +13,7 @@ The CRM is designed for a low-cost Vercel deployment:
 Set these in Vercel Project Settings:
 
 ```txt
-CRM_ADMIN_EMAILS=owner@example.com,counsellor@example.com
+CRM_BOOTSTRAP_ADMIN_EMAILS=owner@example.com,counsellor@example.com
 CRM_SESSION_SECRET=replace-with-at-least-32-random-characters
 GMAIL_SMTP_USER=baliraja.example@gmail.com
 GMAIL_SMTP_APP_PASSWORD=xxxx xxxx xxxx xxxx
@@ -33,15 +33,19 @@ Use a dedicated Gmail or Google Workspace mailbox for CRM login emails.
 
 Do not use the normal Gmail account password.
 
-## Admin allowlist
+## Admin access
 
-`CRM_ADMIN_EMAILS` is the source of truth for who can log in. The login flow
-only sends an OTP when the normalized email exists in that comma-separated list.
+`crm_admins` is the source of truth for who can log in. The login flow only sends
+an OTP when the normalized email exists in that table and is active.
+
+`CRM_BOOTSTRAP_ADMIN_EMAILS` is only a first-run seed. When the admin table is
+empty, the app inserts those comma-separated emails as active admins. After that,
+manage admins from the CRM dashboard.
 
 Examples:
 
 ```txt
-CRM_ADMIN_EMAILS=founder@balirajaacademy.in,office@balirajaacademy.in
+CRM_BOOTSTRAP_ADMIN_EMAILS=founder@balirajaacademy.in,office@balirajaacademy.in
 ```
 
 ## Database
@@ -50,6 +54,7 @@ Use Neon Postgres from the Vercel Marketplace so `DATABASE_URL` is injected into
 the Vercel project. The app creates the CRM tables automatically on first use:
 
 - `crm_leads`
+- `crm_admins`
 - `crm_admin_otps`
 
 Local development can run without `DATABASE_URL`; it falls back to `.data/`

@@ -3,7 +3,7 @@ export const CRM_SESSION_MAX_AGE_SECONDS = 60 * 60 * 12;
 export const CRM_OTP_TTL_MINUTES = 10;
 
 export type CrmEnvStatus = {
-  adminEmailsConfigured: boolean;
+  bootstrapAdminsConfigured: boolean;
   databaseConfigured: boolean;
   gmailConfigured: boolean;
   sessionSecretConfigured: boolean;
@@ -13,22 +13,22 @@ export function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
-export function getAdminEmails() {
+export function getBootstrapAdminEmails() {
   return new Set(
-    (process.env.CRM_ADMIN_EMAILS ?? "")
+    (
+      process.env.CRM_BOOTSTRAP_ADMIN_EMAILS ??
+      process.env.CRM_ADMIN_EMAILS ??
+      ""
+    )
       .split(",")
       .map((email) => normalizeEmail(email))
       .filter(Boolean),
   );
 }
 
-export function isAdminEmail(email: string) {
-  return getAdminEmails().has(normalizeEmail(email));
-}
-
 export function getCrmEnvStatus(): CrmEnvStatus {
   return {
-    adminEmailsConfigured: getAdminEmails().size > 0,
+    bootstrapAdminsConfigured: getBootstrapAdminEmails().size > 0,
     databaseConfigured: Boolean(process.env.DATABASE_URL),
     gmailConfigured: Boolean(
       process.env.GMAIL_SMTP_USER && process.env.GMAIL_SMTP_APP_PASSWORD,
