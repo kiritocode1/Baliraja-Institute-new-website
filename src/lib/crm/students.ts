@@ -984,6 +984,10 @@ export async function markInvoicePaidFromRazorpay(input: {
   const invoice = await getInvoiceByRazorpayOrder(input.orderId);
 
   if (!invoice) return null;
+  if (invoice.status === "paid") return invoice;
+  if (invoice.amountPaise !== input.amountPaise) {
+    throw new Error("Captured Razorpay amount does not match invoice amount.");
+  }
 
   const now = new Date().toISOString();
   const nextInvoice: FeeInvoice = {

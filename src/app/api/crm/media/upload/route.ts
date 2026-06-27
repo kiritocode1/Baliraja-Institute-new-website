@@ -7,13 +7,18 @@ import { hasBlobStorage, uploadCrmBlob } from "@/lib/crm/blob";
 
 export const runtime = "nodejs";
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = new Set([
+const MAX_UPLOAD_SIZE = 15 * 1024 * 1024;
+const ALLOWED_FILE_TYPES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
   "image/gif",
   "image/svg+xml",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ]);
 
 function getSafeExtension(file: File) {
@@ -30,21 +35,25 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file");
+    const folder = String(formData.get("folder") ?? "blog").trim();
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "No file provided." }, { status: 400 });
     }
 
-    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    if (!ALLOWED_FILE_TYPES.has(file.type)) {
       return NextResponse.json(
-        { error: "Unsupported file type. Use JPG, PNG, WEBP, GIF, or SVG." },
+        {
+          error:
+            "Unsupported file type. Use an image, PDF, Word, or PowerPoint file.",
+        },
         { status: 415 },
       );
     }
 
-    if (file.size > MAX_IMAGE_SIZE) {
+    if (file.size > MAX_UPLOAD_SIZE) {
       return NextResponse.json(
-        { error: "File too large. Maximum image size is 10MB." },
+        { error: "File too large. Maximum upload size is 15MB." },
         { status: 413 },
       );
     }
@@ -57,7 +66,8 @@ export async function POST(req: NextRequest) {
       year: "numeric",
       month: "2-digit",
     }).format(new Date());
-    const pathname = `blog/${month}/${safeName}`;
+    const bucketFolder = folder === "notices" ? "notices" : "blog";
+    const pathname = `${bucketFolder}/${month}/${safeName}`;
 
     if (hasBlobStorage()) {
       const blob = await uploadCrmBlob({
@@ -81,7 +91,7 @@ export async function POST(req: NextRequest) {
       process.cwd(),
       "public",
       "media",
-      "crm-blog",
+      `crm-${bucketFolder}`,
       month,
     );
     await mkdir(uploadDir, { recursive: true });
@@ -89,7 +99,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      url: `/media/crm-blog/${month}/${safeName}`,
+      url: `/media/crm-${bucketFolder}/${month}/${safeName}`,
       filename: file.name,
       size: file.size,
       type: file.type,
