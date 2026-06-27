@@ -52,3 +52,29 @@ export async function sendAdminOtpEmail(email: string, otp: string) {
 
   return { sent: true };
 }
+
+export async function sendStudentOtpEmail(email: string, otp: string) {
+  const mailer = getTransporter();
+  const from = getGmailFrom();
+
+  if (!mailer || !from) {
+    console.info(`[Student dev OTP] ${email}: ${otp}`);
+    return { sent: false, devCode: otp };
+  }
+
+  await mailer.sendMail({
+    from,
+    to: email,
+    subject: "Your Baliraja student login code",
+    text: `Your Baliraja student login code is ${otp}. It expires in 10 minutes.`,
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #231f20; line-height: 1.5;">
+        <p>Your Baliraja student portal login code is:</p>
+        <p style="font-size: 28px; letter-spacing: 6px; font-weight: 700;">${otp}</p>
+        <p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p>
+      </div>
+    `,
+  });
+
+  return { sent: true };
+}

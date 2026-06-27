@@ -111,6 +111,119 @@ export async function ensureCrmSchema() {
   `;
 
   await db`
+    CREATE TABLE IF NOT EXISTS crm_students (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      phone TEXT NOT NULL,
+      guardian_name TEXT,
+      guardian_phone TEXT,
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      notes TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_student_otps (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL,
+      otp_hash TEXT NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      used_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_student_enrollments (
+      id TEXT PRIMARY KEY,
+      student_id TEXT NOT NULL REFERENCES crm_students(id) ON DELETE CASCADE,
+      course_key TEXT NOT NULL,
+      course_title TEXT NOT NULL,
+      course_slug TEXT,
+      batch_name TEXT,
+      status TEXT NOT NULL DEFAULT 'active',
+      started_at TIMESTAMPTZ,
+      ended_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_course_notices (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      body_html TEXT NOT NULL,
+      attachment_url TEXT,
+      attachment_name TEXT,
+      target_scope TEXT NOT NULL DEFAULT 'all',
+      course_key TEXT,
+      batch_name TEXT,
+      student_id TEXT REFERENCES crm_students(id) ON DELETE SET NULL,
+      status TEXT NOT NULL DEFAULT 'draft',
+      published_at TIMESTAMPTZ,
+      expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_fee_invoices (
+      id TEXT PRIMARY KEY,
+      student_id TEXT NOT NULL REFERENCES crm_students(id) ON DELETE CASCADE,
+      enrollment_id TEXT REFERENCES crm_student_enrollments(id) ON DELETE SET NULL,
+      title TEXT NOT NULL,
+      description TEXT,
+      amount_paise INTEGER NOT NULL,
+      due_date DATE,
+      status TEXT NOT NULL DEFAULT 'pending',
+      razorpay_order_id TEXT UNIQUE,
+      receipt_number TEXT NOT NULL UNIQUE,
+      paid_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_fee_payments (
+      id TEXT PRIMARY KEY,
+      invoice_id TEXT NOT NULL REFERENCES crm_fee_invoices(id) ON DELETE CASCADE,
+      student_id TEXT NOT NULL REFERENCES crm_students(id) ON DELETE CASCADE,
+      razorpay_order_id TEXT NOT NULL,
+      razorpay_payment_id TEXT,
+      amount_paise INTEGER NOT NULL,
+      currency TEXT NOT NULL DEFAULT 'INR',
+      method TEXT,
+      status TEXT NOT NULL DEFAULT 'created',
+      signature_verified BOOLEAN NOT NULL DEFAULT FALSE,
+      captured_at TIMESTAMPTZ,
+      raw_payload JSONB,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_razorpay_events (
+      id TEXT PRIMARY KEY,
+      event_id TEXT UNIQUE,
+      event_type TEXT NOT NULL,
+      razorpay_order_id TEXT,
+      razorpay_payment_id TEXT,
+      signature TEXT NOT NULL,
+      raw_payload TEXT NOT NULL,
+      processed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
     CREATE INDEX IF NOT EXISTS crm_admins_active_idx
     ON crm_admins (active)
   `;
@@ -148,6 +261,41 @@ export async function ensureCrmSchema() {
   await db`
     CREATE INDEX IF NOT EXISTS crm_course_pages_updated_at_idx
     ON crm_course_pages (updated_at DESC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_students_active_idx
+    ON crm_students (active)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_student_otps_email_idx
+    ON crm_student_otps (email, created_at DESC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_student_enrollments_student_idx
+    ON crm_student_enrollments (student_id, status)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_course_notices_status_idx
+    ON crm_course_notices (status, published_at DESC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_fee_invoices_student_idx
+    ON crm_fee_invoices (student_id, status, due_date)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_fee_payments_order_idx
+    ON crm_fee_payments (razorpay_order_id)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_razorpay_events_order_idx
+    ON crm_razorpay_events (razorpay_order_id)
   `;
 
   schemaReady = true;

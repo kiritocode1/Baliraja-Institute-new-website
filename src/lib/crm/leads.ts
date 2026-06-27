@@ -171,6 +171,10 @@ export async function listLeads(limit = 100) {
   return readJsonFile<Lead[]>(LEADS_FILE, []);
 }
 
+export async function getLeadById(id: string) {
+  return (await listLeads(500)).find((lead) => lead.id === id) ?? null;
+}
+
 export async function updateLead(
   id: string,
   input: {
