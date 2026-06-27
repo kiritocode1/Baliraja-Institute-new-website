@@ -8,7 +8,8 @@ The CRM is designed for a low-cost Vercel deployment:
   blog/course content
 - Vercel Blob for blog images, course images, and future CRM files/document
   uploads
-- Signed HTTP-only cookies for admin sessions
+- Signed HTTP-only cookies for separate admin and student sessions
+- Razorpay Orders, Checkout, and signed webhooks for student fee invoices
 - No Resend dependency
 
 ## Required environment variables
@@ -18,12 +19,17 @@ Set these in Vercel Project Settings:
 ```txt
 CRM_BOOTSTRAP_ADMIN_EMAILS=owner@example.com,counsellor@example.com
 CRM_SESSION_SECRET=replace-with-at-least-32-random-characters
+STUDENT_SESSION_SECRET=replace-with-a-different-32-random-character-secret
 GMAIL_SMTP_USER=baliraja.example@gmail.com
 GMAIL_SMTP_APP_PASSWORD=xxxx xxxx xxxx xxxx
 GMAIL_FROM_EMAIL=baliraja.example@gmail.com
 GMAIL_FROM_NAME=Baliraja Institute
 DATABASE_URL=postgresql://...
 BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=...
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_WEBHOOK_SECRET=replace-with-razorpay-webhook-secret
 ```
 
 ## Gmail setup
@@ -55,13 +61,21 @@ CRM_BOOTSTRAP_ADMIN_EMAILS=founder@balirajaacademy.in,office@balirajaacademy.in
 ## Database
 
 Use Neon Postgres from the Vercel Marketplace so `DATABASE_URL` is injected into
-the Vercel project. The app creates the CRM tables automatically on first use:
+the Vercel project. The app creates the CRM and student tables automatically on
+first use:
 
 - `crm_leads`
 - `crm_admins`
 - `crm_admin_otps`
 - `crm_blog_posts`
 - `crm_course_pages`
+- `crm_students`
+- `crm_student_otps`
+- `crm_student_enrollments`
+- `crm_course_notices`
+- `crm_fee_invoices`
+- `crm_fee_payments`
+- `crm_razorpay_events`
 
 Local development can run without `DATABASE_URL`; it falls back to `.data/`
 files. Production should always use Neon because Vercel's filesystem is not
@@ -105,3 +119,37 @@ system simple:
 
 If the CRM later adds document uploads, use Vercel Blob only for those files and
 keep lead metadata in Neon.
+
+## Student portal
+
+Admins manage student records, enrollments, notices, and fees from `/crm`.
+Students log in at `/student/login` with Gmail OTP. The student session uses
+`STUDENT_SESSION_SECRET` and a separate cookie from the admin CRM session.
+
+Only active student rows can receive OTPs. Unknown or inactive email addresses
+get the same generic response as valid emails, but no code is sent.
+
+## Razorpay fees
+
+The student fee flow uses one-time invoices:
+
+1. Admin creates an invoice in `/crm`.
+2. Student opens `/student/fees` and starts Razorpay Checkout.
+3. The browser callback verifies `razorpay_order_id`,
+   `razorpay_payment_id`, and `razorpay_signature`, then leaves the invoice in
+   `processing`.
+4. The Razorpay webhook at `/api/razorpay/webhook` verifies
+   `x-razorpay-signature` and marks the invoice paid only for
+   `payment.captured`.
+5. Raw webhook payloads are stored in `crm_razorpay_events` for idempotency and
+   audit.
+
+In Razorpay Dashboard, configure the webhook URL as:
+
+```txt
+https://your-production-domain.example/api/razorpay/webhook
+```
+
+Subscribe at least to `payment.captured`; `payment.failed` can be enabled for
+audit visibility. Use the same dashboard webhook secret in
+`RAZORPAY_WEBHOOK_SECRET`.
