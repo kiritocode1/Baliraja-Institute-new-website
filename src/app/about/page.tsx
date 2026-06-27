@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: "About Baliraja",
   description:
     "Learn about Baliraja Institute Career Academy, Gangapur, its mentoring culture, exam preparation model and promise to educate and serve.",
+  alternates: { canonical: "/about" },
 };
 
 const pillarPoints = pillars.map((pillar) => ({

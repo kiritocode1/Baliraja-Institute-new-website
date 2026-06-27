@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Contact",
   description:
     "Contact Baliraja Institute Career Academy in Gangapur for admissions, courses, scholarships and campus visits.",
+  alternates: { canonical: "/contact-us" },
 };
 
 const contactCards = [

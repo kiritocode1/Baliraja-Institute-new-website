@@ -16,6 +16,13 @@ export const metadata: Metadata = {
   title: "Courses",
   description:
     "Explore Baliraja Institute exam tracks for MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP preparation.",
+  alternates: { canonical: "/courses" },
+  openGraph: {
+    title: "Courses",
+    description:
+      "Explore Baliraja Institute exam tracks for MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP preparation.",
+    url: "/courses",
+  },
 };
 
 function featuredBody(course: {

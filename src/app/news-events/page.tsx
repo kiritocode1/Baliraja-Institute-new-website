@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "News & Events",
   description:
     "Latest Baliraja Institute notices, test-series updates, events, admissions announcements and exam preparation insights.",
+  alternates: { canonical: "/news-events" },
 };
 
 const updateCards = updates.map((update) => ({

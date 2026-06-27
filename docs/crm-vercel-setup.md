@@ -5,8 +5,9 @@ The CRM is designed for a low-cost Vercel deployment:
 - Next.js App Router server actions for auth and CRM mutations
 - Gmail SMTP through `nodemailer` for OTP emails
 - Neon Postgres through the Vercel Marketplace for admins, CRM leads, OTPs, and
-  blog posts
-- Vercel Blob for blog images and future CRM files/document uploads
+  blog/course content
+- Vercel Blob for blog images, course images, and future CRM files/document
+  uploads
 - Signed HTTP-only cookies for admin sessions
 - No Resend dependency
 
@@ -60,6 +61,7 @@ the Vercel project. The app creates the CRM tables automatically on first use:
 - `crm_admins`
 - `crm_admin_otps`
 - `crm_blog_posts`
+- `crm_course_pages`
 
 Local development can run without `DATABASE_URL`; it falls back to `.data/`
 files. Production should always use Neon because Vercel's filesystem is not
@@ -67,10 +69,10 @@ persistent.
 
 ## Blob storage
 
-Use Vercel Blob for blog images and future CRM file storage, such as notice
-PDFs, concession documents, and gallery uploads. The app includes a CRM Blob
-helper under `src/lib/crm/blob.ts`, an authenticated media upload endpoint at
-`/api/crm/media/upload`, and reads the standard `BLOB_READ_WRITE_TOKEN`
+Use Vercel Blob for blog/course images and future CRM file storage, such as
+notice PDFs, concession documents, and gallery uploads. The app includes a CRM
+Blob helper under `src/lib/crm/blob.ts`, an authenticated media upload endpoint
+at `/api/crm/media/upload`, and reads the standard `BLOB_READ_WRITE_TOKEN`
 environment variable.
 
 Create and connect a Blob store from the linked project:
@@ -98,7 +100,7 @@ system simple:
 
 - Gmail handles OTP email, so there is no transactional email vendor bill.
 - Neon stores small CRM rows; leads and OTPs are tiny relational records.
-- Blob should only store files; lead/admin/blog metadata stays in Neon.
+- Blob should only store files; lead/admin/blog/course metadata stays in Neon.
 - CRM pages are dynamic and admin-only, so traffic should be low.
 
 If the CRM later adds document uploads, use Vercel Blob only for those files and

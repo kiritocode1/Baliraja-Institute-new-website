@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogPostBySlug, sanitizeBlogHtml } from "@/lib/crm/blog-posts";
+import { site } from "@/lib/site";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -19,6 +20,10 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
+function absoluteUrl(value: string) {
+  return new URL(value, site.websiteHref).toString();
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -32,12 +37,21 @@ export async function generateMetadata({
   return {
     title: post.seoTitle || post.title,
     description: post.seoDescription || post.excerpt,
+    alternates: { canonical: `/news-events/${post.slug}` },
     openGraph: {
       title: post.seoTitle || post.title,
       description: post.seoDescription || post.excerpt,
-      images: [{ url: post.image }],
+      url: `/news-events/${post.slug}`,
+      siteName: site.longName,
+      images: [{ url: absoluteUrl(post.image), alt: post.title }],
       type: "article",
       publishedTime: post.publishedAt ?? undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.seoTitle || post.title,
+      description: post.seoDescription || post.excerpt,
+      images: [absoluteUrl(post.image)],
     },
   };
 }
@@ -49,6 +63,29 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) notFound();
 
   const publishedDate = formatDate(post.publishedAt);
+  const url = `${site.websiteHref}/news-events/${post.slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.seoDescription || post.excerpt,
+    image: absoluteUrl(post.image),
+    datePublished: post.publishedAt ?? post.createdAt,
+    dateModified: post.updatedAt,
+    author: {
+      "@type": "Organization",
+      name: post.author || site.longName,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: site.longName,
+      logo: {
+        "@type": "ImageObject",
+        url: `${site.websiteHref}/icon.svg`,
+      },
+    },
+    mainEntityOfPage: url,
+  };
 
   return (
     <article className="bg-parchment">
@@ -114,6 +151,12 @@ export default async function BlogPostPage({ params }: PageProps) {
           />
         </div>
       </section>
+
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated from sanitized CRM strings and fixed site metadata.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </article>
   );
 }

@@ -25,6 +25,7 @@ export const metadata: Metadata = {
   title: "Admissions",
   description:
     "Enquire for admission to Baliraja Institute Career Academy, Gangapur. MPSC, UPSC, Banking, SSC, Police Bharti and Talathi batches.",
+  alternates: { canonical: "/admissions" },
 };
 
 const steps: { num: string; title: string; body: string }[] = [

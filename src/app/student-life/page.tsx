@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   title: "Student Life",
   description:
     "Explore student life at Baliraja Institute: reading hall, daily lectures, mock tests, defence practice, mentoring and student support.",
+  alternates: { canonical: "/student-life" },
 };
 
 export default function StudentLifePage() {

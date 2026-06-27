@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   ExperienceExplorer,
   GuideCtaPanel,
@@ -22,6 +23,10 @@ import {
   preparationGuide,
   studentVoices,
 } from "@/lib/site";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function Home() {
   const courseLinks = Object.fromEntries(

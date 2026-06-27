@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: "Scholarships",
   description:
     "Baliraja Institute scholarship and fee-concession options for farming families, merit students, defence aspirants and repeat-attempt students.",
+  alternates: { canonical: "/scholarships" },
 };
 
 export default function ScholarshipsPage() {

@@ -88,6 +88,16 @@ Suggested fields:
 - Admission form value
 - Related notices, updates, and scholarship options
 
+Implemented CRM foundation:
+- `crm_course_pages` stores editable pages for seeded tracks and custom course
+  pages.
+- Existing public course data is seeded from `featuredExams` and `examTracks`,
+  then overridden when an admin saves the matching course page.
+- `/crm` includes a WYSIWYG course editor with cover uploads, inline media,
+  draft/publish/archive status, display order, and SEO fields.
+- Published course pages feed `/courses`, `/courses/[slug]`, the home-page
+  exam-track links, and the dynamic sitemap.
+
 ### Batches and schedules
 
 Current surface:
