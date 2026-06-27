@@ -26,30 +26,30 @@ export type NavLink = { label: string; href: string };
 
 /** Top-bar primary links (desktop, inline). */
 export const primaryNav: NavLink[] = [
-  { label: "About", href: "/#about" },
-  { label: "Courses", href: "/#courses" },
-  { label: "Results", href: "/#record" },
+  { label: "About", href: "/about" },
+  { label: "Student Life", href: "/student-life" },
+  { label: "Courses", href: "/courses" },
   { label: "Admissions", href: "/admissions" },
 ];
 
 /** Overlay menu — large primary destinations. */
 export const overlayPrimary: NavLink[] = [
   { label: "Home", href: "/" },
-  { label: "About the Academy", href: "/#about" },
-  { label: "Exam Tracks", href: "/#courses" },
-  { label: "Our Record", href: "/#record" },
+  { label: "About Baliraja", href: "/about" },
+  { label: "Student Life", href: "/student-life" },
+  { label: "Courses", href: "/courses" },
   { label: "Admissions", href: "/admissions" },
+  { label: "Scholarships", href: "/scholarships" },
 ];
 
 /** Overlay menu — secondary destinations. */
 export const overlaySecondary: NavLink[] = [
   { label: "Why Baliraja", href: "/#why" },
-  { label: "Admission Process", href: "/#process" },
   { label: "Campus Gallery", href: "/#gallery" },
-  { label: "Latest Updates", href: "/#updates" },
+  { label: "News & Events", href: "/news-events" },
   { label: "Notices", href: "/#notices" },
-  { label: "Insights", href: "/#blog" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Insights", href: "/news-events" },
+  { label: "Contact", href: "/contact-us" },
 ];
 
 export const socials: NavLink[] = [
@@ -280,14 +280,14 @@ export const updates: Update[] = [
     title: "New NDA and Agniveer foundation batch begins this monsoon",
     date: "July 2026",
     image: unsplash("1615482319206-d2545553676e"),
-    href: "/#courses",
+    href: "/courses",
   },
   {
     tag: "Event",
     title: "Free SSB interview guidance camp for defence aspirants",
     date: "July 2026",
     image: unsplash("1726450663094-b90adfeea0f8"),
-    href: "/#courses",
+    href: "/news-events",
   },
   {
     tag: "Test Series",
@@ -301,7 +301,7 @@ export const updates: Update[] = [
     title: "Merit fee concession for farming families announced",
     date: "August 2026",
     image: unsplash("1561089489-f13d5e730d72"),
-    href: "/admissions",
+    href: "/scholarships",
   },
 ];
 
@@ -357,7 +357,7 @@ export const blogPosts: BlogPost[] = [
     category: "Strategy",
     readTime: "6 min read",
     image: unsplash("1434030216411-0b793f4b4173"),
-    href: "/#updates",
+    href: "/news-events",
   },
   {
     title: "The SSB interview: what selectors are really looking for",
@@ -366,7 +366,7 @@ export const blogPosts: BlogPost[] = [
     category: "Defence",
     readTime: "8 min read",
     image: unsplash("1585802540745-bb23da2d6246"),
-    href: "/#updates",
+    href: "/news-events",
   },
   {
     title: "Current affairs without the overwhelm: a daily method",
@@ -375,7 +375,7 @@ export const blogPosts: BlogPost[] = [
     category: "Method",
     readTime: "5 min read",
     image: unsplash("1495446815901-a7297e633e8d"),
-    href: "/#updates",
+    href: "/news-events",
   },
 ];
 

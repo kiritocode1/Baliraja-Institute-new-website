@@ -1,13 +1,18 @@
 "use client";
 
 import { useActionState, useId } from "react";
-import { submitEnquiry, type EnquiryState } from "@/app/admissions/actions";
-import { examTracks } from "@/lib/site";
+import { type EnquiryState, submitEnquiry } from "@/app/admissions/actions";
+import { examTracks, featuredExams } from "@/lib/site";
 
 const initialEnquiryState: EnquiryState = { status: "idle" };
 
 const fieldBase =
   "w-full border bg-parchment px-4 py-3.5 text-ink placeholder:text-ink-soft/60 transition-colors focus-visible:outline-none focus-visible:border-brass-deep";
+
+const trackOptions = [
+  ...featuredExams.map((track) => track.title),
+  ...examTracks.map((track) => track.title),
+];
 
 function ErrorText({ id, children }: { id: string; children?: string }) {
   if (!children) return null;
@@ -52,12 +57,20 @@ export function EnquiryForm({ defaultTrack = "" }: { defaultTrack?: string }) {
       {/* Honeypot */}
       <div aria-hidden="true" className="absolute h-0 w-0 overflow-hidden">
         <label htmlFor={id("company")}>Company</label>
-        <input id={id("company")} name="company" tabIndex={-1} autoComplete="off" />
+        <input
+          id={id("company")}
+          name="company"
+          tabIndex={-1}
+          autoComplete="off"
+        />
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor={id("name")} className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink">
+          <label
+            htmlFor={id("name")}
+            className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink"
+          >
             Full name <span className="text-destructive">*</span>
           </label>
           <input
@@ -75,7 +88,10 @@ export function EnquiryForm({ defaultTrack = "" }: { defaultTrack?: string }) {
         </div>
 
         <div>
-          <label htmlFor={id("phone")} className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink">
+          <label
+            htmlFor={id("phone")}
+            className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink"
+          >
             Phone <span className="text-destructive">*</span>
           </label>
           <input
@@ -94,7 +110,10 @@ export function EnquiryForm({ defaultTrack = "" }: { defaultTrack?: string }) {
         </div>
 
         <div>
-          <label htmlFor={id("email")} className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink">
+          <label
+            htmlFor={id("email")}
+            className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink"
+          >
             Email <span className="text-ink-soft">(optional)</span>
           </label>
           <input
@@ -111,7 +130,10 @@ export function EnquiryForm({ defaultTrack = "" }: { defaultTrack?: string }) {
         </div>
 
         <div>
-          <label htmlFor={id("track")} className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink">
+          <label
+            htmlFor={id("track")}
+            className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink"
+          >
             Exam track <span className="text-destructive">*</span>
           </label>
           <select
@@ -126,9 +148,9 @@ export function EnquiryForm({ defaultTrack = "" }: { defaultTrack?: string }) {
             <option value="" disabled>
               Select an exam
             </option>
-            {examTracks.map((t) => (
-              <option key={t.title} value={t.title}>
-                {t.title}
+            {trackOptions.map((track) => (
+              <option key={track} value={track}>
+                {track}
               </option>
             ))}
             <option value="Not sure yet">Not sure yet</option>
@@ -138,8 +160,12 @@ export function EnquiryForm({ defaultTrack = "" }: { defaultTrack?: string }) {
       </div>
 
       <div>
-        <label htmlFor={id("message")} className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink">
-          Anything we should know? <span className="text-ink-soft">(optional)</span>
+        <label
+          htmlFor={id("message")}
+          className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink"
+        >
+          Anything we should know?{" "}
+          <span className="text-ink-soft">(optional)</span>
         </label>
         <textarea
           id={id("message")}

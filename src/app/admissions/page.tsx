@@ -1,8 +1,19 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { RevealText } from "@/components/reveal-text";
 import { EnquiryForm } from "@/components/enquiry-form";
-import { examTracks, site } from "@/lib/site";
+import {
+  NextUpCta,
+  PageHero,
+  StatBand,
+  SupportGrid,
+} from "@/components/page-sections";
+import {
+  examTracks,
+  featuredExams,
+  proofStats,
+  site,
+  supportPoints,
+} from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Admissions",
@@ -34,32 +45,26 @@ export default async function AdmissionsPage({
   searchParams: Promise<{ track?: string }>;
 }) {
   const { track } = await searchParams;
+  const trackNames = [
+    ...featuredExams.map((exam) => exam.title),
+    ...examTracks.map((exam) => exam.title),
+  ];
   const validTrack =
-    track && examTracks.some((t) => t.title === track) ? track : "";
+    track && trackNames.some((trackName) => trackName === track) ? track : "";
 
   return (
     <div className="bg-parchment">
-      {/* Header band */}
-      <section className="border-b border-line bg-oxblood text-cream">
-        <div className="mx-auto max-w-[100rem] px-5 pb-16 pt-32 sm:px-8 sm:pb-20 sm:pt-40">
-          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-cream-muted">
-            Admissions · Open for the next batch
-          </p>
-          <h1 className="mt-5 max-w-[18ch] font-display text-[clamp(2.4rem,6vw,5rem)] font-light leading-[0.98] tracking-[-0.02em]">
-            <RevealText
-              text="Enquire for admission"
-              immediate
-              splitBy="words"
-              stagger={0.08}
-              distance={28}
-            />
-          </h1>
-          <p className="mt-6 max-w-xl text-pretty leading-relaxed text-cream/85">
-            One short form. No payment, no obligation. We read every enquiry and
-            call you back to plan your preparation in person.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Admissions · Open for the next batch"
+        title="Your journey starts here"
+        body="One short form. No payment, no obligation. We read every enquiry and call you back to plan the right track, batch timing and fee structure in person."
+        image="/hero-poster.jpg"
+        imageAlt="Baliraja Institute students beginning exam preparation"
+        actions={[
+          { href: "/courses", label: "Compare courses" },
+          { href: "/scholarships", label: "See concessions" },
+        ]}
+      />
 
       {/* Form + aside */}
       <section className="mx-auto max-w-[100rem] px-5 py-20 sm:px-8 sm:py-28">
@@ -108,10 +113,16 @@ export default async function AdmissionsPage({
                 Prefer to talk?
               </h2>
               <div className="mt-4 flex flex-col gap-1.5 text-[0.98rem]">
-                <a href={site.contact.phoneHref} className="link-hover link-hover--slide w-fit text-ink">
+                <a
+                  href={site.contact.phoneHref}
+                  className="link-hover link-hover--slide w-fit text-ink"
+                >
                   {site.contact.phone}
                 </a>
-                <a href={site.contact.emailHref} className="link-hover link-hover--slide w-fit text-ink">
+                <a
+                  href={site.contact.emailHref}
+                  className="link-hover link-hover--slide w-fit text-ink"
+                >
                   {site.contact.email}
                 </a>
                 <span className="text-ink-soft">{site.contact.hours}</span>
@@ -120,6 +131,21 @@ export default async function AdmissionsPage({
           </aside>
         </div>
       </section>
+
+      <StatBand stats={proofStats} />
+
+      <SupportGrid
+        eyebrow="Admissions support"
+        title="A mentor call before a commitment"
+        body="Admissions should help the student choose correctly. The counselling call covers exam track, attempt date, medium, fee support and daily study expectations."
+        points={supportPoints}
+      />
+
+      <NextUpCta
+        title="Scholarships"
+        body="Need fee support before joining a batch? Check concession pathways for rural, farming, defence and repeat-attempt students."
+        href="/scholarships"
+      />
     </div>
   );
 }
