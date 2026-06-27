@@ -5,6 +5,10 @@ import type { ReactNode } from "react";
 import { RevealText } from "@/components/reveal-text";
 import type {
   CampusLifeItem,
+  DiscoveryStep,
+  ExperiencePath,
+  FaqItem,
+  GuideCta,
   ProofStat,
   StudentVoice,
   SupportPoint,
@@ -329,6 +333,232 @@ export function SupportGrid({
                 {point.body}
               </p>
             </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function ExperienceExplorer({
+  eyebrow,
+  title,
+  body,
+  items,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  items: ExperiencePath[];
+}) {
+  return (
+    <section className="bg-parchment py-24 sm:py-32">
+      <div className="mx-auto grid max-w-[100rem] gap-12 px-5 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+        <div className="lg:sticky lg:top-28">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
+            {eyebrow}
+          </p>
+          <h2 className="mt-4 max-w-[10ch] font-display text-[clamp(2.6rem,6vw,5.8rem)] font-light leading-[0.95] tracking-normal text-oxblood">
+            <RevealText
+              text={title}
+              splitBy="words"
+              stagger={0.06}
+              distance={28}
+            />
+          </h2>
+          <p className="mt-7 max-w-md text-pretty text-[1rem] leading-relaxed text-ink-soft">
+            {body}
+          </p>
+        </div>
+
+        <div className="grid gap-px bg-line sm:grid-cols-2">
+          {items.map((item, index) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="group bg-parchment transition-colors hover:bg-parchment-deep"
+            >
+              <article className="flex min-h-full flex-col">
+                <div className="relative aspect-[5/4] overflow-hidden bg-oxblood-deep">
+                  <Image
+                    src={item.image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 36vw"
+                    className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-oxblood-deep/60 via-oxblood-deep/10 to-transparent" />
+                  <span className="absolute left-5 top-5 font-display text-3xl font-light text-brass-bright">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-6 sm:p-7">
+                  <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-brass-deep">
+                    {item.kicker}
+                  </p>
+                  <h3 className="mt-4 font-display text-[clamp(1.8rem,3vw,2.6rem)] font-normal leading-[1.02] text-oxblood">
+                    {item.title}
+                  </h3>
+                  <p className="mt-5 text-[0.96rem] leading-relaxed text-ink-soft">
+                    {item.body}
+                  </p>
+                  <span className="mt-7 inline-flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-oxblood">
+                    Explore
+                    <ArrowRight
+                      className="size-3.5 transition-transform group-hover:translate-x-1"
+                      aria-hidden="true"
+                    />
+                  </span>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function DiscoveryProcess({
+  eyebrow,
+  title,
+  body,
+  steps,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  steps: DiscoveryStep[];
+}) {
+  return (
+    <section className="bg-oxblood text-cream">
+      <div className="mx-auto grid max-w-[100rem] gap-12 px-5 py-24 sm:px-8 sm:py-32 lg:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-cream-muted">
+            {eyebrow}
+          </p>
+          <h2 className="mt-4 font-display text-[clamp(2.5rem,5.8vw,5.4rem)] font-light leading-[0.98] tracking-normal">
+            {title}
+          </h2>
+          <p className="mt-7 max-w-md text-pretty leading-relaxed text-cream-muted">
+            {body}
+          </p>
+        </div>
+
+        <div className="grid border-t border-cream/18 sm:grid-cols-2 sm:border-l sm:border-t-0">
+          {steps.map((step) => (
+            <article
+              key={step.label}
+              className="border-b border-cream/18 py-7 sm:border-r sm:p-8 [&:nth-last-child(-n+2)]:sm:border-b-0 [&:nth-child(2n)]:sm:border-r-0"
+            >
+              <p className="font-display text-4xl font-light text-brass-bright">
+                {step.label}
+              </p>
+              <h3 className="mt-5 font-display text-2xl font-normal leading-tight">
+                {step.title}
+              </h3>
+              <p className="mt-4 text-[0.95rem] leading-relaxed text-cream-muted">
+                {step.body}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function GuideCtaPanel({ guide }: { guide: GuideCta }) {
+  return (
+    <section className="bg-parchment-deep py-24 sm:py-32">
+      <div className="mx-auto grid max-w-[100rem] gap-px bg-line px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="relative min-h-[22rem] overflow-hidden bg-oxblood-deep lg:min-h-[34rem]">
+          <Image
+            src={guide.image}
+            alt={guide.imageAlt}
+            fill
+            sizes="(max-width: 1024px) 100vw, 45vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-oxblood-deep/72 to-transparent" />
+        </div>
+
+        <div className="bg-parchment p-7 sm:p-10 lg:p-14">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
+            {guide.eyebrow}
+          </p>
+          <h2 className="mt-4 max-w-[13ch] font-display text-[clamp(2.4rem,5vw,4.8rem)] font-light leading-[0.98] tracking-normal text-oxblood">
+            {guide.title}
+          </h2>
+          <p className="mt-6 max-w-xl text-pretty leading-relaxed text-ink-soft">
+            {guide.body}
+          </p>
+
+          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+            {guide.points.map((point) => (
+              <li
+                key={point}
+                className="border-t border-line pt-3 text-[0.94rem] font-medium leading-snug text-ink"
+              >
+                {point}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-9 flex flex-wrap items-center gap-4">
+            <Link
+              href={guide.primary.href}
+              className="inline-flex items-center gap-3 bg-oxblood px-6 py-3 text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-deep"
+            >
+              {guide.primary.label}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+            <Link
+              href={guide.secondary.href}
+              className="link-hover link-hover--slide text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-oxblood"
+            >
+              {guide.secondary.label}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function FaqBand({
+  eyebrow,
+  title,
+  body,
+  items,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  items: FaqItem[];
+}) {
+  return (
+    <section className="bg-parchment py-24 sm:py-32">
+      <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
+        <SectionIntro eyebrow={eyebrow} title={title} body={body} />
+        <div className="mt-12 border-y border-line">
+          {items.map((item) => (
+            <details
+              key={item.question}
+              className="group border-b border-line last:border-b-0"
+            >
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 marker:hidden">
+                <span className="font-display text-[clamp(1.4rem,2.5vw,2.2rem)] font-normal leading-tight text-oxblood">
+                  {item.question}
+                </span>
+                <span className="mt-1 grid size-8 shrink-0 place-items-center border border-line text-lg leading-none text-brass-deep transition-transform group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="max-w-3xl pb-7 text-[1rem] leading-relaxed text-ink-soft">
+                {item.answer}
+              </p>
+            </details>
           ))}
         </div>
       </div>
