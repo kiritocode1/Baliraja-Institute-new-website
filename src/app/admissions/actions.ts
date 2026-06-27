@@ -1,7 +1,6 @@
 "use server";
 
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import { createLead } from "@/lib/crm/leads";
 
 export type EnquiryState = {
   status: "idle" | "success" | "error";
@@ -45,21 +44,12 @@ export async function submitEnquiry(
     email: email || null,
     track,
     message: message || null,
-    receivedAt: new Date().toISOString(),
   };
 
-  // Local sink for development. In production, forward this to your email,
-  // CRM, or database instead (e.g. Resend, a Google Sheet, or PlanetScale).
   try {
-    const dir = path.join(process.cwd(), ".data");
-    await fs.mkdir(dir, { recursive: true });
-    await fs.appendFile(
-      path.join(dir, "enquiries.jsonl"),
-      `${JSON.stringify(enquiry)}\n`,
-      "utf8",
-    );
+    await createLead(enquiry);
   } catch (err) {
-    // Never lose the lead to a write failure; surface it server-side.
+    // Never block the visitor's confirmation because the CRM write failed.
     console.error("Enquiry received but not persisted:", enquiry, err);
   }
 
