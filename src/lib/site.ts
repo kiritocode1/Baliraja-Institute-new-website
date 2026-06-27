@@ -485,6 +485,157 @@ export const supportPoints: SupportPoint[] = [
   },
 ];
 
+export type ExperiencePath = {
+  kicker: string;
+  title: string;
+  body: string;
+  href: string;
+  image: string;
+};
+
+export const preparationExperiences: ExperiencePath[] = [
+  {
+    kicker: "Classes",
+    title: "Understand the syllabus before you chase it",
+    body: "Daily lectures break large exam demands into teachable blocks, revision loops and weekly targets.",
+    href: "/courses",
+    image: unsplash("1561089489-f13d5e730d72"),
+  },
+  {
+    kicker: "Study hall",
+    title: "A place where the hours become possible",
+    body: "Quiet desks, reference books and a serious room help students study beyond the lecture timetable.",
+    href: "/student-life",
+    image: unsplash("1513475382585-d06e58bcb0e0"),
+  },
+  {
+    kicker: "Testing",
+    title: "Know your score before the exam tells you",
+    body: "Full-length mocks, answer review and rank sheets make progress visible while there is still time to correct it.",
+    href: "/news-events",
+    image: unsplash("1434030216411-0b793f4b4173"),
+  },
+  {
+    kicker: "Mentoring",
+    title: "A plan shaped around your attempt",
+    body: "Mentors help students choose medium, batch pace, exam route and revision strategy without wasting months.",
+    href: "/about",
+    image: unsplash("1606761568499-6d2451b23c66"),
+  },
+];
+
+export type DiscoveryStep = {
+  label: string;
+  title: string;
+  body: string;
+};
+
+export const admissionsDiscoverySteps: DiscoveryStep[] = [
+  {
+    label: "01",
+    title: "Your background",
+    body: "We ask about your exam, education, language comfort, attempt history and the time you can realistically give.",
+  },
+  {
+    label: "02",
+    title: "Your current level",
+    body: "A diagnostic test or mentor conversation shows where you are strong and where the first month must focus.",
+  },
+  {
+    label: "03",
+    title: "Your support needs",
+    body: "Fee concessions, hostel and mess guidance, study-hall timing and family questions are discussed before joining.",
+  },
+  {
+    label: "04",
+    title: "Your batch route",
+    body: "You leave with a recommended batch, test calendar and next action instead of a generic brochure.",
+  },
+];
+
+export type GuideCta = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  image: string;
+  imageAlt: string;
+  points: string[];
+  primary: NavLink;
+  secondary: NavLink;
+};
+
+export const preparationGuide: GuideCta = {
+  eyebrow: "Preparation guide",
+  title: "Is Baliraja right for this attempt?",
+  body: "Use the enquiry call like a counselling session. Bring the exam you want, your attempt date, your weak areas and any fee or travel questions.",
+  image: unsplash("1495446815901-a7297e633e8d"),
+  imageAlt: "Open notes and books arranged for a competitive exam study plan",
+  points: [
+    "Which exam track should come first",
+    "How many months your current level needs",
+    "Which batch timing fits your routine",
+    "What fee support or visit documents to ask about",
+  ],
+  primary: { label: "Start the enquiry", href: "/admissions" },
+  secondary: { label: "Call the office", href: site.contact.phoneHref },
+};
+
+export type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+export const admissionsFaqs: FaqItem[] = [
+  {
+    question: "Do I need to know my exact exam before enquiring?",
+    answer:
+      "No. Share the broad direction, such as MPSC, defence, banking or police. A mentor can help narrow the track after understanding your level and timeline.",
+  },
+  {
+    question: "Can parents visit before admission?",
+    answer:
+      "Yes. Families can visit the campus, see the reading hall, discuss fees and ask practical questions before confirming a seat.",
+  },
+  {
+    question: "Is there Marathi and English-medium support?",
+    answer:
+      "Batch recommendations consider language comfort. Students can ask about Marathi and English-medium guidance during the mentor call.",
+  },
+  {
+    question: "How are scholarships or fee concessions decided?",
+    answer:
+      "Concessions are handled through a practical review of need, seriousness, diagnostic performance and available seats in the relevant batch.",
+  },
+  {
+    question: "Can I join only the test series?",
+    answer:
+      "Yes, depending on the exam and current schedule. Ask for the test-series calendar when you enquire.",
+  },
+];
+
+export const studentLifeFaqs: FaqItem[] = [
+  {
+    question: "How long can students use the study hall?",
+    answer:
+      "Study-hall access is built around the academy timetable, with extended hours during exam season when announced on the notice board.",
+  },
+  {
+    question: "Is hostel or mess support provided?",
+    answer:
+      "Baliraja guides outstation students toward practical hostel and mess options near the academy, especially for students coming from villages around Marathwada.",
+  },
+  {
+    question: "How often do students get feedback?",
+    answer:
+      "Mock tests, answer review and mentor conversations give students regular feedback on accuracy, speed, presentation and revision discipline.",
+  },
+  {
+    question: "Do defence students get physical-test guidance?",
+    answer:
+      "Army and Navy aspirants can ask for written preparation, physical-test targets and SSB orientation as part of one preparation route.",
+  },
+];
+
 export type StudentVoice = {
   name: string;
   track: string;
