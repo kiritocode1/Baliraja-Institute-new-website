@@ -184,6 +184,13 @@ Suggested fields:
 - Publish date
 - Draft/published status
 
+Implemented CRM foundation:
+- `crm_blog_posts` stores draft, published, and archived posts in Neon.
+- `/api/crm/media/upload` stores editor images in Vercel Blob when
+  `BLOB_READ_WRITE_TOKEN` is configured.
+- Local development falls back to `.data/crm-blog-posts.json` and
+  `public/media/crm-blog/`.
+
 ### Scholarships and concessions
 
 Current surface:

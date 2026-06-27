@@ -67,6 +67,26 @@ export async function ensureCrmSchema() {
   `;
 
   await db`
+    CREATE TABLE IF NOT EXISTS crm_blog_posts (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      excerpt TEXT NOT NULL,
+      body_html TEXT NOT NULL,
+      category TEXT NOT NULL,
+      author TEXT,
+      read_time TEXT NOT NULL,
+      image TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'draft',
+      seo_title TEXT,
+      seo_description TEXT,
+      published_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
     CREATE INDEX IF NOT EXISTS crm_admins_active_idx
     ON crm_admins (active)
   `;
@@ -84,6 +104,16 @@ export async function ensureCrmSchema() {
   await db`
     CREATE INDEX IF NOT EXISTS crm_admin_otps_email_idx
     ON crm_admin_otps (email, created_at DESC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_blog_posts_status_idx
+    ON crm_blog_posts (status, published_at DESC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_blog_posts_updated_at_idx
+    ON crm_blog_posts (updated_at DESC)
   `;
 
   schemaReady = true;

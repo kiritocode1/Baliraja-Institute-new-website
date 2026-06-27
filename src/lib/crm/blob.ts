@@ -10,11 +10,12 @@ export async function uploadCrmBlob(input: {
   pathname: string;
   body: Parameters<typeof put>[1];
   contentType?: string;
+  access?: "public" | "private";
 }) {
   const pathname = `${CRM_BLOB_PREFIX}${input.pathname.replace(/^\/+/, "")}`;
 
   return put(pathname, input.body, {
-    access: "private",
+    access: input.access ?? "private",
     addRandomSuffix: true,
     contentType: input.contentType,
   });
