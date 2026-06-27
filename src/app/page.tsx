@@ -21,7 +21,7 @@ export default function Home() {
       <ImageCardGrid
         eyebrow="Academy life"
         title="More than a classroom"
-        body="Wesley turns college life into a browsable experience. Baliraja now does the same for daily preparation, mentoring, testing and study spaces."
+        body="Daily preparation is easier to understand when students can see the routine: mentoring, testing, study spaces, current affairs and peer discipline."
         items={campusLifeItems}
       />
       <ExamTracks />

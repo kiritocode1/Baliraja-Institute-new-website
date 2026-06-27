@@ -40,7 +40,7 @@ export default function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="Visit the campus"
-        body="Wesley keeps contact and visit actions visible across the site. Baliraja’s contact page makes the same promise: clear address, phone, email and a simple path to admissions."
+        body="Clear contact details matter before a student commits: address, phone, email and a simple path to admissions."
         image="/hero-poster.jpg"
         imageAlt="Baliraja Institute campus visual"
         actions={[

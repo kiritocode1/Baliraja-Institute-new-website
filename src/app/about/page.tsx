@@ -48,7 +48,7 @@ export default function AboutPage() {
       <SupportGrid
         eyebrow="Promise"
         title="To educate and to serve"
-        body="The Wesley reference uses mission, values and community proof as a spine. Baliraja’s version is simpler and more direct: teach well, mentor closely and keep rural students in the room."
+        body="Baliraja’s promise is simple and direct: teach well, mentor closely and keep rural students in the room long enough to compete with confidence."
         points={pillarPoints}
       />
 

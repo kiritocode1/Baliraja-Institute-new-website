@@ -21,7 +21,7 @@ export default function ScholarshipsPage() {
       <PageHero
         eyebrow="Scholarships"
         title="Support for serious students"
-        body="Wesley makes scholarships visible as a first-class admissions pathway. Baliraja’s version focuses on practical concessions for rural, farming, defence and repeat-attempt students."
+        body="Fee support should be easy to find before a family visits the office. Baliraja focuses on practical concessions for rural, farming, defence and repeat-attempt students."
         image="/img-study.jpg"
         imageAlt="A student writing notes during competitive exam preparation"
         actions={[

@@ -37,7 +37,7 @@ export default function NewsEventsPage() {
       <PageHero
         eyebrow="News & events"
         title="Academy stories and notices"
-        body="Wesley uses stories to keep the college active and current. Baliraja’s page gives students one place for admissions notices, test-series updates, exam guidance and event announcements."
+        body="Students need one place for admissions notices, test-series updates, exam guidance and event announcements."
         image="/img-classroom.jpg"
         imageAlt="Students in a Baliraja Institute classroom"
         actions={[
@@ -49,7 +49,7 @@ export default function NewsEventsPage() {
       <ImageCardGrid
         eyebrow="Latest"
         title="Updates students should not miss"
-        body="A visual card rail gives admissions, test series and event updates the same weight Wesley gives college stories."
+        body="A visual update section gives admissions, test series and events enough weight to be seen quickly."
         items={updateCards}
       />
 
@@ -91,7 +91,7 @@ export default function NewsEventsPage() {
       <ImageCardGrid
         eyebrow="Insights"
         title="Preparation stories"
-        body="Short article cards give the institute an active editorial layer like Wesley’s College Stories area."
+        body="Short article cards give the institute an active editorial layer for study methods, exam craft and mentoring notes."
         items={insightCards}
       />
 

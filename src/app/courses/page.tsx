@@ -28,7 +28,7 @@ export default function CoursesPage() {
       <PageHero
         eyebrow="Courses"
         title="Choose the right exam track"
-        body="Wesley groups student pathways clearly. Baliraja does the same here: defence entries, civil services, banking, SSC, police and local government tracks are separated so students can choose with confidence."
+        body="Defence entries, civil services, banking, SSC, police and local government tracks are separated clearly so students can choose with confidence."
         image="/img-reading.jpg"
         imageAlt="A Baliraja student reading exam preparation material"
         actions={[
