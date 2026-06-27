@@ -1,4 +1,4 @@
-import { BalirajaCrest } from "@/components/baliraja-crest";
+import { BrandLogo } from "@/components/brand-logo";
 import { SlideUnderlineLink } from "@/components/links";
 import { examTracks, site, socials } from "@/lib/site";
 
@@ -48,10 +48,8 @@ export function SiteFooter() {
       <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
         {/* Masthead */}
         <div className="flex flex-col gap-8 border-b border-cream/15 py-14 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex items-center gap-4">
-            <span className="grid place-items-center border border-cream/30 px-2.5 py-2">
-              <BalirajaCrest className="h-10 w-auto text-cream" />
-            </span>
+          <div className="flex items-center gap-5">
+            <BrandLogo className="w-36 shrink-0 sm:w-44" />
             <div>
               <p className="font-display text-xl leading-none">
                 {site.longName}

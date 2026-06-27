@@ -5,7 +5,7 @@ import { SplitText } from "gsap/SplitText";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BalirajaCrest } from "@/components/baliraja-crest";
+import { BrandLogo } from "@/components/brand-logo";
 import { SvgUnderlineLink } from "@/components/links";
 import {
   overlayPrimary,
@@ -25,39 +25,16 @@ function Crest({ light }: { light: boolean }) {
     <Link
       href="/"
       aria-label={`${site.longName}, ${site.place} — home`}
-      className="group flex items-center gap-3"
+      className="group flex items-center"
     >
-      <span
+      <BrandLogo
         className={cn(
-          "grid place-items-center border px-2.5 py-1.5 transition-colors",
-          light ? "border-cream/35" : "border-line-strong",
+          "w-[7.2rem] sm:w-[8.2rem]",
+          light
+            ? "drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
+            : "mix-blend-difference",
         )}
-      >
-        <BalirajaCrest
-          className={cn(
-            "h-10 w-auto transition-colors",
-            light ? "text-cream" : "text-oxblood",
-          )}
-        />
-      </span>
-      <span className="hidden leading-none sm:block">
-        <span
-          className={cn(
-            "block font-display text-[0.95rem] tracking-tight transition-colors",
-            light ? "text-cream" : "text-ink",
-          )}
-        >
-          Baliraja Institute
-        </span>
-        <span
-          className={cn(
-            "mt-1 block text-[0.62rem] font-medium uppercase tracking-[0.2em] transition-colors",
-            light ? "text-cream-muted" : "text-ink-soft",
-          )}
-        >
-          Career Academy · {site.place}
-        </span>
-      </span>
+      />
     </Link>
   );
 }
