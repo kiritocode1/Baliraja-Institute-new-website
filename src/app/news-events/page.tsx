@@ -7,7 +7,8 @@ import {
   PageHero,
   SectionIntro,
 } from "@/components/page-sections";
-import { blogPosts, notices, updates } from "@/lib/site";
+import { listPublishedBlogCards } from "@/lib/crm/blog-posts";
+import { notices, updates } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "News & Events",
@@ -23,15 +24,16 @@ const updateCards = updates.map((update) => ({
   href: update.href,
 }));
 
-const insightCards = blogPosts.map((post) => ({
-  eyebrow: post.category,
-  title: post.title,
-  body: `${post.excerpt} ${post.readTime}.`,
-  image: post.image,
-  href: post.href,
-}));
+export default async function NewsEventsPage() {
+  const blogPosts = await listPublishedBlogCards();
+  const insightCards = blogPosts.map((post) => ({
+    eyebrow: post.category,
+    title: post.title,
+    body: `${post.excerpt} ${post.readTime}.`,
+    image: post.image,
+    href: post.href,
+  }));
 
-export default function NewsEventsPage() {
   return (
     <div className="bg-parchment">
       <PageHero

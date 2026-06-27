@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { RevealText } from "@/components/reveal-text";
-import { blogPosts } from "@/lib/site";
+import { listPublishedBlogCards } from "@/lib/crm/blog-posts";
 
-export function Blog() {
+export async function Blog() {
+  const blogPosts = await listPublishedBlogCards(3);
+
   return (
     <section id="blog" className="bg-parchment py-24 sm:py-32">
       <div className="mx-auto max-w-[100rem] px-5 sm:px-8">

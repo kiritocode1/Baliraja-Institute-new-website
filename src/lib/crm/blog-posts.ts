@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
-import { blogPosts as staticBlogPosts } from "@/lib/site";
 import { ensureCrmSchema, getSql } from "@/lib/crm/db";
 import { readJsonFile, writeJsonFile } from "@/lib/crm/local-store";
+import { blogPosts as staticBlogPosts } from "@/lib/site";
 
 export const blogPostStatuses = ["draft", "published", "archived"] as const;
 
@@ -110,6 +110,28 @@ function safeUrl(value: string, allowedDataImages = false) {
   return "";
 }
 
+function safeCoverImageUrl(value: string) {
+  const trimmed = value.trim();
+
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
+
+  try {
+    const url = new URL(trimmed);
+
+    if (
+      url.protocol === "https:" &&
+      (url.hostname === "images.unsplash.com" ||
+        url.hostname.endsWith(".public.blob.vercel-storage.com"))
+    ) {
+      return trimmed;
+    }
+  } catch {
+    return "";
+  }
+
+  return "";
+}
+
 export function sanitizeBlogHtml(input: string) {
   const allowedTags = new Set([
     "a",
@@ -152,9 +174,7 @@ export function sanitizeBlogHtml(input: string) {
       const attrs: string[] = [];
       const attrRe =
         /([a-zA-Z0-9:-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
-      let attrMatch: RegExpExecArray | null;
-
-      while ((attrMatch = attrRe.exec(String(rawAttrs)))) {
+      for (const attrMatch of String(rawAttrs).matchAll(attrRe)) {
         const name = attrMatch[1].toLowerCase();
         const value = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? "";
 
@@ -227,7 +247,7 @@ function normalizeInput(
     category: cleanText(input.category) || DEFAULT_CATEGORY,
     author: cleanText(input.author) || null,
     readTime: cleanText(input.readTime) || estimateReadTime(bodyHtml),
-    image: safeUrl(cleanText(input.image)) || DEFAULT_IMAGE,
+    image: safeCoverImageUrl(cleanText(input.image)) || DEFAULT_IMAGE,
     status,
     seoTitle: cleanText(input.seoTitle) || null,
     seoDescription: cleanText(input.seoDescription) || null,

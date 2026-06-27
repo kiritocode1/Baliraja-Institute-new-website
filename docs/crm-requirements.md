@@ -190,6 +190,10 @@ Implemented CRM foundation:
   `BLOB_READ_WRITE_TOKEN` is configured.
 - Local development falls back to `.data/crm-blog-posts.json` and
   `public/media/crm-blog/`.
+- `/crm` includes a WYSIWYG-style editor with formatting controls, cover-image
+  upload, inline image paste/upload, SEO fields, and draft/publish controls.
+- Published posts feed the home-page insights, `/news-events` cards, and
+  `/news-events/[slug]` article pages.
 
 ### Scholarships and concessions
 

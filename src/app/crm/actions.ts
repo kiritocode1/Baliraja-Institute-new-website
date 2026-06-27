@@ -4,10 +4,52 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { addAdmin, setAdminActive } from "@/lib/crm/admins";
 import { clearAdminSession, requireAdminSession } from "@/lib/crm/auth";
+import {
+  type BlogPostInput,
+  createBlogPost,
+  deleteBlogPost,
+  updateBlogPost,
+} from "@/lib/crm/blog-posts";
 import { normalizeEmail } from "@/lib/crm/config";
 import { parseLeadStatus, updateLead } from "@/lib/crm/leads";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function revalidateBlogSurfaces() {
+  revalidatePath("/crm");
+  revalidatePath("/");
+  revalidatePath("/news-events");
+  revalidatePath("/news-events/[slug]", "page");
+}
+
+function parseBlogPostInput(input: BlogPostInput): BlogPostInput {
+  const title = String(input.title ?? "").trim();
+  const excerpt = String(input.excerpt ?? "").trim();
+  const bodyHtml = String(input.bodyHtml ?? "").trim();
+  const category = String(input.category ?? "").trim() || "Guidance";
+  const image = String(input.image ?? "").trim() || "/img-classroom.jpg";
+
+  if (!title || !excerpt || !bodyHtml) {
+    throw new Error("Title, excerpt, and article body are required.");
+  }
+
+  return {
+    title,
+    slug: String(input.slug ?? "").trim(),
+    excerpt,
+    bodyHtml,
+    category,
+    author: String(input.author ?? "").trim() || null,
+    readTime: String(input.readTime ?? "").trim(),
+    image,
+    status:
+      input.status === "published" || input.status === "archived"
+        ? input.status
+        : "draft",
+    seoTitle: String(input.seoTitle ?? "").trim() || null,
+    seoDescription: String(input.seoDescription ?? "").trim() || null,
+  };
+}
 
 export async function logoutAction() {
   await clearAdminSession();
@@ -60,4 +102,39 @@ export async function setAdminActiveAction(formData: FormData) {
 
   await setAdminActive(id, active);
   revalidatePath("/crm");
+}
+
+export async function createBlogPostAction(input: BlogPostInput) {
+  await requireAdminSession();
+
+  const post = await createBlogPost(parseBlogPostInput(input));
+  revalidateBlogSurfaces();
+
+  return { success: true, post };
+}
+
+export async function updateBlogPostAction(id: string, input: BlogPostInput) {
+  await requireAdminSession();
+
+  if (!id) {
+    throw new Error("Invalid blog post update.");
+  }
+
+  const post = await updateBlogPost(id, parseBlogPostInput(input));
+  revalidateBlogSurfaces();
+
+  return { success: true, post };
+}
+
+export async function deleteBlogPostAction(id: string) {
+  await requireAdminSession();
+
+  if (!id) {
+    throw new Error("Invalid blog post delete.");
+  }
+
+  await deleteBlogPost(id);
+  revalidateBlogSurfaces();
+
+  return { success: true };
 }

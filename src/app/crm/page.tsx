@@ -5,8 +5,10 @@ import {
   setAdminActiveAction,
   updateLeadAction,
 } from "@/app/crm/actions";
+import { BlogEditor } from "@/components/crm/blog-editor";
 import { type CrmAdmin, listAdmins } from "@/lib/crm/admins";
 import { requireAdminSession } from "@/lib/crm/auth";
+import { listBlogPosts } from "@/lib/crm/blog-posts";
 import { getCrmEnvStatus } from "@/lib/crm/config";
 import {
   getLeadStats,
@@ -208,10 +210,11 @@ function LeadRow({ lead }: { lead: Lead }) {
 }
 
 export default async function CrmPage() {
-  const [session, leads, admins] = await Promise.all([
+  const [session, leads, admins, blogPosts] = await Promise.all([
     requireAdminSession(),
     listLeads(),
     listAdmins(),
+    listBlogPosts(),
   ]);
   const stats = getLeadStats(leads);
   const env = getCrmEnvStatus();
@@ -256,6 +259,8 @@ export default async function CrmPage() {
           <EnvPill ok={env.blobConfigured} label="Blob" />
           <EnvPill ok={env.sessionSecretConfigured} label="Session secret" />
         </div>
+
+        <BlogEditor posts={blogPosts} usesBlobStorage={env.blobConfigured} />
 
         <div className="mt-10 bg-parchment px-5 sm:px-7">
           {leads.length > 0 ? (
