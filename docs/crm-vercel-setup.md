@@ -5,6 +5,7 @@ The CRM is designed for a low-cost Vercel deployment:
 - Next.js App Router server actions for auth and CRM mutations
 - Gmail SMTP through `nodemailer` for OTP emails
 - Neon Postgres through the Vercel Marketplace for admins, CRM leads, and OTPs
+- Vercel Blob for future CRM files and document uploads
 - Signed HTTP-only cookies for admin sessions
 - No Resend dependency
 
@@ -20,6 +21,7 @@ GMAIL_SMTP_APP_PASSWORD=xxxx xxxx xxxx xxxx
 GMAIL_FROM_EMAIL=baliraja.example@gmail.com
 GMAIL_FROM_NAME=Baliraja Institute
 DATABASE_URL=postgresql://...
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
 ```
 
 ## Gmail setup
@@ -61,6 +63,31 @@ Local development can run without `DATABASE_URL`; it falls back to `.data/`
 files. Production should always use Neon because Vercel's filesystem is not
 persistent.
 
+## Blob storage
+
+Use Vercel Blob for future CRM file storage, such as notice PDFs, concession
+documents, and gallery uploads. The app includes a CRM Blob helper under
+`src/lib/crm/blob.ts` and reads the standard `BLOB_READ_WRITE_TOKEN` environment
+variable.
+
+Create and connect a Blob store from the linked project:
+
+```bash
+vercel blob create-store baliraja-crm --access private --yes
+```
+
+If your installed Vercel CLI exposes the older command shape, use:
+
+```bash
+vercel blob store add baliraja-crm
+```
+
+After connecting the store, pull env vars locally:
+
+```bash
+vercel env pull .env.local --yes
+```
+
 ## Budget notes
 
 For the current CRM scope, the $20 Vercel tier should be protected by keeping the
@@ -68,7 +95,7 @@ system simple:
 
 - Gmail handles OTP email, so there is no transactional email vendor bill.
 - Neon stores small CRM rows; leads and OTPs are tiny relational records.
-- No image or document upload is implemented yet, so Blob storage is not used.
+- Blob should only store files; lead/admin metadata stays in Neon.
 - CRM pages are dynamic and admin-only, so traffic should be low.
 
 If the CRM later adds document uploads, use Vercel Blob only for those files and

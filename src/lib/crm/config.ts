@@ -4,6 +4,7 @@ export const CRM_OTP_TTL_MINUTES = 10;
 
 export type CrmEnvStatus = {
   bootstrapAdminsConfigured: boolean;
+  blobConfigured: boolean;
   databaseConfigured: boolean;
   gmailConfigured: boolean;
   sessionSecretConfigured: boolean;
@@ -29,6 +30,7 @@ export function getBootstrapAdminEmails() {
 export function getCrmEnvStatus(): CrmEnvStatus {
   return {
     bootstrapAdminsConfigured: getBootstrapAdminEmails().size > 0,
+    blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
     databaseConfigured: Boolean(process.env.DATABASE_URL),
     gmailConfigured: Boolean(
       process.env.GMAIL_SMTP_USER && process.env.GMAIL_SMTP_APP_PASSWORD,

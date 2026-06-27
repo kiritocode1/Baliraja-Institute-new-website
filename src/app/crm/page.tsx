@@ -253,6 +253,7 @@ export default async function CrmPage() {
           <EnvPill ok={admins.length > 0} label="Admin table" />
           <EnvPill ok={env.gmailConfigured} label="Gmail OTP" />
           <EnvPill ok={env.databaseConfigured} label="Neon DB" />
+          <EnvPill ok={env.blobConfigured} label="Blob" />
           <EnvPill ok={env.sessionSecretConfigured} label="Session secret" />
         </div>
 
