@@ -2,6 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { whyPoints } from "@/lib/site";
 
+const marqueeA = ["a-one", "a-two", "a-three", "a-four"];
+const marqueeB = ["b-one", "b-two", "b-three", "b-four"];
+
 function Diamond() {
   return (
     <svg
@@ -29,16 +32,14 @@ export function WhyBaliraja() {
   return (
     <section id="why" className="overflow-hidden bg-parchment py-24 sm:py-32">
       {/* Marquee heading */}
-      <div
-        className="marquee relative flex w-full select-none overflow-hidden"
-        aria-label="Why Baliraja"
-      >
+      <div className="marquee relative flex w-full select-none overflow-hidden">
+        <span className="sr-only">Why Baliraja</span>
         <div className="marquee-track" aria-hidden="true">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <MarqueeUnit key={`a-${i}`} />
+          {marqueeA.map((key) => (
+            <MarqueeUnit key={key} />
           ))}
-          {Array.from({ length: 4 }).map((_, i) => (
-            <MarqueeUnit key={`b-${i}`} />
+          {marqueeB.map((key) => (
+            <MarqueeUnit key={key} />
           ))}
         </div>
       </div>
@@ -75,8 +76,15 @@ export function WhyBaliraja() {
 
           <ul className="flex flex-col gap-3.5">
             {whyPoints.map((point) => (
-              <li key={point} className="flex gap-3.5 text-[0.98rem] leading-relaxed text-ink-soft">
-                <svg viewBox="0 0 24 24" className="mt-1.5 h-2.5 w-2.5 shrink-0 text-brass-deep" aria-hidden="true">
+              <li
+                key={point}
+                className="flex gap-3.5 text-[0.98rem] leading-relaxed text-ink-soft"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="mt-1.5 h-2.5 w-2.5 shrink-0 text-brass-deep"
+                  aria-hidden="true"
+                >
                   <path d="M12 0 L24 12 L12 24 L0 12 Z" fill="currentColor" />
                 </svg>
                 <span>{point}</span>
@@ -88,7 +96,9 @@ export function WhyBaliraja() {
             href="/admissions"
             className="group inline-flex w-fit items-center gap-3 text-[0.82rem] font-semibold uppercase tracking-[0.16em] text-oxblood"
           >
-            <span className="link-hover link-hover--slide">Begin your enquiry</span>
+            <span className="link-hover link-hover--slide">
+              Begin your enquiry
+            </span>
             <span
               className="grid h-9 w-9 place-items-center rounded-full border border-line-strong transition-colors group-hover:border-oxblood group-hover:bg-oxblood group-hover:text-cream"
               aria-hidden="true"

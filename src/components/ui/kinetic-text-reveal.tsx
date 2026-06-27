@@ -1,20 +1,20 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import {
   motion,
-  useReducedMotion,
   type Transition,
+  useReducedMotion,
   type Variants,
 } from "framer-motion";
 import {
   forwardRef,
+  type HTMLAttributes,
   useEffect,
   useImperativeHandle,
   useMemo,
   useState,
-  type HTMLAttributes,
 } from "react";
+import { cn } from "@/lib/utils";
 
 type SplitMode = "words" | "characters" | "lines";
 type RevealDirection = "up" | "down" | "left" | "right";
@@ -27,10 +27,8 @@ export interface KineticTextRevealRef {
   reset: () => void;
 }
 
-interface KineticTextRevealProps extends Omit<
-  HTMLAttributes<HTMLSpanElement>,
-  "children"
-> {
+interface KineticTextRevealProps
+  extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
   /** Text content to reveal. */
   text: string;
   /** Additional CSS classes for the outer element. */
@@ -67,6 +65,7 @@ interface Segment {
   value: string;
   animated: boolean;
   index: number;
+  key: string;
 }
 
 function splitIntoGraphemes(value: string): string[] {
@@ -82,33 +81,45 @@ function getSegments(text: string, splitBy: SplitMode): Segment[] {
   let animatedIndex = 0;
 
   if (splitBy === "lines") {
+    let cursor = 0;
     return text.split("\n").map((line) => {
       const animated = line.length > 0;
+      const key = `${cursor}-${line}`;
+      cursor += line.length + 1;
       return {
         value: line,
         animated,
         index: animated ? animatedIndex++ : -1,
+        key,
       };
     });
   }
 
   if (splitBy === "characters") {
+    let cursor = 0;
     return splitIntoGraphemes(text).map((character) => {
       const animated = !/\s/.test(character);
+      const key = `${cursor}-${character}`;
+      cursor += character.length;
       return {
         value: character,
         animated,
         index: animated ? animatedIndex++ : -1,
+        key,
       };
     });
   }
 
+  let cursor = 0;
   return text.split(/(\s+)/).map((part) => {
     const animated = !/^\s+$/.test(part) && part.length > 0;
+    const key = `${cursor}-${part}`;
+    cursor += part.length;
     return {
       value: part,
       animated,
       index: animated ? animatedIndex++ : -1,
+      key,
     };
   });
 }
@@ -204,7 +215,7 @@ export const KineticTextReveal = forwardRef<
       }, delay * 1000);
 
       return () => window.clearTimeout(timeout);
-    }, [autoPlay, delay, text, onRevealStart]);
+    }, [autoPlay, delay, onRevealStart]);
 
     const offset = getOffset(direction, distance);
 
@@ -238,14 +249,13 @@ export const KineticTextReveal = forwardRef<
           splitBy === "lines" && "flex-col items-start",
           className,
         )}
-        aria-label={text}
         {...props}
       >
         <span className="sr-only">{text}</span>
-        {segments.map((segment, index) => {
+        {segments.map((segment) => {
           if (!segment.animated) {
             return (
-              <span key={`${run}-${index}`} aria-hidden="true">
+              <span key={`${run}-${segment.key}`} aria-hidden="true">
                 {segment.value}
               </span>
             );
@@ -253,7 +263,7 @@ export const KineticTextReveal = forwardRef<
 
           return (
             <span
-              key={`${run}-${index}`}
+              key={`${run}-${segment.key}`}
               className={cn(
                 "inline-block overflow-hidden align-baseline pb-1",
                 maskClassName,

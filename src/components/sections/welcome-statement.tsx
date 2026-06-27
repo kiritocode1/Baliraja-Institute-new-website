@@ -2,10 +2,7 @@ import { RevealText } from "@/components/reveal-text";
 
 export function WelcomeStatement() {
   return (
-    <section
-      id="about"
-      className="bg-oxblood text-cream"
-    >
+    <section id="about" className="bg-oxblood text-cream">
       <div className="mx-auto grid max-w-[100rem] gap-y-10 px-5 py-24 sm:px-8 sm:py-32 lg:grid-cols-[auto_1fr] lg:gap-x-16">
         <p className="pt-3 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-cream-muted lg:pt-6">
           Welcome

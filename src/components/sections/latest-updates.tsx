@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { useRef } from "react";
 import { RevealText } from "@/components/reveal-text";
 import { updates } from "@/lib/site";
 
@@ -18,7 +18,10 @@ export function LatestUpdates() {
   };
 
   return (
-    <section id="updates" className="overflow-hidden bg-parchment-deep py-24 sm:py-32">
+    <section
+      id="updates"
+      className="overflow-hidden bg-parchment-deep py-24 sm:py-32"
+    >
       <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -26,7 +29,12 @@ export function LatestUpdates() {
               News & events
             </p>
             <h2 className="mt-4 font-display text-[clamp(2.2rem,5.5vw,4.5rem)] font-light leading-[1] tracking-[-0.02em] text-oxblood">
-              <RevealText text="Latest Updates" splitBy="words" stagger={0.06} distance={28} />
+              <RevealText
+                text="Latest Updates"
+                splitBy="words"
+                stagger={0.06}
+                distance={28}
+              />
             </h2>
           </div>
           <div className="flex items-center gap-3">
@@ -87,7 +95,12 @@ export function LatestUpdates() {
               </h3>
               <span className="mt-3 inline-flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream/85">
                 Read more
-                <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
+                <span
+                  aria-hidden="true"
+                  className="transition-transform group-hover:translate-x-1"
+                >
+                  →
+                </span>
               </span>
             </div>
           </Link>

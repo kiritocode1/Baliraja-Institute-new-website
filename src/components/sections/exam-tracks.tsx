@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { gsap } from "gsap";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { RevealText } from "@/components/reveal-text";
 import { examTracks, featuredExams } from "@/lib/site";
 
@@ -40,10 +40,11 @@ export function ExamTracks() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const rows = Array.from(list.querySelectorAll<HTMLElement>(".track"));
-    const wrappers = rows.map(
-      (r) => r.querySelector<HTMLElement>(".track-wrapper")!,
-    );
-    if (!rows.length) return;
+    const wrappers = rows.flatMap((row) => {
+      const wrapper = row.querySelector<HTMLElement>(".track-wrapper");
+      return wrapper ? [wrapper] : [];
+    });
+    if (!rows.length || wrappers.length !== rows.length) return;
 
     // Warm the preview cache so the first hover is instant.
     examTracks.forEach((t) => {
@@ -53,7 +54,9 @@ export function ExamTracks() {
 
     let H = rows[0].getBoundingClientRect().height;
     let pos = { BOTTOM: 0, MIDDLE: -H, TOP: -2 * H };
-    wrappers.forEach((w) => gsap.set(w, { y: pos.TOP }));
+    wrappers.forEach((w) => {
+      gsap.set(w, { y: pos.TOP });
+    });
 
     const last = { x: 0, y: 0 };
     let active: HTMLElement | null = null;
@@ -61,14 +64,14 @@ export function ExamTracks() {
     let idleTimer: number | null = null;
 
     const clearPreview = () => {
-      preview.querySelectorAll("img").forEach((img) =>
+      preview.querySelectorAll("img").forEach((img) => {
         gsap.to(img, {
           scale: 0,
           duration: 0.4,
           ease: "power2.out",
           onComplete: () => img.remove(),
-        }),
-      );
+        });
+      });
     };
 
     const addPreview = (index: number) => {
@@ -83,7 +86,12 @@ export function ExamTracks() {
 
     // The two "normal" panels are identical, so snapping between TOP/BOTTOM is
     // invisible — it just lets the invert panel slide in from the entry edge.
-    const enter = (row: HTMLElement, wrapper: HTMLElement, clientY: number, index: number) => {
+    const enter = (
+      row: HTMLElement,
+      wrapper: HTMLElement,
+      clientY: number,
+      index: number,
+    ) => {
       active = row;
       const rect = row.getBoundingClientRect();
       const fromTop = clientY < rect.top + rect.height / 2;
@@ -170,7 +178,11 @@ export function ExamTracks() {
             last.y >= rect.top &&
             last.y <= rect.bottom;
           if (!over) {
-            const wrapper = active.querySelector<HTMLElement>(".track-wrapper")!;
+            const wrapper = active.querySelector<HTMLElement>(".track-wrapper");
+            if (!wrapper) {
+              active = null;
+              return;
+            }
             const fromTop = last.y < rect.top + rect.height / 2;
             gsap.to(wrapper, {
               y: fromTop ? pos.TOP : pos.BOTTOM,
@@ -206,18 +218,23 @@ export function ExamTracks() {
       H = rows[0].getBoundingClientRect().height;
       pos = { BOTTOM: 0, MIDDLE: -H, TOP: -2 * H };
       wrappers.forEach((w) => {
-        if (w !== active?.querySelector(".track-wrapper")) gsap.set(w, { y: pos.TOP });
+        if (w !== active?.querySelector(".track-wrapper"))
+          gsap.set(w, { y: pos.TOP });
       });
     };
     window.addEventListener("resize", onResize);
 
     return () => {
-      offs.forEach((off) => off());
+      offs.forEach((off) => {
+        off();
+      });
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       if (idleTimer) window.clearTimeout(idleTimer);
-      preview.querySelectorAll("img").forEach((img) => img.remove());
+      preview.querySelectorAll("img").forEach((img) => {
+        img.remove();
+      });
       gsap.killTweensOf(wrappers);
     };
   }, []);
@@ -231,7 +248,12 @@ export function ExamTracks() {
               What we prepare you for
             </p>
             <h2 className="mt-4 font-display text-[clamp(2.2rem,5vw,4rem)] font-light leading-[1.02] tracking-[-0.02em] text-oxblood">
-              <RevealText text="Exam Tracks" splitBy="characters" stagger={0.03} distance={26} />
+              <RevealText
+                text="Exam Tracks"
+                splitBy="characters"
+                stagger={0.03}
+                distance={26}
+              />
             </h2>
           </div>
           <p className="max-w-sm text-pretty text-[0.98rem] leading-relaxed text-ink-soft">
@@ -286,7 +308,10 @@ export function ExamTracks() {
                   <span className="link-hover link-hover--slide">
                     Prepare for {f.title}
                   </span>
-                  <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
+                  <span
+                    aria-hidden="true"
+                    className="transition-transform group-hover:translate-x-1"
+                  >
                     →
                   </span>
                 </span>

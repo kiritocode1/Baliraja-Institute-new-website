@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 import { RevealText } from "@/components/reveal-text";
 import { admissionSteps } from "@/lib/site";
 
@@ -18,7 +18,12 @@ export function AdmissionFeatures() {
               Admission, step by step
             </p>
             <h2 className="mt-4 font-display text-[clamp(2.2rem,5vw,4rem)] font-light leading-[1.02] tracking-[-0.02em]">
-              <RevealText text="How you join" splitBy="words" stagger={0.06} distance={26} />
+              <RevealText
+                text="How you join"
+                splitBy="words"
+                stagger={0.06}
+                distance={26}
+              />
             </h2>
           </div>
           <p className="max-w-sm text-pretty text-[0.96rem] leading-relaxed text-cream-muted">

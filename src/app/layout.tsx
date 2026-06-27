@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Spectral, Hanken_Grotesk } from "next/font/google";
+import { Hanken_Grotesk, Spectral } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import { MaterialSpotlight } from "@/components/sections/material-spotlight";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
 
 const display = Spectral({
@@ -48,10 +48,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${display.variable} ${body.variable} h-full`}
-    >
+    <html lang="en" className={`${display.variable} ${body.variable} h-full`}>
       <body className="min-h-full bg-parchment text-ink">
         <SiteHeader />
         <main id="top">{children}</main>

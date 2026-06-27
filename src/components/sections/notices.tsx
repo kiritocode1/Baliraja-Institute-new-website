@@ -13,7 +13,12 @@ export function Notices() {
               Notice board
             </p>
             <h2 className="mt-4 font-display text-[clamp(2.2rem,5vw,4rem)] font-light leading-[1.02] tracking-[-0.02em]">
-              <RevealText text="Notices" splitBy="characters" stagger={0.03} distance={24} />
+              <RevealText
+                text="Notices"
+                splitBy="characters"
+                stagger={0.03}
+                distance={24}
+              />
             </h2>
           </div>
           <Link

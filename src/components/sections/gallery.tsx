@@ -24,7 +24,12 @@ export function Gallery() {
               Inside the academy
             </p>
             <h2 className="mt-4 font-display text-[clamp(2.2rem,5vw,4rem)] font-light leading-[1.02] tracking-[-0.02em] text-oxblood">
-              <RevealText text="Campus life" splitBy="words" stagger={0.06} distance={26} />
+              <RevealText
+                text="Campus life"
+                splitBy="words"
+                stagger={0.06}
+                distance={26}
+              />
             </h2>
           </div>
           <p className="max-w-sm text-pretty text-[0.98rem] leading-relaxed text-ink-soft">

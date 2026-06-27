@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { site } from "@/lib/site";
 
 // Shader injection (cursor-driven material spotlight).
@@ -124,7 +124,10 @@ export function MaterialSpotlight() {
                 `#include <worldpos_vertex>\n${vertexMain}`,
               );
             shader.fragmentShader = shader.fragmentShader
-              .replace("#include <common>", `#include <common>\n${fragmentPars}`)
+              .replace(
+                "#include <common>",
+                `#include <common>\n${fragmentPars}`,
+              )
               .replace(
                 "#include <roughnessmap_fragment>",
                 `#include <roughnessmap_fragment>\n${fragmentMain}`,
@@ -225,9 +228,15 @@ export function MaterialSpotlight() {
       window.removeEventListener("resize", onResize);
       container.removeEventListener("pointermove", onPointerMove);
       container.removeEventListener("pointerleave", onPointerLeave);
-      groups.forEach((g) => scene.remove(g));
-      geometries.forEach((g) => g.dispose());
-      materials.forEach((m) => m.dispose());
+      groups.forEach((g) => {
+        scene.remove(g);
+      });
+      geometries.forEach((g) => {
+        g.dispose();
+      });
+      materials.forEach((m) => {
+        m.dispose();
+      });
       envTex.dispose();
       renderer.dispose();
       renderer.domElement.remove();

@@ -289,7 +289,11 @@
 }
 
 .grain-mask {
-  -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 55%, transparent 100%);
+  -webkit-mask-image: radial-gradient(
+    120% 100% at 50% 0%,
+    #000 55%,
+    transparent 100%
+  );
   mask-image: radial-gradient(120% 100% at 50% 0%, #000 55%, transparent 100%);
 }
 
@@ -369,7 +373,7 @@
   *,
   *::before,
   *::after {
-    scroll-behavior: auto !important;
+    scroll-behavior: auto;
   }
 }
 

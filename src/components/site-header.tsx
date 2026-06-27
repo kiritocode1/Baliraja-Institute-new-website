@@ -1,20 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BalirajaCrest } from "@/components/baliraja-crest";
 import { SvgUnderlineLink } from "@/components/links";
 import {
-  site,
-  primaryNav,
   overlayPrimary,
   overlaySecondary,
+  primaryNav,
+  site,
   socials,
 } from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(SplitText);
@@ -75,9 +75,14 @@ export function SiteHeader() {
   const splitsRef = useRef<SplitText[]>([]);
   const reducedRef = useRef(false);
   const animatingRef = useRef(false);
+  const openRef = useRef(open);
 
   // Header treatment: cream text over the dark hero / open menu, otherwise solid.
   const light = open || (isHome && !scrolled);
+
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
 
   // Scroll state for the solid/transparent switch.
   useEffect(() => {
@@ -106,7 +111,11 @@ export function SiteHeader() {
       splitsRef.current = Array.from(
         menu.querySelectorAll<HTMLElement>("a"),
       ).map((el) =>
-        SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line" }),
+        SplitText.create(el, {
+          type: "lines",
+          mask: "lines",
+          linesClass: "line",
+        }),
       );
 
       const allLines = menu.querySelectorAll<HTMLElement>(".line");
@@ -114,8 +123,12 @@ export function SiteHeader() {
 
       const tl = gsap.timeline({
         paused: true,
-        onStart: () => (animatingRef.current = true),
-        onComplete: () => (animatingRef.current = false),
+        onStart: () => {
+          animatingRef.current = true;
+        },
+        onComplete: () => {
+          animatingRef.current = false;
+        },
         onReverseComplete: () => {
           animatingRef.current = false;
           overlay.classList.remove("is-open");
@@ -144,7 +157,9 @@ export function SiteHeader() {
     };
 
     const revert = () => {
-      splitsRef.current.forEach((s) => s.revert());
+      splitsRef.current.forEach((s) => {
+        s.revert();
+      });
       splitsRef.current = [];
       tlRef.current?.kill();
       tlRef.current = null;
@@ -154,7 +169,7 @@ export function SiteHeader() {
     const onResize = () => {
       window.cancelAnimationFrame(resizeRaf);
       resizeRaf = window.requestAnimationFrame(() => {
-        if (open) return; // don't re-split mid-open
+        if (openRef.current) return; // don't re-split mid-open
         revert();
         setup();
       });
@@ -173,7 +188,6 @@ export function SiteHeader() {
       window.removeEventListener("resize", onResize);
       revert();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animateLinksIn = useCallback(() => {

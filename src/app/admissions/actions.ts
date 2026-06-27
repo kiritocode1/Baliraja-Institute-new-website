@@ -55,7 +55,7 @@ export async function submitEnquiry(
     await fs.mkdir(dir, { recursive: true });
     await fs.appendFile(
       path.join(dir, "enquiries.jsonl"),
-      JSON.stringify(enquiry) + "\n",
+      `${JSON.stringify(enquiry)}\n`,
       "utf8",
     );
   } catch (err) {
