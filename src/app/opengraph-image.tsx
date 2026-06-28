@@ -1,97 +1,172 @@
+// biome-ignore-all lint/performance/noImgElement: next/image cannot be used inside next/og ImageResponse JSX.
+
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { defaultOgImageAlt } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-export const alt = `${site.longName} in ${site.place}`;
+export const alt = defaultOgImageAlt;
 export const size = {
   width: 1200,
   height: 630,
 };
 export const contentType = "image/png";
 
-export default function OpenGraphImage() {
+async function publicImageDataUrl(fileName: string, mimeType: string) {
+  const file = await readFile(join(process.cwd(), "public", fileName));
+  return `data:${mimeType};base64,${file.toString("base64")}`;
+}
+
+export default async function OpenGraphImage() {
+  const heroPoster = await publicImageDataUrl("hero-poster.jpg", "image/jpeg");
+
   return new ImageResponse(
     <div
       style={{
+        position: "relative",
         width: "100%",
         height: "100%",
         display: "flex",
-        background: "#f7efe1",
-        color: "#531c21",
-        padding: "58px 64px",
-        fontFamily: "Georgia, serif",
+        overflow: "hidden",
+        background: "#152a35",
+        color: "#f7f0df",
+        fontFamily: "Arial, sans-serif",
       }}
     >
-      <div
+      <img
+        alt=""
+        src={heroPoster}
         style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
           width: "100%",
           height: "100%",
+          objectFit: "cover",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          background:
+            "linear-gradient(180deg, rgba(22,42,52,0.40) 0%, rgba(22,42,52,0.12) 34%, rgba(18,15,12,0.84) 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: 44,
+          left: 64,
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          border: "3px solid #531c21",
-          padding: "52px",
+          alignItems: "center",
+          gap: 18,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+        <div
+          style={{
+            width: 72,
+            height: 72,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1px solid rgba(247,240,223,0.55)",
+            background: "rgba(22,42,52,0.34)",
+            fontSize: 24,
+            fontWeight: 700,
+          }}
+        >
+          BI
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            fontSize: 20,
+            lineHeight: 1.2,
+          }}
+        >
           <div
             style={{
-              width: 118,
-              height: 118,
-              borderRadius: 32,
-              background: "#531c21",
-              color: "#f7efe1",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 54,
+              textTransform: "uppercase",
+              letterSpacing: 4,
               fontWeight: 700,
-              letterSpacing: 0,
             }}
           >
-            BI
+            {site.name}
           </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div
-              style={{
-                fontSize: 34,
-                fontWeight: 700,
-                letterSpacing: 0,
-                textTransform: "uppercase",
-              }}
-            >
-              {`${site.place} | Estd. ${site.established}`}
-            </div>
-            <div style={{ marginTop: 10, fontSize: 30, color: "#8a6325" }}>
-              {site.motto}
-            </div>
+          <div style={{ color: "rgba(247,240,223,0.72)" }}>
+            {`${site.place} · Estd. ${site.established}`}
           </div>
         </div>
+      </div>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div
-            style={{
-              maxWidth: 880,
-              fontSize: 82,
-              lineHeight: 0.96,
-              letterSpacing: 0,
-            }}
-          >
-            {site.longName}
-          </div>
-          <div
-            style={{
-              marginTop: 28,
-              maxWidth: 860,
-              fontSize: 32,
-              lineHeight: 1.32,
-              color: "#3d3127",
-              fontFamily: "Arial, sans-serif",
-            }}
-          >
-            {
-              "MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP exam preparation."
-            }
-          </div>
+      <div
+        style={{
+          position: "absolute",
+          right: 64,
+          bottom: 56,
+          left: 64,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 560,
+            fontSize: 27,
+            lineHeight: 1.28,
+            color: "rgba(247,240,223,0.88)",
+          }}
+        >
+          {
+            "Career academy in Gangapur for public service, defence, banking, police and state exam aspirants."
+          }
+        </div>
+        <div
+          style={{
+            marginTop: 24,
+            height: 1,
+            width: "100%",
+            background: "rgba(247,240,223,0.35)",
+          }}
+        />
+        <div
+          style={{
+            marginTop: 26,
+            fontSize: 108,
+            lineHeight: 0.88,
+            fontWeight: 400,
+            letterSpacing: 0,
+            whiteSpace: "nowrap",
+          }}
+        >
+          Discover Your Path
+        </div>
+        <div
+          style={{
+            marginTop: 26,
+            display: "flex",
+            gap: 20,
+            fontSize: 22,
+            textTransform: "uppercase",
+            letterSpacing: 4,
+            color: "rgba(247,240,223,0.76)",
+          }}
+        >
+          <span>MPSC</span>
+          <span>UPSC</span>
+          <span>Defence</span>
+          <span>Banking</span>
+          <span>SSC</span>
+          <span>Police</span>
         </div>
       </div>
     </div>,

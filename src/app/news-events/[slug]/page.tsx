@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogPostBySlug, sanitizeBlogHtml } from "@/lib/crm/blog-posts";
+import { absoluteUrl } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 type PageProps = {
@@ -20,10 +21,6 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-function absoluteUrl(value: string) {
-  return new URL(value, site.websiteHref).toString();
-}
-
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -34,24 +31,29 @@ export async function generateMetadata({
     return { title: "Article not found" };
   }
 
+  const title = post.seoTitle || post.title;
+  const description = post.seoDescription || post.excerpt;
+  const image = absoluteUrl(post.image);
+
   return {
-    title: post.seoTitle || post.title,
-    description: post.seoDescription || post.excerpt,
+    title,
+    description,
     alternates: { canonical: `/news-events/${post.slug}` },
     openGraph: {
-      title: post.seoTitle || post.title,
-      description: post.seoDescription || post.excerpt,
+      title,
+      description,
       url: `/news-events/${post.slug}`,
       siteName: site.longName,
-      images: [{ url: absoluteUrl(post.image), alt: post.title }],
+      locale: "en_IN",
+      images: [{ url: image, alt: post.title }],
       type: "article",
       publishedTime: post.publishedAt ?? undefined,
     },
     twitter: {
       card: "summary_large_image",
-      title: post.seoTitle || post.title,
-      description: post.seoDescription || post.excerpt,
-      images: [absoluteUrl(post.image)],
+      title,
+      description,
+      images: [{ url: image, alt: post.title }],
     },
   };
 }

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import {
   FeatureBand,
   NextUpCta,
@@ -6,14 +5,15 @@ import {
   StatBand,
   SupportGrid,
 } from "@/components/page-sections";
+import { createPageMetadata } from "@/lib/seo";
 import { pillars, proofStats, site, supportPoints } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "About Baliraja",
   description:
     "Learn about Baliraja Institute Career Academy, Gangapur, its mentoring culture, exam preparation model and promise to educate and serve.",
-  alternates: { canonical: "/about" },
-};
+  path: "/about",
+});
 
 const pillarPoints = pillars.map((pillar) => ({
   title: pillar.title,

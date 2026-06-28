@@ -1,15 +1,15 @@
 import { Mail, MapPin, Phone } from "lucide-react";
-import type { Metadata } from "next";
 import Link from "next/link";
 import { NextUpCta, PageHero, SectionIntro } from "@/components/page-sections";
+import { createPageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Contact",
   description:
     "Contact Baliraja Institute Career Academy in Gangapur for admissions, courses, scholarships and campus visits.",
-  alternates: { canonical: "/contact-us" },
-};
+  path: "/contact-us",
+});
 
 const contactCards = [
   {

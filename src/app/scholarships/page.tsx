@@ -1,5 +1,4 @@
 import { ArrowRight } from "lucide-react";
-import type { Metadata } from "next";
 import Link from "next/link";
 import {
   NextUpCta,
@@ -7,14 +6,15 @@ import {
   SectionIntro,
   StatBand,
 } from "@/components/page-sections";
+import { createPageMetadata } from "@/lib/seo";
 import { proofStats, scholarshipPrograms } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Scholarships",
   description:
     "Baliraja Institute scholarship and fee-concession options for farming families, merit students, defence aspirants and repeat-attempt students.",
-  alternates: { canonical: "/scholarships" },
-};
+  path: "/scholarships",
+});
 
 export default function ScholarshipsPage() {
   return (

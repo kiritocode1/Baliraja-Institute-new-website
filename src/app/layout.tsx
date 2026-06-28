@@ -6,6 +6,14 @@ import { ClientMotionRoot } from "@/components/client-motion-root";
 import { MaterialSpotlight } from "@/components/sections/material-spotlight";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import {
+  absoluteUrl,
+  defaultOgImage,
+  defaultOgImageAlt,
+  defaultTwitterImage,
+  siteDescription,
+  siteUrl,
+} from "@/lib/seo";
 import { site, socials } from "@/lib/site";
 
 const display = Spectral({
@@ -28,17 +36,14 @@ const zarathustra = localFont({
   display: "swap",
 });
 
-const siteDescription =
-  "Baliraja Institute Career Academy in Gangapur, Maharashtra. Coaching for MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP exams with mentoring, tests and study-hall support.";
-const ogImage = "/opengraph-image";
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
   name: site.longName,
   alternateName: site.name,
-  url: site.websiteHref,
-  logo: `${site.websiteHref}/icon.svg`,
-  image: `${site.websiteHref}/img-classroom.jpg`,
+  url: siteUrl.toString(),
+  logo: absoluteUrl("/icon.svg"),
+  image: defaultOgImage,
   description: siteDescription,
   foundingDate: site.established,
   slogan: site.motto,
@@ -74,13 +79,16 @@ const organizationJsonLd = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://balirajaacademy.in"),
+  metadataBase: siteUrl,
   applicationName: site.name,
+  generator: "Next.js",
   title: {
-    default: `${site.longName}, ${site.place} — ${site.motto}`,
-    template: `%s — ${site.name}`,
+    default: `${site.longName}, ${site.place} | ${site.motto}`,
+    template: `%s | ${site.name}`,
   },
   description: siteDescription,
+  abstract:
+    "Competitive exam coaching in Gangapur for civil services, defence, banking, SSC, police and local government aspirants.",
   keywords: [
     "Baliraja Institute",
     "Baliraja Institute Gangapur",
@@ -118,24 +126,35 @@ export const metadata: Metadata = {
     shortcut: "/icon.svg",
   },
   manifest: "/manifest.webmanifest",
+  alternates: {
+    canonical: "/",
+    languages: {
+      "en-IN": "/",
+    },
+  },
   formatDetection: {
     telephone: true,
     address: true,
     email: true,
   },
+  appleWebApp: {
+    title: site.name,
+    capable: true,
+    statusBarStyle: "default",
+  },
   openGraph: {
     title: `${site.longName}, ${site.place}`,
     description: siteDescription,
-    url: site.websiteHref,
+    url: "/",
     siteName: site.longName,
     type: "website",
     locale: "en_IN",
     images: [
       {
-        url: ogImage,
+        url: defaultOgImage,
         width: 1200,
         height: 630,
-        alt: `${site.longName} in ${site.place}`,
+        alt: defaultOgImageAlt,
       },
     ],
   },
@@ -143,7 +162,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${site.longName}, ${site.place}`,
     description: siteDescription,
-    images: [ogImage],
+    images: [{ url: defaultTwitterImage, alt: defaultOgImageAlt }],
+  },
+  other: {
+    "geo.region": "IN-MH",
+    "geo.placename": `${site.place}, Maharashtra`,
   },
 };
 

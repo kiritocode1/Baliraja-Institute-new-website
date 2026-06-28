@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { sanitizeBlogHtml } from "@/lib/crm/blog-posts";
 import { getCoursePageBySlug } from "@/lib/crm/course-pages";
+import { absoluteUrl } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 type PageProps = {
@@ -12,10 +13,6 @@ type PageProps = {
 };
 
 export const dynamic = "force-dynamic";
-
-function absoluteUrl(value: string) {
-  return new URL(value, site.websiteHref).toString();
-}
 
 export async function generateMetadata({
   params,
@@ -30,6 +27,8 @@ export async function generateMetadata({
   const title = page.seoTitle || `${page.title} Course`;
   const description = page.seoDescription || page.summary;
   const url = `/courses/${page.slug}`;
+  const image = absoluteUrl(page.image);
+  const imageAlt = page.imageAlt ?? title;
 
   return {
     title,
@@ -40,14 +39,15 @@ export async function generateMetadata({
       description,
       url,
       siteName: site.longName,
-      images: [{ url: absoluteUrl(page.image), alt: page.imageAlt ?? title }],
+      locale: "en_IN",
+      images: [{ url: image, alt: imageAlt }],
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [absoluteUrl(page.image)],
+      images: [{ url: image, alt: imageAlt }],
     },
   };
 }

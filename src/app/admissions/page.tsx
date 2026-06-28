@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { EnquiryForm } from "@/components/enquiry-form";
 import {
@@ -10,6 +9,7 @@ import {
   StatBand,
   SupportGrid,
 } from "@/components/page-sections";
+import { createPageMetadata } from "@/lib/seo";
 import {
   admissionsDiscoverySteps,
   admissionsFaqs,
@@ -21,12 +21,12 @@ import {
   supportPoints,
 } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Admissions",
   description:
     "Enquire for admission to Baliraja Institute Career Academy, Gangapur. MPSC, UPSC, Banking, SSC, Police Bharti and Talathi batches.",
-  alternates: { canonical: "/admissions" },
-};
+  path: "/admissions",
+});
 
 const steps: { num: string; title: string; body: string }[] = [
   {

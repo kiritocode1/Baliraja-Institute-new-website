@@ -1,5 +1,4 @@
 import { ArrowRight } from "lucide-react";
-import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ImageCardGrid,
@@ -8,14 +7,15 @@ import {
   SectionIntro,
 } from "@/components/page-sections";
 import { listPublishedBlogCards } from "@/lib/crm/blog-posts";
+import { createPageMetadata } from "@/lib/seo";
 import { notices, updates } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "News & Events",
   description:
     "Latest Baliraja Institute notices, test-series updates, events, admissions announcements and exam preparation insights.",
-  alternates: { canonical: "/news-events" },
-};
+  path: "/news-events",
+});
 
 const updateCards = updates.map((update) => ({
   eyebrow: update.tag,

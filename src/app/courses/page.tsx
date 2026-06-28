@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import {
   FeatureBand,
   ImageCardGrid,
@@ -10,20 +9,15 @@ import {
   getCoursePageBySeedKey,
   listPublishedCourseCards,
 } from "@/lib/crm/course-pages";
+import { createPageMetadata } from "@/lib/seo";
 import { featuredExams, proofStats } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Courses",
   description:
     "Explore Baliraja Institute exam tracks for MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP preparation.",
-  alternates: { canonical: "/courses" },
-  openGraph: {
-    title: "Courses",
-    description:
-      "Explore Baliraja Institute exam tracks for MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP preparation.",
-    url: "/courses",
-  },
-};
+  path: "/courses",
+});
 
 function featuredBody(course: {
   exams: string | null;

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import {
   FaqBand,
   GuideCtaPanel,
@@ -9,6 +8,7 @@ import {
   VoiceGrid,
 } from "@/components/page-sections";
 import { StudentLifeMarquee } from "@/components/sections/student-life-marquee";
+import { createPageMetadata } from "@/lib/seo";
 import {
   campusLifeItems,
   preparationGuide,
@@ -17,12 +17,12 @@ import {
   supportPoints,
 } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Student Life",
   description:
     "Explore student life at Baliraja Institute: reading hall, daily lectures, mock tests, defence practice, mentoring and student support.",
-  alternates: { canonical: "/student-life" },
-};
+  path: "/student-life",
+});
 
 export default function StudentLifePage() {
   return (
