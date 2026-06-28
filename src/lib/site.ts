@@ -23,33 +23,51 @@ export const site = {
 } as const;
 
 export type NavLink = { label: string; href: string };
+export type NavGroup = {
+  heading: string;
+  body: string;
+  links: NavLink[];
+};
 
 /** Top-bar primary links (desktop, inline). */
 export const primaryNav: NavLink[] = [
-  { label: "About", href: "/about" },
-  { label: "Student Life", href: "/student-life" },
+  { label: "Academy", href: "/about" },
   { label: "Courses", href: "/courses" },
-  { label: "Admissions", href: "/admissions" },
+  { label: "Student Life", href: "/student-life" },
 ];
 
-/** Overlay menu — large primary destinations. */
-export const overlayPrimary: NavLink[] = [
-  { label: "Home", href: "/" },
-  { label: "About Baliraja", href: "/about" },
-  { label: "Student Life", href: "/student-life" },
-  { label: "Courses", href: "/courses" },
-  { label: "Admissions", href: "/admissions" },
-  { label: "Scholarships", href: "/scholarships" },
-];
-
-/** Overlay menu — secondary destinations. */
-export const overlaySecondary: NavLink[] = [
-  { label: "Why Baliraja", href: "/#why" },
-  { label: "Campus Gallery", href: "/#gallery" },
-  { label: "News & Events", href: "/news-events" },
-  { label: "Notices", href: "/#notices" },
-  { label: "Insights", href: "/news-events" },
-  { label: "Contact", href: "/contact-us" },
+/** Overlay menu groups: fewer choices first, detailed paths second. */
+export const overlayNavGroups: NavGroup[] = [
+  {
+    heading: "Academy",
+    body: "Know the people, place, and promise.",
+    links: [
+      { label: "Home", href: "/" },
+      { label: "About Baliraja", href: "/about" },
+      { label: "Why Baliraja", href: "/#why" },
+      { label: "Campus Gallery", href: "/#gallery" },
+    ],
+  },
+  {
+    heading: "Learning",
+    body: "Find the course path and student rhythm.",
+    links: [
+      { label: "All Courses", href: "/courses" },
+      { label: "Student Life", href: "/student-life" },
+      { label: "Notices", href: "/#notices" },
+      { label: "News & Events", href: "/news-events" },
+    ],
+  },
+  {
+    heading: "Join",
+    body: "Start the conversation with the office.",
+    links: [
+      { label: "Admissions", href: "/admissions" },
+      { label: "Scholarships", href: "/scholarships" },
+      { label: "Contact", href: "/contact-us" },
+      { label: "Student Portal", href: "/student/login" },
+    ],
+  },
 ];
 
 export const socials: NavLink[] = [

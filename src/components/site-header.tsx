@@ -7,13 +7,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { SvgUnderlineLink } from "@/components/links";
-import {
-  overlayPrimary,
-  overlaySecondary,
-  primaryNav,
-  site,
-  socials,
-} from "@/lib/site";
+import { overlayNavGroups, primaryNav, site, socials } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 if (typeof window !== "undefined") {
@@ -256,46 +250,63 @@ export function SiteHeader() {
         <div className="mx-auto flex h-[4.5rem] max-w-[100rem] items-center justify-between gap-6 px-5 sm:px-8">
           <Crest light={light} />
 
-          <nav
-            aria-label="Primary"
-            className={cn(
-              "hidden items-center gap-9 text-[0.82rem] font-medium uppercase tracking-[0.16em] lg:flex",
-              light ? "text-cream" : "text-ink",
-            )}
-          >
-            {primaryNav.map((l) => (
-              <SvgUnderlineLink key={l.href} href={l.href}>
-                {l.label}
-              </SvgUnderlineLink>
-            ))}
-          </nav>
+          <div className="flex items-center gap-4 lg:gap-6">
+            <nav
+              aria-label="Primary"
+              className={cn(
+                "hidden items-center gap-8 text-[0.78rem] font-medium uppercase tracking-[0.14em] xl:flex",
+                light ? "text-cream" : "text-ink",
+              )}
+            >
+              {primaryNav.map((l) => (
+                <SvgUnderlineLink key={l.href} href={l.href}>
+                  {l.label}
+                </SvgUnderlineLink>
+              ))}
+            </nav>
 
-          <button
-            type="button"
-            onClick={toggle}
-            aria-expanded={open}
-            aria-controls="overlay-menu"
-            className={cn(
-              "group flex items-center gap-3 text-[0.78rem] font-semibold uppercase tracking-[0.18em] transition-colors",
-              light ? "text-cream" : "text-ink",
-            )}
-          >
-            <span className="hidden sm:inline">{open ? "Close" : "Menu"}</span>
-            <span className="relative flex h-4 w-7 flex-col justify-center">
-              <span
-                className={cn(
-                  "absolute h-px w-7 bg-current transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
-                  open ? "rotate-45" : "-translate-y-[5px]",
-                )}
-              />
-              <span
-                className={cn(
-                  "absolute h-px w-7 bg-current transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
-                  open ? "-rotate-45" : "translate-y-[5px]",
-                )}
-              />
-            </span>
-          </button>
+            <Link
+              href="/admissions"
+              className={cn(
+                "hidden h-10 items-center border px-4 text-[0.72rem] font-semibold uppercase tracking-[0.14em] transition-colors lg:inline-flex",
+                light
+                  ? "border-cream/45 text-cream hover:border-brass-bright hover:text-brass-bright"
+                  : "border-oxblood/35 text-ink hover:border-oxblood hover:text-oxblood",
+              )}
+            >
+              Admissions
+            </Link>
+
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="overlay-menu"
+              className={cn(
+                "group flex items-center gap-3 text-[0.78rem] font-semibold uppercase tracking-[0.18em] transition-colors",
+                light ? "text-cream" : "text-ink",
+              )}
+            >
+              <span className="hidden sm:inline">
+                {open ? "Close" : "Menu"}
+              </span>
+              <span className="relative flex h-4 w-7 flex-col justify-center">
+                <span
+                  className={cn(
+                    "absolute h-px w-7 bg-current transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
+                    open ? "rotate-45" : "-translate-y-[5px]",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "absolute h-px w-7 bg-current transition-transform duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
+                    open ? "-rotate-45" : "translate-y-[5px]",
+                  )}
+                />
+              </span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -319,58 +330,68 @@ export function SiteHeader() {
           aria-modal="true"
           aria-label="Site menu"
         >
-          <div className="mx-auto flex h-full w-full max-w-[100rem] flex-col justify-between gap-12 px-5 pb-12 pt-28 sm:px-8 lg:flex-row lg:items-end lg:pb-16">
-            {/* Primary — large display links */}
-            <nav
-              aria-label="Menu primary"
-              className="bal-menu-primary flex flex-col gap-2 lg:gap-3"
-            >
-              {overlayPrimary.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={closeMenu}
-                  className="text-[clamp(2.4rem,7vw,5rem)] font-light"
-                >
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
-
-            <div className="flex flex-col gap-10 sm:flex-row sm:gap-16 lg:gap-20">
-              {/* Secondary links */}
-              <nav
-                aria-label="Menu secondary"
-                className="bal-menu-secondary flex flex-col gap-3 text-cream"
+          <div className="mx-auto grid min-h-full w-full max-w-[100rem] content-between gap-10 px-5 pb-10 pt-28 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(34rem,0.82fr)] lg:items-end lg:gap-16 lg:pb-16 lg:pt-32">
+            <div className="bal-menu-primary flex max-w-4xl flex-col gap-6 text-cream">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cream-muted">
+                Baliraja Institute
+              </p>
+              <Link
+                href="/admissions"
+                onClick={closeMenu}
+                className="max-w-[13ch] text-[clamp(3rem,8vw,6.8rem)] font-light"
               >
-                <p className="mb-2 text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cream-muted">
-                  Explore
-                </p>
-                {overlaySecondary.map((l) => (
-                  <Link
-                    key={l.label}
-                    href={l.href}
-                    onClick={closeMenu}
-                    className="text-[1.05rem]"
-                  >
-                    {l.label}
-                  </Link>
-                ))}
-              </nav>
+                Start with admissions
+              </Link>
+              <p className="max-w-xl text-[1rem] leading-relaxed text-cream-muted sm:text-[1.08rem]">
+                A clearer path through the site: first understand the academy,
+                then compare courses, then speak with the office.
+              </p>
+            </div>
 
-              {/* Meta — socials + contact */}
-              <div className="bal-menu-meta flex flex-col gap-8 text-cream">
+            <div className="flex flex-col gap-8 lg:gap-10">
+              <div className="bal-menu-secondary grid gap-7 sm:grid-cols-3">
+                {overlayNavGroups.map((group) => (
+                  <nav
+                    key={group.heading}
+                    aria-label={group.heading}
+                    className="flex min-w-0 flex-col gap-3 text-cream"
+                  >
+                    <div className="mb-1 flex flex-col gap-2">
+                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cream-muted">
+                        {group.heading}
+                      </p>
+                      <p className="max-w-[14rem] text-[0.88rem] leading-relaxed text-cream-muted">
+                        {group.body}
+                      </p>
+                    </div>
+                    {group.links.map((l) => (
+                      <Link
+                        key={`${group.heading}-${l.href}-${l.label}`}
+                        href={l.href}
+                        onClick={closeMenu}
+                        className="text-[1.04rem]"
+                      >
+                        {l.label}
+                      </Link>
+                    ))}
+                  </nav>
+                ))}
+              </div>
+
+              <div className="bal-menu-meta grid gap-6 border-t border-cream/15 pt-6 text-cream sm:grid-cols-[1fr_auto] sm:items-end">
                 <div className="flex flex-col gap-3">
                   <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cream-muted">
                     Follow
                   </p>
-                  {socials.map((l) => (
-                    <a key={l.label} href={l.href} className="text-[1.05rem]">
-                      {l.label}
-                    </a>
-                  ))}
+                  <div className="flex flex-wrap gap-x-5 gap-y-2">
+                    {socials.map((l) => (
+                      <a key={l.label} href={l.href} className="text-[1.05rem]">
+                        {l.label}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-col gap-2 text-[0.9rem] text-cream-muted">
+                <div className="flex flex-col gap-2 text-[0.9rem] text-cream-muted sm:text-right">
                   <a href={site.contact.phoneHref}>{site.contact.phone}</a>
                   <a href={site.contact.emailHref}>{site.contact.email}</a>
                 </div>

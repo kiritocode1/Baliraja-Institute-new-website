@@ -352,7 +352,7 @@
   text-decoration: none;
   display: block;
   line-height: 1.06;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 .bal-menu .bal-line-wrap .line {
   transform: translateY(110%);
@@ -361,6 +361,10 @@
 .bal-menu-primary a {
   font-family: var(--font-display), Georgia, serif;
   color: var(--cream);
+}
+.bal-menu-secondary a,
+.bal-menu-meta a {
+  line-height: 1.35;
 }
 .bal-menu-primary a:hover {
   color: var(--brass-bright);
