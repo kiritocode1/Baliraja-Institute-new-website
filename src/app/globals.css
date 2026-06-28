@@ -89,6 +89,7 @@
   --font-sans: var(--font-body);
   --font-body: var(--font-body);
   --font-display: var(--font-display);
+  --font-title: var(--font-zarathustra);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: var(--radius);
@@ -96,6 +97,10 @@
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility font-title {
+  font-family: var(--font-zarathustra), var(--font-display), Georgia, serif;
 }
 
 @layer base {

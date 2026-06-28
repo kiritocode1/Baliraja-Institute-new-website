@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, Spectral } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
+import { ClientMotionRoot } from "@/components/client-motion-root";
 import { MaterialSpotlight } from "@/components/sections/material-spotlight";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -17,6 +19,12 @@ const display = Spectral({
 const body = Hanken_Grotesk({
   subsets: ["latin"],
   variable: "--font-body",
+  display: "swap",
+});
+
+const zarathustra = localFont({
+  src: "../fonts/zarathustra-v01.otf",
+  variable: "--font-zarathustra",
   display: "swap",
 });
 
@@ -143,7 +151,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} h-full`}>
+    <html
+      lang="en"
+      className={`${display.variable} ${body.variable} ${zarathustra.variable} h-full`}
+    >
       <body className="min-h-full bg-parchment text-ink">
         <script
           type="application/ld+json"
@@ -152,12 +163,14 @@ export default function RootLayout({
             __html: JSON.stringify(organizationJsonLd),
           }}
         />
-        <SiteHeader />
-        <main id="top" className="relative z-20 bg-parchment">
-          {children}
-        </main>
-        <MaterialSpotlight />
-        <SiteFooter />
+        <ClientMotionRoot>
+          <SiteHeader />
+          <main id="top" className="relative z-20 bg-parchment">
+            {children}
+          </main>
+          <MaterialSpotlight />
+          <SiteFooter />
+        </ClientMotionRoot>
       </body>
     </html>
   );
