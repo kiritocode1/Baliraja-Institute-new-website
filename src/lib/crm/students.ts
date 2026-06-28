@@ -281,6 +281,29 @@ function mapDbInvoice(row: Record<string, unknown>): FeeInvoice {
   };
 }
 
+function mapDbPayment(row: Record<string, unknown>): FeePayment {
+  return {
+    id: String(row.id),
+    invoiceId: String(row.invoice_id),
+    studentId: String(row.student_id),
+    razorpayOrderId: String(row.razorpay_order_id),
+    razorpayPaymentId: row.razorpay_payment_id
+      ? String(row.razorpay_payment_id)
+      : null,
+    amountPaise: Number(row.amount_paise),
+    currency: String(row.currency),
+    method: row.method ? String(row.method) : null,
+    status: String(row.status),
+    signatureVerified: Boolean(row.signature_verified),
+    capturedAt: row.captured_at
+      ? new Date(String(row.captured_at)).toISOString()
+      : null,
+    rawPayload: row.raw_payload ?? null,
+    createdAt: new Date(String(row.created_at)).toISOString(),
+    updatedAt: new Date(String(row.updated_at)).toISOString(),
+  };
+}
+
 export function getCourseKey(input: {
   id: string;
   seedKey?: string | null;
@@ -421,6 +444,37 @@ async function listStoredInvoices() {
   }
 
   return readJsonFile<FeeInvoice[]>(INVOICES_FILE, []);
+}
+
+async function listStoredPayments() {
+  const ready = await ensureCrmSchema();
+  const db = getSql();
+
+  if (ready && db) {
+    const rows = (await db`
+      SELECT
+        id,
+        invoice_id,
+        student_id,
+        razorpay_order_id,
+        razorpay_payment_id,
+        amount_paise,
+        currency,
+        method,
+        status,
+        signature_verified,
+        captured_at,
+        raw_payload,
+        created_at,
+        updated_at
+      FROM crm_fee_payments
+      ORDER BY created_at DESC
+    `) as Record<string, unknown>[];
+
+    return rows.map((row) => mapDbPayment(row));
+  }
+
+  return readJsonFile<FeePayment[]>(PAYMENTS_FILE, []);
 }
 
 export async function listStudents(): Promise<StudentSummary[]> {
@@ -894,11 +948,19 @@ export async function attachRazorpayOrder(input: {
 
   if (!invoice) throw new Error("Invoice not found.");
   if (invoice.status === "paid") throw new Error("Invoice is already paid.");
+  if (invoice.status === "processing") {
+    throw new Error(
+      "Invoice payment is already awaiting webhook confirmation.",
+    );
+  }
+  if (invoice.status === "cancelled" || invoice.status === "refunded") {
+    throw new Error("Invoice is not payable.");
+  }
+  if (invoice.razorpayOrderId) return invoice;
 
   const nextInvoice: FeeInvoice = {
     ...invoice,
     razorpayOrderId: input.orderId,
-    status: "processing",
     updatedAt: new Date().toISOString(),
   };
 
@@ -906,121 +968,41 @@ export async function attachRazorpayOrder(input: {
   return nextInvoice;
 }
 
-export async function recordCheckoutVerifiedPayment(input: {
-  invoiceId: string;
-  studentId: string;
-  razorpayOrderId: string;
-  razorpayPaymentId: string;
-  amountPaise: number;
-  rawPayload: unknown;
-}) {
-  const now = new Date().toISOString();
-  const payment: FeePayment = {
-    id: crypto.randomUUID(),
-    invoiceId: input.invoiceId,
-    studentId: input.studentId,
-    razorpayOrderId: input.razorpayOrderId,
-    razorpayPaymentId: input.razorpayPaymentId,
-    amountPaise: input.amountPaise,
-    currency: "INR",
-    method: null,
-    status: "authorized",
-    signatureVerified: true,
-    capturedAt: null,
-    rawPayload: input.rawPayload,
-    createdAt: now,
-    updatedAt: now,
-  };
+async function savePaymentRecord(payment: FeePayment) {
   const ready = await ensureCrmSchema();
   const db = getSql();
 
   if (ready && db) {
-    await db`
-      INSERT INTO crm_fee_payments (
-        id,
-        invoice_id,
-        student_id,
-        razorpay_order_id,
-        razorpay_payment_id,
-        amount_paise,
-        currency,
-        status,
-        signature_verified,
-        raw_payload,
-        created_at,
-        updated_at
-      )
-      VALUES (
-        ${payment.id},
-        ${payment.invoiceId},
-        ${payment.studentId},
-        ${payment.razorpayOrderId},
-        ${payment.razorpayPaymentId},
-        ${payment.amountPaise},
-        ${payment.currency},
-        ${payment.status},
-        ${payment.signatureVerified},
-        ${JSON.stringify(payment.rawPayload)}::jsonb,
-        ${payment.createdAt},
-        ${payment.updatedAt}
-      )
-    `;
-    return payment;
-  }
+    const existing =
+      payment.razorpayPaymentId === null
+        ? []
+        : ((await db`
+            SELECT id
+            FROM crm_fee_payments
+            WHERE razorpay_payment_id = ${payment.razorpayPaymentId}
+            LIMIT 1
+          `) as Array<{ id: string }>);
 
-  const payments = await readJsonFile<FeePayment[]>(PAYMENTS_FILE, []);
-  payments.unshift(payment);
-  await writeJsonFile(PAYMENTS_FILE, payments);
-  return payment;
-}
+    if (existing.length > 0) {
+      await db`
+        UPDATE crm_fee_payments
+        SET
+          invoice_id = ${payment.invoiceId},
+          student_id = ${payment.studentId},
+          razorpay_order_id = ${payment.razorpayOrderId},
+          amount_paise = ${payment.amountPaise},
+          currency = ${payment.currency},
+          method = ${payment.method},
+          status = ${payment.status},
+          signature_verified = ${payment.signatureVerified},
+          captured_at = ${payment.capturedAt},
+          raw_payload = ${JSON.stringify(payment.rawPayload)}::jsonb,
+          updated_at = ${payment.updatedAt}
+        WHERE id = ${existing[0].id}
+      `;
+      return { ...payment, id: existing[0].id };
+    }
 
-export async function markInvoicePaidFromRazorpay(input: {
-  orderId: string;
-  paymentId: string;
-  amountPaise: number;
-  method: string | null;
-  rawPayload: unknown;
-}) {
-  const invoice = await getInvoiceByRazorpayOrder(input.orderId);
-
-  if (!invoice) return null;
-  if (invoice.status === "paid") return invoice;
-  if (invoice.amountPaise !== input.amountPaise) {
-    throw new Error("Captured Razorpay amount does not match invoice amount.");
-  }
-
-  const now = new Date().toISOString();
-  const nextInvoice: FeeInvoice = {
-    ...invoice,
-    status: "paid",
-    paidAt: invoice.paidAt ?? now,
-    updatedAt: now,
-  };
-  const payment: FeePayment = {
-    id: crypto.randomUUID(),
-    invoiceId: invoice.id,
-    studentId: invoice.studentId,
-    razorpayOrderId: input.orderId,
-    razorpayPaymentId: input.paymentId,
-    amountPaise: input.amountPaise,
-    currency: "INR",
-    method: input.method,
-    status: "captured",
-    signatureVerified: true,
-    capturedAt: now,
-    rawPayload: input.rawPayload,
-    createdAt: now,
-    updatedAt: now,
-  };
-  const ready = await ensureCrmSchema();
-  const db = getSql();
-
-  if (ready && db) {
-    await db`
-      UPDATE crm_fee_invoices
-      SET status = 'paid', paid_at = ${nextInvoice.paidAt}, updated_at = ${now}
-      WHERE id = ${invoice.id}
-    `;
     await db`
       INSERT INTO crm_fee_payments (
         id,
@@ -1054,15 +1036,255 @@ export async function markInvoicePaidFromRazorpay(input: {
         ${payment.createdAt},
         ${payment.updatedAt}
       )
+      ON CONFLICT (razorpay_payment_id)
+      WHERE razorpay_payment_id IS NOT NULL
+      DO UPDATE SET
+        invoice_id = EXCLUDED.invoice_id,
+        student_id = EXCLUDED.student_id,
+        razorpay_order_id = EXCLUDED.razorpay_order_id,
+        amount_paise = EXCLUDED.amount_paise,
+        currency = EXCLUDED.currency,
+        method = EXCLUDED.method,
+        status = EXCLUDED.status,
+        signature_verified = EXCLUDED.signature_verified,
+        captured_at = EXCLUDED.captured_at,
+        raw_payload = EXCLUDED.raw_payload,
+        updated_at = EXCLUDED.updated_at
     `;
+    return payment;
+  }
+
+  const payments = await listStoredPayments();
+  const existingIndex = payment.razorpayPaymentId
+    ? payments.findIndex(
+        (item) => item.razorpayPaymentId === payment.razorpayPaymentId,
+      )
+    : -1;
+
+  if (existingIndex >= 0) {
+    payment.id = payments[existingIndex].id;
+    payment.createdAt = payments[existingIndex].createdAt;
+    payments[existingIndex] = payment;
+  } else {
+    payments.unshift(payment);
+  }
+
+  await writeJsonFile(PAYMENTS_FILE, payments);
+  return payment;
+}
+
+export async function recordCheckoutVerifiedPayment(input: {
+  invoiceId: string;
+  studentId: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  amountPaise: number;
+  currency?: string;
+  method?: string | null;
+  status?: string;
+  rawPayload: unknown;
+}) {
+  const invoice = await getStudentInvoice(input.studentId, input.invoiceId);
+
+  if (!invoice) throw new Error("Invoice not found.");
+  if (invoice.status === "paid") return null;
+  if (invoice.status === "cancelled" || invoice.status === "refunded") {
+    throw new Error("Invoice is not payable.");
+  }
+  if (invoice.razorpayOrderId !== input.razorpayOrderId) {
+    throw new Error("Payment order does not match this invoice.");
+  }
+  if (invoice.amountPaise !== input.amountPaise) {
+    throw new Error("Verified payment amount does not match invoice amount.");
+  }
+
+  const now = new Date().toISOString();
+  const payment: FeePayment = {
+    id: crypto.randomUUID(),
+    invoiceId: input.invoiceId,
+    studentId: input.studentId,
+    razorpayOrderId: input.razorpayOrderId,
+    razorpayPaymentId: input.razorpayPaymentId,
+    amountPaise: input.amountPaise,
+    currency: input.currency ?? "INR",
+    method: input.method ?? null,
+    status: input.status ?? "authorized",
+    signatureVerified: true,
+    capturedAt: null,
+    rawPayload: input.rawPayload,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  const savedPayment = await savePaymentRecord(payment);
+
+  if (invoice.status !== "processing") {
+    await updateInvoice({
+      ...invoice,
+      status: "processing",
+      updatedAt: now,
+    });
+  }
+
+  return savedPayment;
+}
+
+export async function markInvoicePaidFromRazorpay(input: {
+  orderId: string;
+  paymentId: string;
+  amountPaise: number;
+  currency: string;
+  method: string | null;
+  rawPayload: unknown;
+}) {
+  const invoice = await getInvoiceByRazorpayOrder(input.orderId);
+
+  if (!invoice) return null;
+  if (invoice.status === "paid") return invoice;
+  if (invoice.status === "cancelled" || invoice.status === "refunded") {
+    throw new Error("Captured payment arrived for a non-payable invoice.");
+  }
+  if (invoice.amountPaise !== input.amountPaise) {
+    throw new Error("Captured Razorpay amount does not match invoice amount.");
+  }
+  if (input.currency !== "INR") {
+    throw new Error(
+      "Captured Razorpay currency does not match invoice currency.",
+    );
+  }
+
+  const now = new Date().toISOString();
+  const nextInvoice: FeeInvoice = {
+    ...invoice,
+    status: "paid",
+    paidAt: invoice.paidAt ?? now,
+    updatedAt: now,
+  };
+  const payment: FeePayment = {
+    id: crypto.randomUUID(),
+    invoiceId: invoice.id,
+    studentId: invoice.studentId,
+    razorpayOrderId: input.orderId,
+    razorpayPaymentId: input.paymentId,
+    amountPaise: input.amountPaise,
+    currency: input.currency,
+    method: input.method,
+    status: "captured",
+    signatureVerified: true,
+    capturedAt: now,
+    rawPayload: input.rawPayload,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await savePaymentRecord(payment);
+  await updateInvoice(nextInvoice);
+  return nextInvoice;
+}
+
+export async function markInvoicePaymentFailedFromRazorpay(input: {
+  orderId: string;
+  paymentId: string;
+  amountPaise: number | null;
+  currency: string | null;
+  method: string | null;
+  rawPayload: unknown;
+}) {
+  const invoice = await getInvoiceByRazorpayOrder(input.orderId);
+
+  if (!invoice) return null;
+  if (input.currency && input.currency !== "INR") {
+    throw new Error(
+      "Failed Razorpay currency does not match invoice currency.",
+    );
+  }
+
+  const now = new Date().toISOString();
+  const payment: FeePayment = {
+    id: crypto.randomUUID(),
+    invoiceId: invoice.id,
+    studentId: invoice.studentId,
+    razorpayOrderId: input.orderId,
+    razorpayPaymentId: input.paymentId,
+    amountPaise: input.amountPaise ?? invoice.amountPaise,
+    currency: input.currency ?? "INR",
+    method: input.method,
+    status: "failed",
+    signatureVerified: true,
+    capturedAt: null,
+    rawPayload: input.rawPayload,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await savePaymentRecord(payment);
+
+  if (invoice.status === "processing") {
+    const nextInvoice: FeeInvoice = {
+      ...invoice,
+      status: "pending",
+      updatedAt: now,
+    };
+
+    await updateInvoice(nextInvoice);
     return nextInvoice;
   }
 
-  await updateInvoice(nextInvoice);
-  const payments = await readJsonFile<FeePayment[]>(PAYMENTS_FILE, []);
-  payments.unshift(payment);
-  await writeJsonFile(PAYMENTS_FILE, payments);
-  return nextInvoice;
+  return invoice;
+}
+
+export async function markInvoiceRefundedFromRazorpay(input: {
+  orderId: string;
+  paymentId: string;
+  amountRefundedPaise: number;
+  currency: string | null;
+  method: string | null;
+  rawPayload: unknown;
+}) {
+  const invoice = await getInvoiceByRazorpayOrder(input.orderId);
+
+  if (!invoice) return null;
+  if (input.currency && input.currency !== "INR") {
+    throw new Error(
+      "Refunded Razorpay currency does not match invoice currency.",
+    );
+  }
+
+  const now = new Date().toISOString();
+  const payment: FeePayment = {
+    id: crypto.randomUUID(),
+    invoiceId: invoice.id,
+    studentId: invoice.studentId,
+    razorpayOrderId: input.orderId,
+    razorpayPaymentId: input.paymentId,
+    amountPaise: invoice.amountPaise,
+    currency: input.currency ?? "INR",
+    method: input.method,
+    status:
+      input.amountRefundedPaise >= invoice.amountPaise
+        ? "refunded"
+        : "partially_refunded",
+    signatureVerified: true,
+    capturedAt: invoice.paidAt,
+    rawPayload: input.rawPayload,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await savePaymentRecord(payment);
+
+  if (input.amountRefundedPaise >= invoice.amountPaise) {
+    const nextInvoice: FeeInvoice = {
+      ...invoice,
+      status: "refunded",
+      updatedAt: now,
+    };
+
+    await updateInvoice(nextInvoice);
+    return nextInvoice;
+  }
+
+  return invoice;
 }
 
 export async function storeRazorpayEvent(input: {
@@ -1081,13 +1303,57 @@ export async function storeRazorpayEvent(input: {
   if (ready && db) {
     if (input.eventId) {
       const existing = (await db`
-        SELECT id
+        SELECT id, processed_at
         FROM crm_razorpay_events
         WHERE event_id = ${input.eventId}
         LIMIT 1
-      `) as Array<{ id: string }>;
+      `) as Array<{ id: string; processed_at: string | null }>;
 
-      if (existing.length > 0) return { id: existing[0].id, inserted: false };
+      if (existing.length > 0) {
+        return {
+          id: existing[0].id,
+          inserted: false,
+          processedAt: existing[0].processed_at
+            ? new Date(existing[0].processed_at).toISOString()
+            : null,
+        };
+      }
+    } else if (input.paymentId) {
+      const existing = (await db`
+        SELECT id, processed_at
+        FROM crm_razorpay_events
+        WHERE event_type = ${input.eventType}
+          AND razorpay_payment_id = ${input.paymentId}
+        LIMIT 1
+      `) as Array<{ id: string; processed_at: string | null }>;
+
+      if (existing.length > 0) {
+        return {
+          id: existing[0].id,
+          inserted: false,
+          processedAt: existing[0].processed_at
+            ? new Date(existing[0].processed_at).toISOString()
+            : null,
+        };
+      }
+    } else if (input.orderId) {
+      const existing = (await db`
+        SELECT id, processed_at
+        FROM crm_razorpay_events
+        WHERE event_type = ${input.eventType}
+          AND razorpay_order_id = ${input.orderId}
+        LIMIT 1
+      `) as Array<{ id: string; processed_at: string | null }>;
+
+      if (existing.length > 0) {
+        return {
+          id: existing[0].id,
+          inserted: false,
+          processedAt: existing[0].processed_at
+            ? new Date(existing[0].processed_at).toISOString()
+            : null,
+        };
+      }
     }
 
     await db`
@@ -1112,7 +1378,7 @@ export async function storeRazorpayEvent(input: {
         ${now}
       )
     `;
-    return { id, inserted: true };
+    return { id, inserted: true, processedAt: null };
   }
 
   const events = await readJsonFile<
@@ -1130,9 +1396,27 @@ export async function storeRazorpayEvent(input: {
   >(RAZORPAY_EVENTS_FILE, []);
   const existing = input.eventId
     ? events.find((event) => event.eventId === input.eventId)
-    : null;
+    : input.paymentId
+      ? events.find(
+          (event) =>
+            event.eventType === input.eventType &&
+            event.paymentId === input.paymentId,
+        )
+      : input.orderId
+        ? events.find(
+            (event) =>
+              event.eventType === input.eventType &&
+              event.orderId === input.orderId,
+          )
+        : null;
 
-  if (existing) return { id: existing.id, inserted: false };
+  if (existing) {
+    return {
+      id: existing.id,
+      inserted: false,
+      processedAt: existing.processedAt,
+    };
+  }
 
   events.unshift({
     id,
@@ -1146,7 +1430,7 @@ export async function storeRazorpayEvent(input: {
     createdAt: now,
   });
   await writeJsonFile(RAZORPAY_EVENTS_FILE, events);
-  return { id, inserted: true };
+  return { id, inserted: true, processedAt: null };
 }
 
 export async function markRazorpayEventProcessed(id: string) {

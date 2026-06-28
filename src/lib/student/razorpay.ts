@@ -11,6 +11,15 @@ type RazorpayOrderResponse = {
   status: string;
 };
 
+export type RazorpayPaymentResponse = {
+  id: string;
+  amount: number;
+  currency: string;
+  order_id: string;
+  status: string;
+  method: string | null;
+};
+
 export function getRazorpayKeyId() {
   return process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
 }
@@ -85,6 +94,7 @@ export async function createRazorpayOrder(input: {
     body: JSON.stringify({
       amount: input.invoice.amountPaise,
       currency: "INR",
+      payment_capture: true,
       receipt: input.invoice.receiptNumber,
       notes: {
         invoice_id: input.invoice.id,
@@ -103,6 +113,40 @@ export async function createRazorpayOrder(input: {
         ? payload.error?.description
         : "Razorpay order creation failed.";
     throw new Error(message || "Razorpay order creation failed.");
+  }
+
+  return payload;
+}
+
+export async function fetchRazorpayPayment(paymentId: string) {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const secret = getRazorpaySecret();
+
+  if (!keyId || !secret) {
+    throw new Error("Razorpay key id and secret are not configured.");
+  }
+
+  const response = await fetch(
+    `https://api.razorpay.com/v1/payments/${encodeURIComponent(paymentId)}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${keyId}:${secret}`).toString(
+          "base64",
+        )}`,
+      },
+    },
+  );
+  const payload = (await response.json().catch(() => ({}))) as
+    | RazorpayPaymentResponse
+    | { error?: { description?: string } };
+
+  if (!response.ok || !("id" in payload)) {
+    const message =
+      "error" in payload
+        ? payload.error?.description
+        : "Unable to fetch Razorpay payment.";
+    throw new Error(message || "Unable to fetch Razorpay payment.");
   }
 
   return payload;

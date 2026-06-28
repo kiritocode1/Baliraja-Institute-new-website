@@ -5,7 +5,11 @@ import {
   recordCheckoutVerifiedPayment,
 } from "@/lib/crm/students";
 import { getStudentSession } from "@/lib/student/auth";
-import { verifyRazorpayPaymentSignature } from "@/lib/student/razorpay";
+import {
+  fetchRazorpayPayment,
+  type RazorpayPaymentResponse,
+  verifyRazorpayPaymentSignature,
+} from "@/lib/student/razorpay";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -97,13 +101,49 @@ export async function POST(
     );
   }
 
+  let payment: RazorpayPaymentResponse;
+
+  try {
+    payment = await fetchRazorpayPayment(paymentId);
+  } catch (error) {
+    console.error("[student/fees/verify] Razorpay fetch failed:", error);
+    return NextResponse.json(
+      { error: "Unable to verify payment with Razorpay. Try again shortly." },
+      { status: 502 },
+    );
+  }
+
+  if (payment.order_id !== orderId) {
+    return NextResponse.json(
+      { error: "Razorpay payment does not belong to this order." },
+      { status: 400 },
+    );
+  }
+
+  if (payment.amount !== invoice.amountPaise || payment.currency !== "INR") {
+    return NextResponse.json(
+      { error: "Razorpay payment amount does not match this invoice." },
+      { status: 400 },
+    );
+  }
+
+  if (payment.status !== "authorized" && payment.status !== "captured") {
+    return NextResponse.json(
+      { error: "Razorpay payment is not in a payable state." },
+      { status: 400 },
+    );
+  }
+
   await recordCheckoutVerifiedPayment({
     invoiceId: invoice.id,
     studentId: dashboard.student.id,
     razorpayOrderId: orderId,
     razorpayPaymentId: paymentId,
-    amountPaise: invoice.amountPaise,
-    rawPayload: payload,
+    amountPaise: payment.amount,
+    currency: payment.currency,
+    method: payment.method,
+    status: payment.status,
+    rawPayload: { checkout: payload, payment },
   });
 
   return NextResponse.json({

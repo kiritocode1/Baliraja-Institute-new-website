@@ -46,7 +46,10 @@ function StudentRow({
   courseOptions: CourseOption[];
 }) {
   const pendingAmount = student.invoices
-    .filter((invoice) => invoice.status === "pending")
+    .filter(
+      (invoice) =>
+        invoice.status === "pending" || invoice.status === "processing",
+    )
     .reduce((sum, invoice) => sum + invoice.amountPaise, 0);
 
   return (
@@ -160,6 +163,10 @@ function StudentRow({
             {formatPaise(pendingAmount)}
           </p>
           <p className="mt-1 text-sm text-ink-soft">Pending amount</p>
+          <p className="mt-2 text-xs leading-relaxed text-ink-soft">
+            Processing means the browser callback passed and the final Razorpay
+            webhook is still pending.
+          </p>
           <div className="mt-4 space-y-3">
             {student.invoices.slice(0, 3).map((invoice) => (
               <div key={invoice.id} className="border border-line p-3">
@@ -223,7 +230,10 @@ export function StudentAdminPanel({
     (sum, student) =>
       sum +
       student.invoices
-        .filter((invoice) => invoice.status === "pending")
+        .filter(
+          (invoice) =>
+            invoice.status === "pending" || invoice.status === "processing",
+        )
         .reduce((studentSum, invoice) => studentSum + invoice.amountPaise, 0),
     0,
   );

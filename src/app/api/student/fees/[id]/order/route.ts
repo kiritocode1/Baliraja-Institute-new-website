@@ -52,6 +52,16 @@ export async function POST(
     );
   }
 
+  if (invoice.status === "processing") {
+    return NextResponse.json(
+      {
+        error:
+          "This invoice is waiting for Razorpay webhook confirmation. Do not pay it again yet.",
+      },
+      { status: 409 },
+    );
+  }
+
   if (invoice.status === "cancelled" || invoice.status === "refunded") {
     return NextResponse.json(
       { error: "This invoice is not payable." },
@@ -67,6 +77,24 @@ export async function POST(
   }
 
   try {
+    if (invoice.razorpayOrderId) {
+      return NextResponse.json({
+        keyId: getRazorpayKeyId(),
+        orderId: invoice.razorpayOrderId,
+        amount: invoice.amountPaise,
+        currency: "INR",
+        name: "Baliraja Institute",
+        description: invoice.title,
+        invoiceStatus: invoice.status,
+        reused: true,
+        student: {
+          name: dashboard.student.name,
+          email: dashboard.student.email,
+          phone: dashboard.student.phone,
+        },
+      });
+    }
+
     const order = await createRazorpayOrder({
       invoice,
       student: {
@@ -89,6 +117,8 @@ export async function POST(
       currency: "INR",
       name: "Baliraja Institute",
       description: invoice.title,
+      invoiceStatus: "pending",
+      reused: false,
       student: {
         name: dashboard.student.name,
         email: dashboard.student.email,

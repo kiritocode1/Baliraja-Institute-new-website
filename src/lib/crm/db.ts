@@ -294,8 +294,25 @@ export async function ensureCrmSchema() {
   `;
 
   await db`
+    CREATE UNIQUE INDEX IF NOT EXISTS crm_fee_payments_payment_unique_idx
+    ON crm_fee_payments (razorpay_payment_id)
+    WHERE razorpay_payment_id IS NOT NULL
+  `;
+
+  await db`
     CREATE INDEX IF NOT EXISTS crm_razorpay_events_order_idx
     ON crm_razorpay_events (razorpay_order_id)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_razorpay_events_payment_idx
+    ON crm_razorpay_events (event_type, razorpay_payment_id)
+  `;
+
+  await db`
+    CREATE UNIQUE INDEX IF NOT EXISTS crm_razorpay_events_payment_unique_idx
+    ON crm_razorpay_events (event_type, razorpay_payment_id)
+    WHERE event_id IS NULL AND razorpay_payment_id IS NOT NULL
   `;
 
   schemaReady = true;

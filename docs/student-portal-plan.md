@@ -26,9 +26,15 @@ materials, and fee dues from the CRM.
 - Add Razorpay payment flow:
   - server creates Razorpay Order in INR paise
   - client opens Razorpay Checkout
-  - callback verifies payment signature and marks payment as processing
+  - order creation does not mark an invoice as processing by itself
+  - callback verifies payment signature, fetches the payment from Razorpay, and
+    marks payment as processing only after order, amount, currency, and status
+    checks pass
   - Razorpay webhook is final source of truth for paid/captured status
   - raw webhook events are stored for idempotency and audit
+  - duplicate webhooks are ignored only after a previous copy was processed
+  - failed payment webhooks move processing invoices back to pending
+  - full refund webhooks can mark invoices as refunded
 - Add CRM navigation:
   - student list/create/edit
   - convert lead to student
@@ -61,8 +67,15 @@ STUDENT_SESSION_SECRET=
 - Fees:
   - student sees correct pending invoices
   - Razorpay test payment creates order and opens checkout
+  - repeated clicks reuse the existing order while pending
+  - students cannot start another checkout while an invoice is processing
   - callback signature verification works
+  - callback rejects wrong order, wrong amount, wrong currency, or failed
+    Razorpay payment states
   - webhook marks invoice paid exactly once
+  - duplicate unprocessed webhook retries still process
+  - failed payment webhook returns invoice to pending
+  - full refund webhook marks invoice refunded
   - receipt page only opens for the owning student
 - Regression:
   - admin CRM login still works

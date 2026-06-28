@@ -134,15 +134,23 @@ get the same generic response as valid emails, but no code is sent.
 The student fee flow uses one-time invoices:
 
 1. Admin creates an invoice in `/crm`.
-2. Student opens `/student/fees` and starts Razorpay Checkout.
-3. The browser callback verifies `razorpay_order_id`,
-   `razorpay_payment_id`, and `razorpay_signature`, then leaves the invoice in
-   `processing`.
-4. The Razorpay webhook at `/api/razorpay/webhook` verifies
+2. Student opens `/student/fees` and starts Razorpay Checkout. Creating a
+   Razorpay order only attaches the order id to the invoice; it does not mark
+   the invoice paid or processing.
+3. Repeated clicks reuse the pending order. Once the browser callback is
+   verified, the invoice moves to `processing` and the Pay button is disabled so
+   the student cannot accidentally pay twice while the webhook is pending.
+4. The browser callback verifies `razorpay_order_id`,
+   `razorpay_payment_id`, and `razorpay_signature`, then fetches the payment
+   from Razorpay and checks order id, amount, currency, and payment status.
+5. The Razorpay webhook at `/api/razorpay/webhook` verifies
    `x-razorpay-signature` and marks the invoice paid only for
    `payment.captured`.
-5. Raw webhook payloads are stored in `crm_razorpay_events` for idempotency and
-   audit.
+6. Raw webhook payloads are stored in `crm_razorpay_events` for idempotency and
+   audit. Duplicate webhooks return success only when the earlier copy was
+   already processed; unprocessed duplicates are retried.
+7. `payment.failed` returns a processing invoice to pending. `payment.refunded`
+   can mark a fully refunded invoice as refunded.
 
 In Razorpay Dashboard, configure the webhook URL as:
 
@@ -150,6 +158,10 @@ In Razorpay Dashboard, configure the webhook URL as:
 https://your-production-domain.example/api/razorpay/webhook
 ```
 
-Subscribe at least to `payment.captured`; `payment.failed` can be enabled for
-audit visibility. Use the same dashboard webhook secret in
-`RAZORPAY_WEBHOOK_SECRET`.
+Subscribe to:
+
+- `payment.captured`
+- `payment.failed`
+- `payment.refunded`
+
+Use the same dashboard webhook secret in `RAZORPAY_WEBHOOK_SECRET`.

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { FeeInvoice } from "@/lib/crm/students";
 
@@ -91,6 +92,7 @@ function loadRazorpayScript() {
 }
 
 export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
+  const router = useRouter();
   const [busyInvoiceId, setBusyInvoiceId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -175,6 +177,7 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
             verifyPayload.message ||
               "Payment received. Waiting for Razorpay confirmation.",
           );
+          router.refresh();
           setBusyInvoiceId(null);
         },
         modal: {
@@ -211,6 +214,11 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
       <section className="bg-parchment px-5 py-7 sm:px-7">
         <div className="border-b border-line pb-5">
           <h2 className="font-display text-4xl text-oxblood">Pending fees</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">
+            If a payment is awaiting confirmation, do not pay it again. The
+            receipt appears only after Razorpay sends the signed captured
+            webhook.
+          </p>
         </div>
         <div className="divide-y divide-line">
           {payableInvoices.map((invoice) => (
@@ -243,14 +251,17 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
                 </p>
                 <button
                   type="button"
-                  disabled={busyInvoiceId === invoice.id}
+                  disabled={
+                    busyInvoiceId === invoice.id ||
+                    invoice.status === "processing"
+                  }
                   onClick={() => startPayment(invoice)}
                   className="bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {busyInvoiceId === invoice.id
                     ? "Opening..."
                     : invoice.status === "processing"
-                      ? "Retry payment"
+                      ? "Awaiting confirmation"
                       : "Pay now"}
                 </button>
               </div>
