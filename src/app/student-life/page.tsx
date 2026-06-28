@@ -15,6 +15,7 @@ import {
   studentVoices,
   supportPoints,
 } from "@/lib/site";
+import { StudentLifeMarquee } from "@/components/sections/student-life-marquee";
 
 export const metadata: Metadata = {
   title: "Student Life",
@@ -37,6 +38,8 @@ export default function StudentLifePage() {
           { href: "/courses", label: "Compare courses" },
         ]}
       />
+
+      <StudentLifeMarquee />
 
       <ImageCardGrid
         eyebrow="Explore"
