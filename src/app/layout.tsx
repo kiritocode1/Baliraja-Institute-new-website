@@ -10,6 +10,8 @@ import {
   absoluteUrl,
   defaultOgImage,
   defaultOgImageAlt,
+  defaultOgImageHeight,
+  defaultOgImageWidth,
   defaultTwitterImage,
   siteDescription,
   siteUrl,
@@ -83,7 +85,7 @@ export const metadata: Metadata = {
   applicationName: site.name,
   generator: "Next.js",
   title: {
-    default: `${site.longName}, ${site.place} | ${site.motto}`,
+    default: `${site.longName}, ${site.place}`,
     template: `%s | ${site.name}`,
   },
   description: siteDescription,
@@ -152,8 +154,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: defaultOgImage,
-        width: 1200,
-        height: 630,
+        width: defaultOgImageWidth,
+        height: defaultOgImageHeight,
         alt: defaultOgImageAlt,
       },
     ],
@@ -162,7 +164,14 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${site.longName}, ${site.place}`,
     description: siteDescription,
-    images: [{ url: defaultTwitterImage, alt: defaultOgImageAlt }],
+    images: [
+      {
+        url: defaultTwitterImage,
+        width: defaultOgImageWidth,
+        height: defaultOgImageHeight,
+        alt: defaultOgImageAlt,
+      },
+    ],
   },
   other: {
     "geo.region": "IN-MH",

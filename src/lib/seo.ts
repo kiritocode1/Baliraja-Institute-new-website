@@ -4,10 +4,12 @@ import { site } from "@/lib/site";
 export const siteUrl = new URL(site.websiteHref);
 
 export const siteDescription =
-  "Baliraja Institute Career Academy in Gangapur, Maharashtra. Coaching for MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP exams with mentoring, tests and study-hall support.";
+  "Competitive exam coaching in Gangapur for MPSC, UPSC, Defence, Banking, SSC, Police Bharti, Talathi and ZP aspirants.";
 
-export const defaultOgImagePath = "/opengraph-image";
-export const defaultTwitterImagePath = "/twitter-image";
+export const defaultOgImagePath = "/opengraph.png";
+export const defaultTwitterImagePath = "/twitter.png";
+export const defaultOgImageWidth = 2540;
+export const defaultOgImageHeight = 1406;
 export const defaultOgImageAlt = `${site.longName} in ${site.place}`;
 
 export function absoluteUrl(value: string) {
@@ -48,8 +50,8 @@ export function createPageMetadata({
       images: [
         {
           url: imageUrl,
-          width: 1200,
-          height: 630,
+          width: defaultOgImageWidth,
+          height: defaultOgImageHeight,
           alt: imageAlt,
         },
       ],
@@ -64,6 +66,8 @@ export function createPageMetadata({
             image === defaultOgImagePath
               ? defaultTwitterImage
               : absoluteUrl(image),
+          width: defaultOgImageWidth,
+          height: defaultOgImageHeight,
           alt: imageAlt,
         },
       ],
