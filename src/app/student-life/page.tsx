@@ -8,6 +8,7 @@ import {
   SupportGrid,
   VoiceGrid,
 } from "@/components/page-sections";
+import { StudentLifeMarquee } from "@/components/sections/student-life-marquee";
 import {
   campusLifeItems,
   preparationGuide,
@@ -15,7 +16,6 @@ import {
   studentVoices,
   supportPoints,
 } from "@/lib/site";
-import { StudentLifeMarquee } from "@/components/sections/student-life-marquee";
 
 export const metadata: Metadata = {
   title: "Student Life",

@@ -1,13 +1,5 @@
 "use client";
 
-import React, {
-  type RefObject,
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-} from "react";
 import {
   type MotionStyle,
   type MotionValue,
@@ -20,6 +12,14 @@ import {
   useTransform,
   useVelocity,
 } from "framer-motion";
+import React, {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+} from "react";
 import { cn } from "@/lib/utils";
 
 const wrap = (min: number, max: number, value: number): number => {
@@ -217,10 +217,7 @@ export default function MarqueeAlongSvgPath({
   );
 
   const hoverFactorValue = useMotionValue(1);
-  const smoothHoverFactor = useSpring(
-    hoverFactorValue,
-    slowDownSpringConfig,
-  );
+  const smoothHoverFactor = useSpring(hoverFactorValue, slowDownSpringConfig);
   const isHovered = useRef(false);
   const isDragging = useRef(false);
   const dragVelocity = useRef(0);
@@ -374,6 +371,7 @@ export default function MarqueeAlongSvgPath({
         style={{ contain: "layout style" }}
       >
         <svg
+          aria-hidden="true"
           className="h-full w-full overflow-visible"
           height={height}
           preserveAspectRatio={preserveAspectRatio}
