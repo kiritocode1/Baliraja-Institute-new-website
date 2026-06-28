@@ -31,7 +31,7 @@ export function Hero() {
             {site.longName} · {site.place}
           </p>
 
-          <h1 className="mt-7 max-w-[12ch] font-title text-[clamp(4.4rem,13vw,12rem)] font-normal leading-[0.79] tracking-normal">
+          <h1 className="mt-7 max-w-[12ch] font-title text-[clamp(3.55rem,13vw,12rem)] font-normal leading-[0.82] tracking-normal">
             <VerticalCutReveal staggerDuration={0.08}>
               Preparation that keeps its word.
             </VerticalCutReveal>
@@ -71,12 +71,12 @@ export function Hero() {
             ].map(([value, label]) => (
               <div
                 key={label}
-                className="flex items-baseline justify-between gap-6 border-b border-cream/12 pb-3 sm:block sm:border-b-0 sm:pb-0"
+                className="border-b border-cream/12 pb-3 sm:block sm:border-b-0 sm:pb-0"
               >
                 <dt className="text-[0.62rem] font-semibold uppercase tracking-[0.18em]">
                   {label}
                 </dt>
-                <dd className="font-title text-4xl leading-none text-cream">
+                <dd className="mt-2 font-title text-4xl leading-none text-cream">
                   {value}
                 </dd>
               </div>
