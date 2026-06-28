@@ -247,7 +247,7 @@ export function MaterialSpotlight() {
     <section
       id="baliraja"
       aria-label="Baliraja Institute"
-      className="relative isolate flex h-[90svh] min-h-[36rem] w-full items-center justify-center overflow-hidden bg-parchment-deep"
+      className="relative isolate z-10 flex h-[100svh] min-h-[36rem] w-full items-center justify-center overflow-hidden bg-parchment-deep"
     >
       <div ref={containerRef} className="absolute inset-0" />
 

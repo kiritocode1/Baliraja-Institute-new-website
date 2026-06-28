@@ -153,9 +153,11 @@ export default function RootLayout({
           }}
         />
         <SiteHeader />
-        <main id="top">{children}</main>
-        <SiteFooter />
+        <main id="top" className="relative z-20 bg-parchment">
+          {children}
+        </main>
         <MaterialSpotlight />
+        <SiteFooter />
       </body>
     </html>
   );

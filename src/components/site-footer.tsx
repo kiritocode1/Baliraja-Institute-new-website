@@ -56,7 +56,10 @@ const columns: { heading: string; links: { label: string; href: string }[] }[] =
 
 export function SiteFooter() {
   return (
-    <footer id="contact" className="bg-oxblood-deep text-cream">
+    <footer
+      id="contact"
+      className="sticky bottom-0 z-0 bg-oxblood-deep text-cream"
+    >
       <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
         {/* Masthead */}
         <div className="flex flex-col gap-8 border-b border-cream/15 py-14 lg:flex-row lg:items-end lg:justify-between">
