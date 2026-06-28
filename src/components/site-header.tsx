@@ -254,7 +254,7 @@ export function SiteHeader() {
             <nav
               aria-label="Primary"
               className={cn(
-                "hidden items-center gap-8 text-[0.78rem] font-medium uppercase tracking-[0.14em] xl:flex",
+                "hidden items-center gap-9 text-[0.82rem] font-medium uppercase tracking-[0.16em] lg:flex",
                 light ? "text-cream" : "text-ink",
               )}
             >
@@ -264,18 +264,6 @@ export function SiteHeader() {
                 </SvgUnderlineLink>
               ))}
             </nav>
-
-            <Link
-              href="/admissions"
-              className={cn(
-                "hidden h-10 items-center border px-4 text-[0.72rem] font-semibold uppercase tracking-[0.14em] transition-colors lg:inline-flex",
-                light
-                  ? "border-cream/45 text-cream hover:border-brass-bright hover:text-brass-bright"
-                  : "border-oxblood/35 text-ink hover:border-oxblood hover:text-oxblood",
-              )}
-            >
-              Admissions
-            </Link>
 
             <button
               type="button"

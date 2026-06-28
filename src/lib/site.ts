@@ -31,9 +31,10 @@ export type NavGroup = {
 
 /** Top-bar primary links (desktop, inline). */
 export const primaryNav: NavLink[] = [
-  { label: "Academy", href: "/about" },
-  { label: "Courses", href: "/courses" },
+  { label: "About", href: "/about" },
   { label: "Student Life", href: "/student-life" },
+  { label: "Courses", href: "/courses" },
+  { label: "Admissions", href: "/admissions" },
 ];
 
 /** Overlay menu groups: fewer choices first, detailed paths second. */
