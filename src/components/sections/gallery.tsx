@@ -4,19 +4,19 @@ import { galleryImages } from "@/lib/site";
 
 // Asymmetric editorial spans so the grid never reads as identical cards.
 const spans = [
-  "col-span-2 lg:col-span-7 aspect-[16/10]",
-  "col-span-2 lg:col-span-5 aspect-[16/10]",
-  "col-span-1 lg:col-span-4 aspect-[4/5]",
-  "col-span-1 lg:col-span-4 aspect-[4/5]",
-  "col-span-2 lg:col-span-4 aspect-[4/5]",
-  "col-span-2 lg:col-span-5 aspect-[16/10]",
-  "col-span-2 lg:col-span-7 aspect-[16/10]",
-  "col-span-2 lg:col-span-12 aspect-[21/9]",
+  "col-span-2 aspect-[4/3] lg:col-span-7 lg:aspect-[16/10]",
+  "col-span-2 aspect-[4/3] lg:col-span-5 lg:aspect-[16/10]",
+  "col-span-1 aspect-[4/5] lg:col-span-4",
+  "col-span-1 aspect-[4/5] lg:col-span-4",
+  "col-span-2 aspect-[4/3] lg:col-span-4 lg:aspect-[4/5]",
+  "col-span-2 aspect-[4/3] lg:col-span-5 lg:aspect-[16/10]",
+  "col-span-2 aspect-[4/3] lg:col-span-7 lg:aspect-[16/10]",
+  "col-span-2 aspect-[4/3] lg:col-span-12 lg:aspect-[21/9]",
 ];
 
 export function Gallery() {
   return (
-    <section id="gallery" className="bg-parchment py-24 sm:py-32">
+    <section id="gallery" className="bg-parchment py-20 sm:py-28">
       <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -38,7 +38,7 @@ export function Gallery() {
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-12">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-12">
           {galleryImages.map((img, i) => (
             <figure
               key={img.caption}
@@ -48,11 +48,11 @@ export function Gallery() {
                 src={img.src}
                 alt={img.alt}
                 fill
-                sizes="(max-width: 1024px) 50vw, 33vw"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-oxblood-deep/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-              <figcaption className="absolute bottom-4 left-4 translate-y-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-t from-oxblood-deep/76 via-transparent to-transparent opacity-85 transition-opacity duration-500 sm:opacity-0 sm:group-hover:opacity-100" />
+              <figcaption className="absolute bottom-3 left-3 right-3 translate-y-0 text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-cream opacity-100 transition-all duration-500 sm:bottom-4 sm:left-4 sm:right-4 sm:translate-y-2 sm:text-[0.72rem] sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
                 {img.caption}
               </figcaption>
             </figure>

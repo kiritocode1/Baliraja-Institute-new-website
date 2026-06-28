@@ -233,48 +233,95 @@ export const admissionSteps: AdmissionStep[] = [
   },
 ];
 
-/* Campus-life gallery. */
+/* Campus and university context. Add new entries here as the institute collects
+ * more real photographs, parent-facing notes, or nearby-university context. */
+export type AcademyContextItem = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  image: string;
+  alt: string;
+  href?: string;
+};
+
+export const academyContextItems: AcademyContextItem[] = [
+  {
+    eyebrow: "Academy",
+    title: "A working place for serious attempts",
+    body: "Baliraja is presented as a real study environment: classrooms, reading hours, mentor conversations and a practical admission path.",
+    image: "/img-classroom.jpg",
+    alt: "Baliraja Institute classroom prepared for a competitive exam lecture",
+    href: "/about",
+  },
+  {
+    eyebrow: "University route",
+    title: "Guidance for students planning the next step",
+    body: "Students and families can add university, eligibility, documents and career-path information here as those pages grow.",
+    image: "/hero-poster.jpg",
+    alt: "Students walking toward an institutional campus building",
+    href: "/student-life",
+  },
+  {
+    eyebrow: "Study base",
+    title: "Reading, revision and reference material",
+    body: "Use this block for reading-hall details, library photographs, book lists, newspaper practice and daily study routines.",
+    image: "/img-books.jpg",
+    alt: "Reference books and notes for Baliraja Institute students",
+    href: "/student-life",
+  },
+  {
+    eyebrow: "Gallery",
+    title: "Keep adding real moments",
+    body: "The gallery below is data-driven. Drop in new campus, classroom, event, library or university-visit images and update the array.",
+    image: "/img-study.jpg",
+    alt: "A student writing notes during exam preparation",
+    href: "/#gallery",
+  },
+];
+
+/* Campus-life gallery. Prefer local/public images first; replace or append as
+ * real academy/gallery photographs become available. */
 export type GalleryImage = { src: string; alt: string; caption: string };
 export const galleryImages: GalleryImage[] = [
   {
-    src: unsplash("1561089489-f13d5e730d72"),
-    alt: "A faculty member teaching a full lecture hall",
-    caption: "The daily lecture",
+    src: "/img-classroom.jpg",
+    alt: "Baliraja Institute classroom arranged for competitive exam coaching",
+    caption: "Classroom",
   },
   {
-    src: unsplash("1581726707445-75cbe4efc586"),
-    alt: "Students seated and attentive in class",
-    caption: "In the classroom",
+    src: "/img-study.jpg",
+    alt: "A Baliraja Institute student writing notes during preparation",
+    caption: "Study hour",
   },
   {
-    src: unsplash("1513475382585-d06e58bcb0e0"),
-    alt: "A student reaching for a reference title",
-    caption: "The reading hall",
+    src: "/img-books.jpg",
+    alt: "Reference books and study notes for competitive exam preparation",
+    caption: "Reference shelf",
   },
   {
-    src: unsplash("1598981457915-aea220950616"),
-    alt: "An aspirant working alone at a desk",
-    caption: "Late hours",
+    src: "/img-reading.jpg",
+    alt: "A student reading exam preparation material",
+    caption: "Reading routine",
   },
   {
-    src: unsplash("1574130303188-31a915382726"),
-    alt: "A small group studying together",
-    caption: "Group study",
+    src: "/hero-poster.jpg",
+    alt: "Students walking toward an institutional campus building",
+    caption: "Campus arrival",
   },
   {
-    src: unsplash("1535058489223-1331b20fa114"),
-    alt: "A shelf of reference books",
-    caption: "Reference library",
+    src: "/img-classroom.jpg",
+    alt: "Lecture room view at Baliraja Institute",
+    caption: "Lecture day",
   },
   {
-    src: unsplash("1606761568499-6d2451b23c66"),
-    alt: "A mentor guiding a student one to one",
-    caption: "One-to-one mentoring",
+    src: "/img-study.jpg",
+    alt: "Student desk with notebooks during focused preparation",
+    caption: "Mentor review",
   },
   {
-    src: unsplash("1604866830893-c13cafa515d5"),
-    alt: "Open library shelves filled with books",
-    caption: "Open shelves",
+    src: "/img-reading.jpg",
+    alt: "Reading material used by Baliraja Institute aspirants",
+    caption: "Revision work",
   },
 ];
 

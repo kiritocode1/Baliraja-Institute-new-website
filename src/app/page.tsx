@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { EnquiryCta } from "@/components/sections/enquiry-cta";
 import { ExamTracks } from "@/components/sections/exam-tracks";
+import { Gallery } from "@/components/sections/gallery";
 import { Hero } from "@/components/sections/hero";
 import {
+  AcademyContext,
   AcademyEditorial,
   HomeRouteLauncher,
   HomeStories,
@@ -27,6 +29,8 @@ export default async function Home() {
       <AcademyEditorial />
       <HomeRouteLauncher />
       <PreparationPrinciples />
+      <AcademyContext />
+      <Gallery />
       <ExamTracks courseLinks={courseLinks} />
       <HomeStories />
       <EnquiryCta />
