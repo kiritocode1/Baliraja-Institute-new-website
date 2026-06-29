@@ -118,35 +118,35 @@ export function AcademyEditorial() {
 
 export function HomeRouteLauncher() {
   return (
-    <section className="relative overflow-hidden bg-stone py-20 text-ink sm:py-28">
-      <div className="pointer-events-none absolute left-1/2 top-8 hidden h-40 w-[42rem] max-w-[92vw] -translate-x-1/2 text-river/35 sm:block">
+    <section className="relative overflow-hidden bg-stone py-28 text-ink sm:py-36 lg:py-44">
+      <div className="pointer-events-none absolute left-1/2 top-10 hidden h-52 w-[56rem] max-w-[92vw] -translate-x-1/2 text-river/35 sm:block lg:top-14 lg:h-64 lg:w-[66rem]">
         <AnimatedPathText
-          duration={18}
+          duration={22}
           path="M 4 80 C 24 4, 76 4, 96 80"
           text="BALIRAJA · TO EDUCATE AND TO SERVE · GANGAPUR · "
-          textClassName="fill-current text-[0.18rem] font-semibold uppercase tracking-[0.2em]"
+          textClassName="fill-current text-[0.24rem] font-semibold uppercase tracking-[0.22em] lg:text-[0.27rem]"
           viewBox="0 0 100 100"
         />
       </div>
 
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
+        <div className="mx-auto max-w-6xl text-center">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.36em] text-river sm:text-[0.84rem]">
             Explore
           </p>
-          <h2 className="mt-5 font-title text-[clamp(3.45rem,9vw,9.5rem)] font-normal leading-[0.84] tracking-normal">
+          <h2 className="mt-7 font-title text-[clamp(4.35rem,10vw,11.75rem)] font-normal leading-[0.8] tracking-normal">
             Discover your preparation path
           </h2>
-          <p className="mx-auto mt-7 max-w-2xl text-pretty text-[1.02rem] leading-relaxed text-ink-soft">
+          <p className="mx-auto mt-8 max-w-3xl text-pretty text-[1.08rem] leading-relaxed text-ink-soft sm:text-xl">
             The site should answer one question quickly: where should this
             student go next?
           </p>
         </div>
 
-        <div className="mt-12 grid gap-px overflow-hidden bg-paper md:grid-cols-2 lg:mt-16 lg:grid-cols-4">
+        <div className="mt-16 grid gap-px overflow-hidden bg-paper md:grid-cols-2 lg:mt-20 lg:grid-cols-4">
           {routeCards.map((card) => (
             <Link
-              className="group relative min-h-[18rem] overflow-hidden bg-ink text-cream outline-none sm:min-h-[23rem] lg:min-h-[30rem]"
+              className="group relative min-h-[21rem] overflow-hidden bg-ink text-cream outline-none sm:min-h-[27rem] lg:min-h-[34rem]"
               href={card.href}
               key={card.title}
             >
@@ -158,14 +158,14 @@ export function HomeRouteLauncher() {
                 className="object-cover opacity-78 transition duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.045] group-hover:opacity-95"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/78 via-ink/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.22em] text-cream/70">
+              <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cream/70">
                   {card.eyebrow}
                 </p>
-                <h3 className="mt-3 font-title text-[clamp(2.65rem,5vw,5.2rem)] font-normal leading-[0.84]">
+                <h3 className="mt-3 font-title text-[clamp(3.1rem,5.8vw,6.4rem)] font-normal leading-[0.82]">
                   {card.title}
                 </h3>
-                <p className="mt-4 max-w-xs translate-y-0 text-[0.92rem] leading-relaxed text-cream/78 opacity-100 transition duration-500 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-focus-visible:translate-y-0 lg:group-focus-visible:opacity-100">
+                <p className="mt-5 max-w-sm translate-y-0 text-[1rem] leading-relaxed text-cream/78 opacity-100 transition duration-500 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-focus-visible:translate-y-0 lg:group-focus-visible:opacity-100">
                   {card.body}
                 </p>
               </div>
