@@ -498,3 +498,112 @@
 body.is-locked {
   overflow: hidden;
 }
+
+/* ------------------------------------------------------------------ *
+ *  Accessibility settings panel: page-wide, opt-in display controls.
+ *  The panel itself is excluded from the visual filters so it stays usable.
+ * ------------------------------------------------------------------ */
+html[data-a11y-text-scale="large"] {
+  font-size: 112.5%;
+}
+html[data-a11y-text-scale="larger"] {
+  font-size: 125%;
+}
+html[data-a11y-readable-font]
+  body
+  :where(p, li, a, button, input, textarea, select, label, figcaption):not(
+    [data-accessibility-panel],
+    [data-accessibility-panel] *
+  ) {
+  font-family: Verdana, "Trebuchet MS", ui-sans-serif, system-ui, sans-serif;
+}
+html[data-a11y-text-spacing]
+  body
+  :where(
+    p,
+    li,
+    a,
+    button,
+    input,
+    textarea,
+    select,
+    label,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6
+  ):not([data-accessibility-panel], [data-accessibility-panel] *) {
+  letter-spacing: 0.075em;
+  word-spacing: 0.08em;
+}
+html[data-a11y-line-height]
+  body
+  :where(p, li, a, button, input, textarea, select, label, figcaption):not(
+    [data-accessibility-panel],
+    [data-accessibility-panel] *
+  ) {
+  line-height: 1.85;
+}
+html[data-a11y-high-contrast] {
+  --parchment: oklch(0.99 0.003 86);
+  --parchment-deep: oklch(0.955 0.006 86);
+  --paper: oklch(1 0 0);
+  --ink: oklch(0.12 0.01 40);
+  --ink-soft: oklch(0.27 0.015 42);
+  --oxblood: oklch(0.24 0.12 25);
+  --oxblood-deep: oklch(0.18 0.08 25);
+  --brass: oklch(0.77 0.12 82);
+  --brass-deep: oklch(0.39 0.09 70);
+  --line: oklch(0.64 0.01 78);
+  --line-strong: oklch(0.38 0.01 76);
+}
+html[data-a11y-muted-colors] {
+  --oxblood: oklch(0.34 0.04 25);
+  --oxblood-deep: oklch(0.25 0.03 25);
+  --oxblood-bright: oklch(0.42 0.05 27);
+  --maroon-mid: oklch(0.37 0.045 26);
+  --brass: oklch(0.7 0.035 76);
+  --brass-bright: oklch(0.8 0.04 82);
+  --brass-deep: oklch(0.52 0.035 70);
+  --river: oklch(0.49 0.03 235);
+  --river-deep: oklch(0.32 0.028 244);
+}
+html[data-a11y-invert] body > :not([data-accessibility-panel]) {
+  filter: invert(1) hue-rotate(180deg);
+}
+html[data-a11y-highlight-links]
+  body
+  a:not([data-accessibility-panel], [data-accessibility-panel] *) {
+  background: color-mix(in srgb, var(--brass) 24%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brass) 72%, transparent);
+  color: var(--oxblood);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+html[data-a11y-large-cursor],
+html[data-a11y-large-cursor] *:not([data-accessibility-panel] *) {
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cpath fill='%23f3c96a' stroke='%23481414' stroke-width='2' d='M5 3l23 20-10 1 6 9-5 3-6-10-7 7z'/%3E%3C/svg%3E")
+    4 3,
+    auto;
+}
+html[data-a11y-pause-motion]
+  body
+  *:not([data-accessibility-panel], [data-accessibility-panel] *) {
+  animation-duration: 0.01ms;
+  animation-iteration-count: 1;
+  animation-play-state: paused;
+  scroll-behavior: auto;
+  transition-duration: 0.01ms;
+}
+html[data-a11y-hide-media]
+  body
+  :where(img, picture, video):not(
+    [data-accessibility-panel],
+    [data-accessibility-panel] *
+  ) {
+  opacity: 0;
+}

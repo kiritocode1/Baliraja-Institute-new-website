@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Hanken_Grotesk, Spectral } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import { AccessibilitySettingsPanel } from "@/components/accessibility-settings-panel";
 import { ClientMotionRoot } from "@/components/client-motion-root";
 import { MaterialSpotlight } from "@/components/sections/material-spotlight";
 import { SiteFooter } from "@/components/site-footer";
@@ -202,6 +203,7 @@ export default function RootLayout({
           </main>
           <MaterialSpotlight />
           <SiteFooter />
+          <AccessibilitySettingsPanel />
         </ClientMotionRoot>
       </body>
     </html>
