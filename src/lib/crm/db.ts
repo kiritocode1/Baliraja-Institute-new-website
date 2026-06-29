@@ -44,6 +44,7 @@ export async function ensureCrmSchema() {
       phone TEXT NOT NULL,
       email TEXT,
       track TEXT NOT NULL,
+      request_type TEXT NOT NULL DEFAULT 'admission',
       message TEXT,
       status TEXT NOT NULL DEFAULT 'new',
       assigned_to TEXT,
@@ -52,6 +53,11 @@ export async function ensureCrmSchema() {
       received_at TIMESTAMPTZ NOT NULL,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS request_type TEXT NOT NULL DEFAULT 'admission'
   `;
 
   await db`
@@ -236,6 +242,11 @@ export async function ensureCrmSchema() {
   await db`
     CREATE INDEX IF NOT EXISTS crm_leads_status_idx
     ON crm_leads (status)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_leads_request_type_idx
+    ON crm_leads (request_type)
   `;
 
   await db`

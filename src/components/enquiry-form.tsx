@@ -14,6 +14,13 @@ const trackOptions = [
   ...examTracks.map((track) => track.title),
 ];
 
+const requestTypeOptions = [
+  { value: "admission", label: "Admission enquiry" },
+  { value: "scholarship", label: "Scholarship / fee concession" },
+  { value: "course_guidance", label: "Course guidance" },
+  { value: "campus_visit", label: "Campus visit" },
+];
+
 function ErrorText({ id, children }: { id: string; children?: string }) {
   if (!children) return null;
   return (
@@ -23,7 +30,13 @@ function ErrorText({ id, children }: { id: string; children?: string }) {
   );
 }
 
-export function EnquiryForm({ defaultTrack = "" }: { defaultTrack?: string }) {
+export function EnquiryForm({
+  defaultTrack = "",
+  defaultRequestType = "admission",
+}: {
+  defaultTrack?: string;
+  defaultRequestType?: string;
+}) {
   const [state, formAction, isPending] = useActionState<EnquiryState, FormData>(
     submitEnquiry,
     initialEnquiryState,
@@ -156,6 +169,35 @@ export function EnquiryForm({ defaultTrack = "" }: { defaultTrack?: string }) {
             <option value="Not sure yet">Not sure yet</option>
           </select>
           <ErrorText id={id("track-err")}>{errors?.track}</ErrorText>
+        </div>
+
+        <div>
+          <label
+            htmlFor={id("request-type")}
+            className="mb-2 block text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink"
+          >
+            Enquiry type <span className="text-destructive">*</span>
+          </label>
+          <select
+            id={id("request-type")}
+            name="requestType"
+            required
+            defaultValue={defaultRequestType}
+            aria-invalid={Boolean(errors?.requestType)}
+            aria-describedby={
+              errors?.requestType ? id("request-type-err") : undefined
+            }
+            className={`${fieldBase} appearance-none ${errors?.requestType ? "border-destructive" : "border-line-strong"}`}
+          >
+            {requestTypeOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <ErrorText id={id("request-type-err")}>
+            {errors?.requestType}
+          </ErrorText>
         </div>
       </div>
 

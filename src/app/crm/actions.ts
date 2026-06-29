@@ -16,7 +16,12 @@ import {
   type CoursePageStatus,
   saveCoursePage,
 } from "@/lib/crm/course-pages";
-import { getLeadById, parseLeadStatus, updateLead } from "@/lib/crm/leads";
+import {
+  getLeadById,
+  parseLeadRequestType,
+  parseLeadStatus,
+  updateLead,
+} from "@/lib/crm/leads";
 import {
   createCourseNotice,
   createEnrollment,
@@ -163,14 +168,17 @@ export async function updateLeadAction(formData: FormData) {
 
   const id = String(formData.get("id") ?? "").trim();
   const status = parseLeadStatus(String(formData.get("status") ?? ""));
+  const requestType = parseLeadRequestType(
+    String(formData.get("requestType") ?? ""),
+  );
   const assignedTo = String(formData.get("assignedTo") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
-  if (!id || !status) {
+  if (!id || !status || !requestType) {
     throw new Error("Invalid lead update.");
   }
 
-  await updateLead(id, { status, assignedTo, notes });
+  await updateLead(id, { status, requestType, assignedTo, notes });
   revalidatePath("/crm");
 }
 
@@ -354,6 +362,7 @@ export async function convertLeadToStudentAction(formData: FormData) {
 
   await updateLead(lead.id, {
     status: "enrolled",
+    requestType: lead.requestType,
     assignedTo: lead.assignedTo,
     notes: lead.notes,
   });

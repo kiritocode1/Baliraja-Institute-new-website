@@ -21,6 +21,13 @@ import {
   supportPoints,
 } from "@/lib/site";
 
+const requestTypes = [
+  "admission",
+  "scholarship",
+  "course_guidance",
+  "campus_visit",
+];
+
 export const metadata = createPageMetadata({
   title: "Admissions",
   description:
@@ -49,15 +56,17 @@ const steps: { num: string; title: string; body: string }[] = [
 export default async function AdmissionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ track?: string }>;
+  searchParams: Promise<{ track?: string; request?: string }>;
 }) {
-  const { track } = await searchParams;
+  const { track, request } = await searchParams;
   const trackNames = [
     ...featuredExams.map((exam) => exam.title),
     ...examTracks.map((exam) => exam.title),
   ];
   const validTrack =
     track && trackNames.some((trackName) => trackName === track) ? track : "";
+  const validRequestType =
+    request && requestTypes.includes(request) ? request : "admission";
 
   return (
     <div className="bg-parchment">
@@ -84,7 +93,10 @@ export default async function AdmissionsPage({
       <section className="mx-auto max-w-[100rem] px-5 py-20 sm:px-8 sm:py-28">
         <div className="grid gap-x-16 gap-y-14 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <EnquiryForm defaultTrack={validTrack} />
+            <EnquiryForm
+              defaultTrack={validTrack}
+              defaultRequestType={validRequestType}
+            />
           </div>
 
           <aside className="flex flex-col gap-12 lg:col-span-5">

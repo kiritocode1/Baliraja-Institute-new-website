@@ -26,7 +26,10 @@ export default function ScholarshipsPage() {
         image="/img-study.jpg"
         imageAlt="A student writing notes during competitive exam preparation"
         actions={[
-          { href: "/admissions", label: "Apply for consideration" },
+          {
+            href: "/admissions?request=scholarship",
+            label: "Apply for consideration",
+          },
           { href: "/contact-us", label: "Talk to the office" },
         ]}
       />
@@ -68,7 +71,7 @@ export default function ScholarshipsPage() {
           </div>
 
           <Link
-            href="/admissions"
+            href="/admissions?request=scholarship"
             className="mt-10 inline-flex items-center gap-3 bg-oxblood px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-deep"
           >
             Start with an enquiry

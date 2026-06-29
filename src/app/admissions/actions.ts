@@ -1,11 +1,13 @@
 "use server";
 
-import { createLead } from "@/lib/crm/leads";
+import { createLead, parseLeadRequestType } from "@/lib/crm/leads";
 
 export type EnquiryState = {
   status: "idle" | "success" | "error";
   message?: string;
-  errors?: Partial<Record<"name" | "phone" | "email" | "track", string>>;
+  errors?: Partial<
+    Record<"name" | "phone" | "email" | "track" | "requestType", string>
+  >;
 };
 
 const PHONE_RE = /^[0-9+\-\s()]{10,18}$/;
@@ -24,6 +26,9 @@ export async function submitEnquiry(
   const phone = String(formData.get("phone") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const track = String(formData.get("track") ?? "").trim();
+  const requestType = parseLeadRequestType(
+    String(formData.get("requestType") ?? ""),
+  );
   const message = String(formData.get("message") ?? "").trim();
 
   const errors: EnquiryState["errors"] = {};
@@ -33,6 +38,7 @@ export async function submitEnquiry(
   if (email && !EMAIL_RE.test(email))
     errors.email = "That email address doesn't look right.";
   if (!track) errors.track = "Choose the exam you're preparing for.";
+  if (!requestType) errors.requestType = "Choose what this enquiry is about.";
 
   if (Object.keys(errors).length > 0) {
     return { status: "error", errors };
@@ -43,6 +49,7 @@ export async function submitEnquiry(
     phone,
     email: email || null,
     track,
+    requestType: requestType ?? "admission",
     message: message || null,
   };
 

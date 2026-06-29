@@ -17,12 +17,22 @@ export const leadStatuses = [
 
 export type LeadStatus = (typeof leadStatuses)[number];
 
+export const leadRequestTypes = [
+  "admission",
+  "scholarship",
+  "course_guidance",
+  "campus_visit",
+] as const;
+
+export type LeadRequestType = (typeof leadRequestTypes)[number];
+
 export type Lead = {
   id: string;
   name: string;
   phone: string;
   email: string | null;
   track: string;
+  requestType: LeadRequestType;
   message: string | null;
   status: LeadStatus;
   assignedTo: string | null;
@@ -38,6 +48,7 @@ export type CreateLeadInput = {
   email: string | null;
   track: string;
   message: string | null;
+  requestType?: LeadRequestType;
   source?: string;
 };
 
@@ -46,12 +57,22 @@ export type LeadStats = {
   newCount: number;
   contactedCount: number;
   enrolledCount: number;
+  scholarshipCount: number;
 };
 
 const LEADS_FILE = "crm-leads.json";
 
 function isLeadStatus(value: string): value is LeadStatus {
   return leadStatuses.includes(value as LeadStatus);
+}
+
+function isLeadRequestType(value: string): value is LeadRequestType {
+  return leadRequestTypes.includes(value as LeadRequestType);
+}
+
+function normalizeLeadRequestType(value: unknown): LeadRequestType {
+  const normalized = String(value ?? "").trim();
+  return isLeadRequestType(normalized) ? normalized : "admission";
 }
 
 function mapDbLead(row: Record<string, unknown>): Lead {
@@ -63,6 +84,7 @@ function mapDbLead(row: Record<string, unknown>): Lead {
     phone: String(row.phone),
     email: row.email ? String(row.email) : null,
     track: String(row.track),
+    requestType: normalizeLeadRequestType(row.request_type),
     message: row.message ? String(row.message) : null,
     status: isLeadStatus(status) ? status : "new",
     assignedTo: row.assigned_to ? String(row.assigned_to) : null,
@@ -70,6 +92,14 @@ function mapDbLead(row: Record<string, unknown>): Lead {
     source: String(row.source ?? "admissions_form"),
     receivedAt: new Date(String(row.received_at)).toISOString(),
     updatedAt: new Date(String(row.updated_at)).toISOString(),
+  };
+}
+
+function normalizeStoredLead(lead: Lead): Lead {
+  return {
+    ...lead,
+    requestType: normalizeLeadRequestType(lead.requestType),
+    status: isLeadStatus(lead.status) ? lead.status : "new",
   };
 }
 
@@ -88,6 +118,7 @@ export async function createLead(input: CreateLeadInput) {
     phone: input.phone,
     email: input.email,
     track: input.track,
+    requestType: input.requestType ?? "admission",
     message: input.message,
     status: "new",
     assignedTo: null,
@@ -107,6 +138,7 @@ export async function createLead(input: CreateLeadInput) {
         phone,
         email,
         track,
+        request_type,
         message,
         status,
         assigned_to,
@@ -121,6 +153,7 @@ export async function createLead(input: CreateLeadInput) {
         ${lead.phone},
         ${lead.email},
         ${lead.track},
+        ${lead.requestType},
         ${lead.message},
         ${lead.status},
         ${lead.assignedTo},
@@ -153,6 +186,7 @@ export async function listLeads(limit = 100) {
         phone,
         email,
         track,
+        request_type,
         message,
         status,
         assigned_to,
@@ -168,7 +202,8 @@ export async function listLeads(limit = 100) {
     return rows.map((row) => mapDbLead(row));
   }
 
-  return readJsonFile<Lead[]>(LEADS_FILE, []);
+  const leads = await readJsonFile<Lead[]>(LEADS_FILE, []);
+  return leads.map((lead) => normalizeStoredLead(lead));
 }
 
 export async function getLeadById(id: string) {
@@ -179,6 +214,7 @@ export async function updateLead(
   id: string,
   input: {
     status: LeadStatus;
+    requestType: LeadRequestType;
     assignedTo: string | null;
     notes: string | null;
   },
@@ -192,6 +228,7 @@ export async function updateLead(
       UPDATE crm_leads
       SET
         status = ${input.status},
+        request_type = ${input.requestType},
         assigned_to = ${input.assignedTo},
         notes = ${input.notes},
         updated_at = ${now}
@@ -213,9 +250,28 @@ export function getLeadStats(leads: Lead[]): LeadStats {
     newCount: leads.filter((lead) => lead.status === "new").length,
     contactedCount: leads.filter((lead) => lead.status === "contacted").length,
     enrolledCount: leads.filter((lead) => lead.status === "enrolled").length,
+    scholarshipCount: leads.filter((lead) => lead.requestType === "scholarship")
+      .length,
   };
 }
 
 export function parseLeadStatus(value: string) {
   return isLeadStatus(value) ? value : null;
+}
+
+export function parseLeadRequestType(value: string) {
+  return isLeadRequestType(value) ? value : null;
+}
+
+export function getLeadRequestTypeLabel(type: LeadRequestType) {
+  switch (type) {
+    case "scholarship":
+      return "Scholarship";
+    case "course_guidance":
+      return "Course guidance";
+    case "campus_visit":
+      return "Campus visit";
+    case "admission":
+      return "Admission";
+  }
 }

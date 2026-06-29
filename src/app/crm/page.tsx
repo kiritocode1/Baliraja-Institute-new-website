@@ -1,15 +1,19 @@
 import {
+  BadgeIndianRupee,
   Bell,
   BookOpen,
   ExternalLink,
   FileText,
   GraduationCap,
+  HandCoins,
+  Images,
   Inbox,
   LayoutDashboard,
   ShieldCheck,
   Users,
 } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -28,9 +32,11 @@ import { listBlogPosts } from "@/lib/crm/blog-posts";
 import { getCrmEnvStatus } from "@/lib/crm/config";
 import { listCoursePages } from "@/lib/crm/course-pages";
 import {
+  getLeadRequestTypeLabel,
   getLeadStats,
   getStatusLabel,
   type Lead,
+  leadRequestTypes,
   leadStatuses,
   listLeads,
 } from "@/lib/crm/leads";
@@ -40,6 +46,7 @@ import {
   listCourseOptions,
   listStudents,
 } from "@/lib/crm/students";
+import { galleryImages } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -223,6 +230,15 @@ function LeadRow({
           Track
         </p>
         <p className="mt-2 text-base font-medium text-ink">{lead.track}</p>
+        <span
+          className={`mt-3 inline-flex border px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${
+            lead.requestType === "scholarship"
+              ? "border-brass text-brass-deep"
+              : "border-line-strong text-ink-soft"
+          }`}
+        >
+          {getLeadRequestTypeLabel(lead.requestType)}
+        </span>
         {lead.message && (
           <p className="mt-4 text-sm leading-relaxed text-ink-soft">
             {lead.message}
@@ -230,7 +246,7 @@ function LeadRow({
         )}
       </div>
 
-      <form action={updateLeadAction} className="grid gap-4 md:grid-cols-2">
+      <form action={updateLeadAction} className="grid gap-4 md:grid-cols-3">
         <input type="hidden" name="id" value={lead.id} />
         <div>
           <label
@@ -254,6 +270,26 @@ function LeadRow({
         </div>
         <div>
           <label
+            htmlFor={`request-type-${lead.id}`}
+            className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
+          >
+            Type
+          </label>
+          <select
+            id={`request-type-${lead.id}`}
+            name="requestType"
+            defaultValue={lead.requestType}
+            className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
+          >
+            {leadRequestTypes.map((type) => (
+              <option key={type} value={type}>
+                {getLeadRequestTypeLabel(type)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label
             htmlFor={`assigned-${lead.id}`}
             className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
           >
@@ -267,7 +303,7 @@ function LeadRow({
             className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
           />
         </div>
-        <div className="md:col-span-2">
+        <div className="md:col-span-3">
           <label
             htmlFor={`notes-${lead.id}`}
             className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
@@ -345,6 +381,159 @@ function LeadRow({
   );
 }
 
+function ScholarshipRequestsPanel({ leads }: { leads: Lead[] }) {
+  const scholarshipLeads = leads.filter(
+    (lead) => lead.requestType === "scholarship",
+  );
+
+  return (
+    <section
+      id="crm-scholarships"
+      className="mt-10 bg-parchment px-5 py-7 sm:px-7"
+    >
+      <div className="flex flex-col gap-6 border-b border-line pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-brass-deep">
+            Scholarships
+          </p>
+          <h2 className="mt-3 font-display text-4xl leading-none text-oxblood">
+            Concession request follow-up
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
+            Requests sent from the scholarships page and admissions form are
+            tagged here first, then handled through the normal lead workflow.
+          </p>
+        </div>
+        <div className="border border-line bg-parchment-deep p-4">
+          <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
+            Open scholarship requests
+          </p>
+          <p className="mt-2 font-display text-3xl text-oxblood">
+            {scholarshipLeads.length}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        {scholarshipLeads.length > 0 ? (
+          scholarshipLeads.slice(0, 6).map((lead) => (
+            <article key={lead.id} className="border border-line p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="border border-brass px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-brass-deep">
+                  {getStatusLabel(lead.status)}
+                </span>
+                <span className="text-[0.68rem] uppercase tracking-[0.14em] text-ink-soft">
+                  {formatDate(lead.receivedAt)}
+                </span>
+              </div>
+              <h3 className="mt-3 font-display text-2xl leading-tight text-oxblood">
+                {lead.name}
+              </h3>
+              <p className="mt-2 text-sm font-medium text-ink">{lead.track}</p>
+              <div className="mt-3 flex flex-col gap-1 text-sm text-ink-soft">
+                <a
+                  href={`tel:${lead.phone}`}
+                  className="w-fit hover:text-oxblood"
+                >
+                  {lead.phone}
+                </a>
+                {lead.email ? (
+                  <a
+                    href={`mailto:${lead.email}`}
+                    className="w-fit hover:text-oxblood"
+                  >
+                    {lead.email}
+                  </a>
+                ) : null}
+              </div>
+              {lead.message ? (
+                <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-ink-soft">
+                  {lead.message}
+                </p>
+              ) : null}
+            </article>
+          ))
+        ) : (
+          <div className="border border-line bg-parchment-deep p-8 text-center lg:col-span-3">
+            <h3 className="font-display text-3xl text-oxblood">
+              No scholarship requests yet
+            </h3>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+              New concession enquiries will appear here when visitors select
+              Scholarship / fee concession in the admissions form.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function GalleryAdminPanel({ usesBlobStorage }: { usesBlobStorage: boolean }) {
+  return (
+    <section id="crm-gallery" className="mt-10 bg-parchment px-5 py-7 sm:px-7">
+      <div className="flex flex-col gap-6 border-b border-line pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-brass-deep">
+            Gallery
+          </p>
+          <h2 className="mt-3 font-display text-4xl leading-none text-oxblood">
+            Campus media inventory
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
+            The public gallery has a dedicated page at /gallery. This CRM
+            section tracks the current gallery set and keeps the upload workflow
+            visible for future campus, classroom, event and library images.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span
+            className={`border px-3 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em] ${
+              usesBlobStorage
+                ? "border-brass text-brass-deep"
+                : "border-destructive/40 text-destructive"
+            }`}
+          >
+            Blob storage: {usesBlobStorage ? "Ready" : "Missing"}
+          </span>
+          <Link
+            href="/gallery"
+            className="border border-line-strong px-3 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
+            target="_blank"
+          >
+            Open public gallery
+          </Link>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {galleryImages.map((item) => (
+          <article
+            key={`${item.src}-${item.caption}`}
+            className="border border-line"
+          >
+            <div className="relative aspect-[4/3] overflow-hidden bg-parchment-deep">
+              <Image
+                src={item.src}
+                alt={item.alt}
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="p-4">
+              <h3 className="font-semibold text-ink">{item.caption}</h3>
+              <p className="mt-2 break-all text-xs leading-relaxed text-ink-soft">
+                {item.src}
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function CrmPage() {
   const [
     session,
@@ -394,9 +583,10 @@ export default async function CrmPage() {
           </form>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Metric label="Total leads" value={stats.total} />
           <Metric label="New" value={stats.newCount} />
+          <Metric label="Scholarships" value={stats.scholarshipCount} />
           <Metric label="Contacted" value={stats.contactedCount} />
           <Metric label="Enrolled" value={stats.enrolledCount} />
         </div>
@@ -416,7 +606,7 @@ export default async function CrmPage() {
 
         <section
           id="crm-overview"
-          className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-5"
+          className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-7"
           aria-label="CRM quick links"
         >
           <CrmQuickLink
@@ -424,6 +614,12 @@ export default async function CrmPage() {
             title="Leads"
             body="Review enquiries, assign counsellors, and update follow-up notes."
             icon={<Inbox className="size-5" aria-hidden="true" />}
+          />
+          <CrmQuickLink
+            href="#crm-scholarships"
+            title="Scholarships"
+            body="Review concession requests and fee-support conversations."
+            icon={<HandCoins className="size-5" aria-hidden="true" />}
           />
           <CrmQuickLink
             href="#crm-courses"
@@ -436,6 +632,12 @@ export default async function CrmPage() {
             title="Blog"
             body="Publish guidance articles with rich text, images, and SEO fields."
             icon={<FileText className="size-5" aria-hidden="true" />}
+          />
+          <CrmQuickLink
+            href="#crm-gallery"
+            title="Gallery"
+            body="Track the public campus gallery and media upload workflow."
+            icon={<Images className="size-5" aria-hidden="true" />}
           />
           <CrmQuickLink
             href="#crm-students"
@@ -471,9 +673,23 @@ export default async function CrmPage() {
           />
           <CrmQuickLink
             href="/news-events"
-            title="News"
+            title="News & notices"
             body="Preview articles, notices, and latest update cards."
             icon={<FileText className="size-5" aria-hidden="true" />}
+            external
+          />
+          <CrmQuickLink
+            href="/gallery"
+            title="Gallery"
+            body="Open the dedicated public gallery page."
+            icon={<Images className="size-5" aria-hidden="true" />}
+            external
+          />
+          <CrmQuickLink
+            href="/scholarships"
+            title="Scholarships"
+            body="Preview the public concession request path."
+            icon={<BadgeIndianRupee className="size-5" aria-hidden="true" />}
             external
           />
           <CrmQuickLink
@@ -497,7 +713,11 @@ export default async function CrmPage() {
           usesBlobStorage={env.blobConfigured}
         />
 
+        <ScholarshipRequestsPanel leads={leads} />
+
         <BlogEditor posts={blogPosts} usesBlobStorage={env.blobConfigured} />
+
+        <GalleryAdminPanel usesBlobStorage={env.blobConfigured} />
 
         <StudentAdminPanel
           students={students}
