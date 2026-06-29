@@ -20,7 +20,7 @@ const columns: { heading: string; links: { label: string; href: string }[] }[] =
       links: [
         { label: "About", href: "/about" },
         { label: "Student Life", href: "/student-life" },
-        { label: "Our Record", href: "/#record" },
+        { label: "Why Baliraja", href: "/why-baliraja" },
         { label: "Faculty & Mentors", href: "/about" },
       ],
     },
@@ -46,9 +46,9 @@ const columns: { heading: string; links: { label: string; href: string }[] }[] =
     {
       heading: "Stories",
       links: [
-        { label: "News & Events", href: "/news-events" },
-        { label: "Campus Gallery", href: "/#gallery" },
-        { label: "Notices", href: "/#notices" },
+        { label: "News & Notices", href: "/news-events" },
+        { label: "Campus Gallery", href: "/gallery" },
+        { label: "Admin Portal", href: "/crm" },
         { label: "Contact", href: "/contact-us" },
       ],
     },

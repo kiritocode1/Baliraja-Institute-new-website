@@ -26,7 +26,7 @@ export function LatestUpdates() {
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
-              News & events
+              News & notices
             </p>
             <h2 className="mt-4 font-display text-[clamp(2.2rem,5.5vw,4.5rem)] font-light leading-[1] tracking-[-0.02em] text-oxblood">
               <RevealText

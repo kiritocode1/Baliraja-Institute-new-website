@@ -22,10 +22,10 @@ export function Notices() {
             </h2>
           </div>
           <Link
-            href="/#updates"
+            href="/news-events"
             className="link-hover link-hover--slide text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-cream"
           >
-            See all news
+            See all updates
           </Link>
         </div>
 
@@ -33,7 +33,7 @@ export function Notices() {
           {notices.map((n) => (
             <li key={n.title}>
               <Link
-                href="/#updates"
+                href="/news-events"
                 className="group grid grid-cols-[1fr_auto] items-baseline gap-x-6 gap-y-2 border-b border-cream/15 py-6 transition-colors hover:bg-cream/[0.03] sm:grid-cols-[7.5rem_8rem_minmax(0,1fr)_auto] sm:items-center"
               >
                 <span className="order-1 text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-cream-muted tabular-nums">

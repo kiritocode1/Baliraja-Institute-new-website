@@ -78,7 +78,7 @@ export default function ScholarshipsPage() {
       </section>
 
       <NextUpCta
-        title="News & Events"
+        title="News & Notices"
         body="Check notices, test-series updates, defence camps and scholarship announcements before choosing a batch."
         href="/news-events"
       />

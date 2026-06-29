@@ -14,7 +14,9 @@ const staticRoutes: Array<{
 }> = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/about", changeFrequency: "monthly", priority: 0.75 },
+  { path: "/why-baliraja", changeFrequency: "monthly", priority: 0.72 },
   { path: "/student-life", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/gallery", changeFrequency: "monthly", priority: 0.68 },
   { path: "/courses", changeFrequency: "weekly", priority: 0.9 },
   { path: "/admissions", changeFrequency: "weekly", priority: 0.9 },
   { path: "/scholarships", changeFrequency: "monthly", priority: 0.7 },

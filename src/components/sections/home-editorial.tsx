@@ -305,7 +305,7 @@ export function HomeStories() {
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
-            News & events
+            News & notices
           </p>
           <h2 className="mt-5 font-title text-[clamp(3.35rem,8vw,8.6rem)] font-normal leading-[0.84] tracking-normal text-ink">
             Academy stories

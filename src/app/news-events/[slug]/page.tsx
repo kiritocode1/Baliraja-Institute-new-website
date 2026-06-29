@@ -113,7 +113,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             className="mb-10 inline-flex w-fit items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream-muted transition-colors hover:text-brass"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-            News & events
+            News & notices
           </Link>
           <div className="flex flex-wrap items-center gap-3">
             <span className="bg-brass px-3 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-oxblood-deep">

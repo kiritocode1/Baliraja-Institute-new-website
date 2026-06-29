@@ -11,9 +11,9 @@ import { createPageMetadata } from "@/lib/seo";
 import { notices, updates } from "@/lib/site";
 
 export const metadata = createPageMetadata({
-  title: "News & Events",
+  title: "News & Notices",
   description:
-    "Latest Baliraja Institute notices, test-series updates, events, admissions announcements and exam preparation insights.",
+    "Latest Baliraja Institute notices, test-series updates, events, admissions announcements and exam preparation insights in one place.",
   path: "/news-events",
 });
 
@@ -38,9 +38,9 @@ export default async function NewsEventsPage() {
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="News & events"
-        title="Academy stories and notices"
-        body="Students need one place for admissions notices, test-series updates, exam guidance and event announcements."
+        eyebrow="News & notices"
+        title="Updates in one place"
+        body="Students need one destination for admissions notices, test-series updates, exam guidance and event announcements."
         image="/img-classroom.jpg"
         imageAlt="Students in a Baliraja Institute classroom"
         actions={[
@@ -52,7 +52,7 @@ export default async function NewsEventsPage() {
       <ImageCardGrid
         eyebrow="Latest"
         title="Updates students should not miss"
-        body="A visual update section gives admissions, test series and events enough weight to be seen quickly."
+        body="Admissions, test series, events and scholarship announcements are grouped here so students do not have to check separate notice and news pages."
         items={updateCards}
       />
 

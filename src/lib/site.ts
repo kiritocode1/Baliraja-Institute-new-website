@@ -45,18 +45,18 @@ export const overlayNavGroups: NavGroup[] = [
     links: [
       { label: "Home", href: "/" },
       { label: "About Baliraja", href: "/about" },
-      { label: "Why Baliraja", href: "/#why" },
-      { label: "Campus Gallery", href: "/#gallery" },
+      { label: "Why Baliraja", href: "/why-baliraja" },
+      { label: "Campus Gallery", href: "/gallery" },
     ],
   },
   {
     heading: "Learning",
-    body: "Find the course path and student rhythm.",
+    body: "Find the course path, student rhythm, and updates.",
     links: [
       { label: "All Courses", href: "/courses" },
       { label: "Student Life", href: "/student-life" },
-      { label: "Notices", href: "/#notices" },
-      { label: "News & Events", href: "/news-events" },
+      { label: "News & Notices", href: "/news-events" },
+      { label: "Student Portal", href: "/student/login" },
     ],
   },
   {
@@ -66,13 +66,17 @@ export const overlayNavGroups: NavGroup[] = [
       { label: "Admissions", href: "/admissions" },
       { label: "Scholarships", href: "/scholarships" },
       { label: "Contact", href: "/contact-us" },
-      { label: "Student Portal", href: "/student/login" },
+      { label: "Admin Portal", href: "/crm" },
     ],
   },
 ];
 
 export const socials: NavLink[] = [
   { label: "Facebook", href: "https://www.facebook.com/balirajaacademy/" },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/balirajacareeeracademy/",
+  },
   { label: "WhatsApp", href: "https://wa.me/919097974444" },
 ];
 
@@ -275,7 +279,7 @@ export const academyContextItems: AcademyContextItem[] = [
     body: "The gallery below is data-driven. Drop in new campus, classroom, event, library or university-visit images and update the array.",
     image: "/img-study.jpg",
     alt: "A student writing notes during exam preparation",
-    href: "/#gallery",
+    href: "/gallery",
   },
 ];
 
