@@ -207,6 +207,43 @@ export function FeatureBand({
   );
 }
 
+export function FounderMessage({
+  quote,
+  name = "Founder",
+  role = "Baliraja Institute Career Academy",
+}: {
+  quote: string;
+  name?: string;
+  role?: string;
+}) {
+  return (
+    <section className="bg-parchment-deep py-20 sm:py-28">
+      <div className="mx-auto grid max-w-[104rem] gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:items-end">
+        <div className="lg:col-span-4">
+          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
+            Founder&apos;s message
+          </p>
+          <h2 className="mt-4 font-title text-[clamp(3.3rem,6vw,6.5rem)] font-normal leading-[0.86] tracking-normal text-oxblood">
+            Keep the door open for every serious student.
+          </h2>
+        </div>
+
+        <figure className="border-l border-oxblood/24 pl-6 lg:col-span-7 lg:col-start-6 lg:pl-10">
+          <blockquote className="max-w-4xl text-pretty font-display text-[clamp(1.65rem,3.2vw,3.2rem)] font-light leading-[1.08] tracking-normal text-ink">
+            “{quote}”
+          </blockquote>
+          <figcaption className="mt-8 flex flex-col gap-1 border-t border-line-strong pt-5">
+            <span className="text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-oxblood">
+              {name}
+            </span>
+            <span className="text-[0.92rem] text-ink-soft">{role}</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+  );
+}
+
 export function StatBand({ stats }: { stats: ProofStat[] }) {
   return (
     <section className="bg-river-deep text-cream">

@@ -1,5 +1,6 @@
 import {
   FeatureBand,
+  FounderMessage,
   NextUpCta,
   PageHero,
   StatBand,
@@ -43,6 +44,8 @@ export default function AboutPage() {
         imageAlt="A Baliraja Institute aspirant studying at a desk"
         action={{ href: "/courses", label: "Explore exam tracks" }}
       />
+
+      <FounderMessage quote="Baliraja exists for the student who is ready to work but needs the right room, the right guidance and the confidence that public service exams are not out of reach. Our duty is to keep preparation honest, disciplined and open to families who trust us with their child’s attempt." />
 
       <StatBand stats={proofStats} />
 
