@@ -4,6 +4,8 @@
  * and footer all read from this module.
  */
 
+import { getAssetUrl } from "./assets";
+
 export const site = {
   name: "Baliraja Institute",
   longName: "Baliraja Institute Career Academy",
@@ -97,14 +99,14 @@ export const examTracks: ExamTrack[] = [
     title: "MPSC",
     blurb:
       "Rajyaseva, PSI, STI, ASO and combined group services, with integrated prelims and mains coverage.",
-    image: "/home/exam-mpsc.webp",
+    image: getAssetUrl("/home/exam-mpsc.webp"),
   },
   {
     code: "02",
     title: "UPSC Civil Services",
     blurb:
       "Foundation to mains mentoring in Marathi and English mediums, optional subject guidance, and answer writing.",
-    image: "/home/exam-upsc.jpg",
+    image: getAssetUrl("/home/exam-upsc.jpg"),
   },
   {
     code: "03",
@@ -118,21 +120,21 @@ export const examTracks: ExamTrack[] = [
     title: "SSC & Railways",
     blurb:
       "CGL, CHSL, MTS and RRB tracks with sectional tests and a tier-wise practice calendar.",
-    image: "/home/exam-railways.webp",
+    image: getAssetUrl("/home/exam-railways.webp"),
   },
   {
     code: "05",
     title: "Police Bharti",
     blurb:
       "Written preparation paired with ground and physical-test guidance for constable and driver recruitment.",
-    image: "/home/exam-police-bharati.webp",
+    image: getAssetUrl("/home/exam-police-bharati.webp"),
   },
   {
     code: "06",
     title: "Talathi & ZP",
     blurb:
       "Talathi, Gram Sevak, Zilla Parishad and Saralseva exams, with district-specific current affairs.",
-    image: "/home/exam-zp.jpeg",
+    image: getAssetUrl("/home/exam-zp.jpeg"),
   },
 ];
 
@@ -187,7 +189,7 @@ export const featuredExams: FeaturedExam[] = [
     exams: "NDA · CDS · AFCAT · Agniveer GD & Technical · TGC",
     blurb:
       "Written coaching, physical preparation and SSB interview guidance for the National Defence Academy and Agniveer recruitment.",
-    image: "/home/exam-army.webp",
+    image: getAssetUrl("/home/exam-army.webp"),
     alt: "An officer cadet on parade in ceremonial dress with the national tricolour sash",
   },
   {
@@ -253,7 +255,7 @@ export const academyContextItems: AcademyContextItem[] = [
     eyebrow: "Academy",
     title: "A working place for serious attempts",
     body: "Baliraja is presented as a real study environment: classrooms, reading hours, mentor conversations and a practical admission path.",
-    image: "/home/con-A-working-place-for-serious-attempts.jpg",
+    image: getAssetUrl("/home/con-A-working-place-for-serious-attempts.jpg"),
     alt: "Baliraja Institute classroom prepared for a competitive exam lecture",
     href: "/about",
   },
@@ -261,7 +263,9 @@ export const academyContextItems: AcademyContextItem[] = [
     eyebrow: "University route",
     title: "Guidance for students planning the next step",
     body: "Students and families can add university, eligibility, documents and career-path information here as those pages grow.",
-    image: "/home/con-Guidance-for-students-planning-the-next-step.png",
+    image: getAssetUrl(
+      "/home/con-Guidance-for-students-planning-the-next-step.png",
+    ),
     alt: "Students walking toward an institutional campus building",
     href: "/student-life",
   },
@@ -277,7 +281,7 @@ export const academyContextItems: AcademyContextItem[] = [
     eyebrow: "Gallery",
     title: "Keep adding real moments",
     body: "The gallery below is data-driven. Drop in new campus, classroom, event, library or university-visit images and update the array.",
-    image: "/home/con-Keep-adding-real-moments.JPG",
+    image: getAssetUrl("/home/con-Keep-adding-real-moments.JPG"),
     alt: "A student writing notes during exam preparation",
     href: "/gallery",
   },
@@ -294,28 +298,28 @@ export type GalleryImage = {
 };
 export const galleryImages: GalleryImage[] = [
   {
-    src: "/home/camp-v1.mov",
+    src: getAssetUrl("/home/camp-v1.mov"),
     alt: "Baliraja campus video 1",
     caption: "Campus rhythm",
     type: "video",
     aspect: "vertical",
   },
   {
-    src: "/home/camp-v2.mov",
+    src: getAssetUrl("/home/camp-v2.mov"),
     alt: "Baliraja campus video 2",
     caption: "Active library",
     type: "video",
     aspect: "vertical",
   },
   {
-    src: "/home/camp-v3.mp4",
+    src: getAssetUrl("/home/camp-v3.mp4"),
     alt: "Baliraja campus video 3",
     caption: "Classroom debate",
     type: "video",
     aspect: "vertical",
   },
   {
-    src: "/home/camp-v4.mp4",
+    src: getAssetUrl("/home/camp-v4.mp4"),
     alt: "Baliraja campus video 4",
     caption: "Mentor review",
     type: "video",

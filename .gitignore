@@ -44,3 +44,6 @@ next-env.d.ts
 # Local enquiry sink
 .data/
 .env*.local
+
+# Large media assets hosted on R2
+/public/home

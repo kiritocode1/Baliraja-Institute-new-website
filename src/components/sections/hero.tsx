@@ -1,4 +1,5 @@
 import { VerticalCutReveal } from "@/components/vertical-cut-reveal";
+import { getAssetUrl } from "@/lib/assets";
 import { site } from "@/lib/site";
 
 export function Hero() {
@@ -12,7 +13,7 @@ export function Hero() {
         playsInline
         poster="/hero-poster.jpg"
       >
-        <source src="/home/hero-video.mp4" type="video/mp4" />
+        <source src={getAssetUrl("/home/hero-video.mp4")} type="video/mp4" />
       </video>
 
       <div

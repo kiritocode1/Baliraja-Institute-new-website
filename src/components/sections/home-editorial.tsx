@@ -8,6 +8,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatedPathText } from "@/components/animated-path-text";
+import { getAssetUrl } from "@/lib/assets";
 import { academyContextItems } from "@/lib/site";
 
 const routeCards = [
@@ -16,28 +17,28 @@ const routeCards = [
     title: "Courses",
     body: "Civil services, defence, banking, SSC, police, Talathi and ZP tracks.",
     href: "/courses",
-    image: "/home/pre-courses.png",
+    image: getAssetUrl("/home/pre-courses.png"),
   },
   {
     eyebrow: "02",
     title: "Student Life",
     body: "Study hall, classroom rhythm, mocks, mentoring and daily discipline.",
     href: "/student-life",
-    image: "/home/pre-student-life.png",
+    image: getAssetUrl("/home/pre-student-life.png"),
   },
   {
     eyebrow: "03",
     title: "Admissions",
     body: "A short enquiry, a mentor call, and a batch recommendation.",
     href: "/admissions",
-    image: "/home/pre-admission.jpeg",
+    image: getAssetUrl("/home/pre-admission.jpeg"),
   },
   {
     eyebrow: "04",
     title: "Scholarships",
     body: "Practical fee support for serious students and farming families.",
     href: "/scholarships",
-    image: "/home/pre-scholarship.png",
+    image: getAssetUrl("/home/pre-scholarship.png"),
   },
 ];
 
@@ -85,7 +86,7 @@ export function AcademyEditorial() {
         <div className="grid grid-cols-2 gap-3 lg:col-span-7 lg:grid-cols-12 lg:items-end">
           <figure className="relative col-span-2 aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-5 lg:mb-12">
             <video
-              src="/home/aca-v1.mov"
+              src={getAssetUrl("/home/aca-v1.mov")}
               className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
               autoPlay
               muted
@@ -95,7 +96,7 @@ export function AcademyEditorial() {
           </figure>
           <figure className="relative aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-4">
             <video
-              src="/home/aca-v2.mov"
+              src={getAssetUrl("/home/aca-v2.mov")}
               className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
               autoPlay
               muted
@@ -105,7 +106,7 @@ export function AcademyEditorial() {
           </figure>
           <figure className="relative aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-3 lg:mb-24">
             <video
-              src="/home/aca-v3.mov"
+              src={getAssetUrl("/home/aca-v3.mov")}
               className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
               autoPlay
               muted
@@ -321,7 +322,7 @@ export function HomeStories() {
           <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
             {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
             <video
-              src="/home/story-v1.mov"
+              src={getAssetUrl("/home/story-v1.mov")}
               className="h-full w-full object-cover"
               controls
               preload="metadata"
@@ -330,7 +331,7 @@ export function HomeStories() {
           <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
             {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
             <video
-              src="/home/story-v2.MOV"
+              src={getAssetUrl("/home/story-v2.MOV")}
               className="h-full w-full object-cover"
               controls
               preload="metadata"
@@ -339,7 +340,7 @@ export function HomeStories() {
           <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
             {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
             <video
-              src="/home/story-v3.mp4"
+              src={getAssetUrl("/home/story-v3.mp4")}
               className="h-full w-full object-cover"
               controls
               preload="metadata"
