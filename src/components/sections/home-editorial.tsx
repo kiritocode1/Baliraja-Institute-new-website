@@ -83,31 +83,34 @@ export function AcademyEditorial() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 lg:col-span-7 lg:grid-cols-12 lg:items-end">
-          <figure className="relative col-span-2 aspect-[4/3] overflow-hidden bg-parchment-deep lg:col-span-5 lg:mb-12">
-            <Image
-              src="/img-classroom.jpg"
-              alt="Baliraja classroom session"
-              fill
-              sizes="(max-width: 1024px) 100vw, 35vw"
-              className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
+          <figure className="relative col-span-2 aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-5 lg:mb-12">
+            <video
+              src="/home/aca-v1.mov"
+              className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
+              autoPlay
+              muted
+              loop
+              playsInline
             />
           </figure>
-          <figure className="relative aspect-[5/4] overflow-hidden bg-parchment-deep lg:col-span-4">
-            <Image
-              src="/img-study.jpg"
-              alt="Student studying at Baliraja"
-              fill
-              sizes="(max-width: 1024px) 100vw, 30vw"
-              className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
+          <figure className="relative aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-4">
+            <video
+              src="/home/aca-v2.mov"
+              className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
+              autoPlay
+              muted
+              loop
+              playsInline
             />
           </figure>
-          <figure className="relative aspect-[5/4] overflow-hidden bg-parchment-deep lg:aspect-[3/4] lg:col-span-3 lg:mb-24">
-            <Image
-              src="/img-books.jpg"
-              alt="Baliraja books and notes"
-              fill
-              sizes="(max-width: 1024px) 100vw, 25vw"
-              className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
+          <figure className="relative aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-3 lg:mb-24">
+            <video
+              src="/home/aca-v3.mov"
+              className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
+              autoPlay
+              muted
+              loop
+              playsInline
             />
           </figure>
         </div>
