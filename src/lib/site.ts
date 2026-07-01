@@ -125,7 +125,7 @@ export const examTracks: ExamTrack[] = [
     title: "Police Bharti",
     blurb:
       "Written preparation paired with ground and physical-test guidance for constable and driver recruitment.",
-    image: unsplash("1527822618093-743f3e57977c"),
+    image: "/home/exam-police-bharati.webp",
   },
   {
     code: "06",

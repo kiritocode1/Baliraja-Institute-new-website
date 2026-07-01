@@ -8,7 +8,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatedPathText } from "@/components/animated-path-text";
-import { academyContextItems, updates } from "@/lib/site";
+import { academyContextItems } from "@/lib/site";
 
 const routeCards = [
   {
@@ -301,57 +301,50 @@ export function AcademyContext() {
 }
 
 export function HomeStories() {
-  const featured = updates.slice(0, 3);
-
   return (
     <section className="bg-stone py-20 sm:py-28">
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
-            News & notices
+            STUDENT CORNER
           </p>
           <h2 className="mt-5 font-title text-[clamp(3.35rem,8vw,8.6rem)] font-normal leading-[0.84] tracking-normal text-ink">
             Academy stories
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-pretty text-[1rem] leading-relaxed text-ink-soft">
-            Keep the homepage current with fewer, clearer stories instead of a
-            long wall of announcements.
+            Listen to our students' preparation journeys and academy experiences
+            in their own words.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 lg:mt-14 lg:grid-cols-[0.86fr_1.28fr_0.86fr] lg:items-center">
-          {featured.map((item, index) => (
-            <Link
-              className="group relative block overflow-hidden bg-ink text-cream"
-              href={item.href}
-              key={item.title}
-            >
-              <div
-                className={
-                  index === 1
-                    ? "relative aspect-[16/11] lg:aspect-[16/10]"
-                    : "relative aspect-[16/11] lg:aspect-[4/5]"
-                }
-              >
-                <Image
-                  src={item.image}
-                  alt=""
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 33vw"
-                  className="object-cover opacity-82 transition duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] group-hover:opacity-95"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/78 via-ink/10 to-transparent" />
-              </div>
-              <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                <p className="w-fit border border-cream/38 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-cream/80">
-                  {item.tag}
-                </p>
-                <h3 className="mt-4 max-w-xl text-balance text-2xl font-semibold leading-tight sm:text-3xl">
-                  {item.title}
-                </h3>
-              </div>
-            </Link>
-          ))}
+        <div className="mt-12 grid gap-6 md:grid-cols-3 lg:mt-14 max-w-5xl mx-auto">
+          <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
+            {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
+            <video
+              src="/home/story-v1.mov"
+              className="h-full w-full object-cover"
+              controls
+              preload="metadata"
+            />
+          </div>
+          <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
+            {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
+            <video
+              src="/home/story-v2.MOV"
+              className="h-full w-full object-cover"
+              controls
+              preload="metadata"
+            />
+          </div>
+          <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
+            {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
+            <video
+              src="/home/story-v3.mp4"
+              className="h-full w-full object-cover"
+              controls
+              preload="metadata"
+            />
+          </div>
         </div>
 
         <div className="mt-10 flex justify-center">
@@ -359,7 +352,7 @@ export function HomeStories() {
             href="/news-events"
             className="inline-flex items-center gap-3 text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-ink"
           >
-            View all
+            View all updates
             <span className="grid size-9 place-items-center rounded-full border border-ink/35 transition-colors hover:bg-ink hover:text-cream">
               <ArrowRight className="size-4" aria-hidden="true" />
             </span>
