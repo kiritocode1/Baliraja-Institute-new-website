@@ -97,14 +97,14 @@ export const examTracks: ExamTrack[] = [
     title: "MPSC",
     blurb:
       "Rajyaseva, PSI, STI, ASO and combined group services, with integrated prelims and mains coverage.",
-    image: unsplash("1561089489-f13d5e730d72"),
+    image: "/home/exam-mpsc.webp",
   },
   {
     code: "02",
     title: "UPSC Civil Services",
     blurb:
       "Foundation to mains mentoring in Marathi and English mediums, optional subject guidance, and answer writing.",
-    image: unsplash("1513475382585-d06e58bcb0e0"),
+    image: "/home/exam-upsc.jpg",
   },
   {
     code: "03",
@@ -118,7 +118,7 @@ export const examTracks: ExamTrack[] = [
     title: "SSC & Railways",
     blurb:
       "CGL, CHSL, MTS and RRB tracks with sectional tests and a tier-wise practice calendar.",
-    image: unsplash("1574130303188-31a915382726"),
+    image: "/home/exam-railways.webp",
   },
   {
     code: "05",
@@ -132,7 +132,7 @@ export const examTracks: ExamTrack[] = [
     title: "Talathi & ZP",
     blurb:
       "Talathi, Gram Sevak, Zilla Parishad and Saralseva exams, with district-specific current affairs.",
-    image: unsplash("1606761568499-6d2451b23c66"),
+    image: "/home/exam-zp.jpeg",
   },
 ];
 
@@ -187,7 +187,7 @@ export const featuredExams: FeaturedExam[] = [
     exams: "NDA · CDS · AFCAT · Agniveer GD & Technical · TGC",
     blurb:
       "Written coaching, physical preparation and SSB interview guidance for the National Defence Academy and Agniveer recruitment.",
-    image: unsplash("1615482319206-d2545553676e"),
+    image: "/home/exam-army.webp",
     alt: "An officer cadet on parade in ceremonial dress with the national tricolour sash",
   },
   {
