@@ -46,21 +46,25 @@ const principles = [
     title: "Choose one route",
     body: "Start with the exam in front of you. A focused attempt beats scattered preparation.",
     icon: GraduationCap,
+    image: "/home/pre-courses.png",
   },
   {
     title: "Keep a daily table",
     body: "Class, reading, revision and mock practice need a visible rhythm, not vague motivation.",
     icon: NotebookPen,
+    image: "/home/pre-student-life.png",
   },
   {
     title: "Test before comfort",
     body: "Mock pressure shows speed, gaps and presentation while there is still time to correct.",
     icon: BookOpenCheck,
+    image: "/home/pre-scholarship.png",
   },
   {
     title: "Ask early",
     body: "Fees, medium, hostel, family visits and batch timing should be settled before joining.",
     icon: MessageCircleQuestion,
+    image: "/home/pre-admission.jpeg",
   },
 ];
 
@@ -205,12 +209,21 @@ export function PreparationPrinciples() {
 
             return (
               <article className="group" key={item.title}>
+                <div className="relative aspect-[16/10] overflow-hidden bg-stone mb-6">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.035]"
+                  />
+                </div>
                 <Icon
                   className="size-7 text-river transition-transform duration-500 group-hover:-translate-y-1"
                   aria-hidden="true"
                   strokeWidth={1.8}
                 />
-                <h3 className="mt-8 text-2xl font-semibold leading-tight text-ink">
+                <h3 className="mt-6 text-2xl font-semibold leading-tight text-ink">
                   {item.title}
                 </h3>
                 <p className="mt-4 text-[0.98rem] leading-relaxed text-ink-soft">
