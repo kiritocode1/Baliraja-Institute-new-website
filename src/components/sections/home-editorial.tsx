@@ -160,15 +160,15 @@ export function HomeRouteLauncher() {
                 sizes="(max-width: 768px) 100vw, 25vw"
                 className="object-cover opacity-78 transition duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.045] group-hover:opacity-95"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/50 to-ink/10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/78 via-ink/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cream/90">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cream/70">
                   {card.eyebrow}
                 </p>
-                <h3 className="mt-3 font-title text-[clamp(3.1rem,5.8vw,6.4rem)] font-normal leading-[0.82]">
+                <h3 className="mt-3 font-title text-[clamp(2rem,5vw,3rem)] font-normal leading-[0.82] lg:text-[clamp(1.75rem,2.2vw,2.4rem)] xl:text-[clamp(2.2rem,2.8vw,3.2rem)]">
                   {card.title}
                 </h3>
-                <p className="mt-5 max-w-sm translate-y-0 text-[1rem] leading-relaxed text-cream/90 opacity-100 transition duration-500 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-focus-visible:translate-y-0 lg:group-focus-visible:opacity-100">
+                <p className="mt-5 max-w-sm translate-y-0 text-[1rem] leading-relaxed text-cream/78 opacity-100 transition duration-500 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-focus-visible:translate-y-0 lg:group-focus-visible:opacity-100">
                   {card.body}
                 </p>
               </div>
