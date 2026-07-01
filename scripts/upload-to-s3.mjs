@@ -27,35 +27,34 @@ const loadEnv = () => {
 loadEnv();
 
 const {
-  R2_ACCOUNT_ID,
-  R2_ACCESS_KEY_ID,
-  R2_SECRET_ACCESS_KEY,
-  R2_BUCKET_NAME,
+  AWS_S3_BUCKET,
+  YOUR_ACCESS_KEY_ID,
+  YOUR_SECRET_ACCESS_KEY,
+  YOUR_AWS_REGION,
 } = process.env;
 
 if (
-  !R2_ACCOUNT_ID ||
-  !R2_ACCESS_KEY_ID ||
-  !R2_SECRET_ACCESS_KEY ||
-  !R2_BUCKET_NAME
+  !AWS_S3_BUCKET ||
+  !YOUR_ACCESS_KEY_ID ||
+  !YOUR_SECRET_ACCESS_KEY ||
+  !YOUR_AWS_REGION
 ) {
-  console.error("Error: Missing R2 environment variables.");
+  console.error("Error: Missing S3 environment variables.");
   console.error(
     "Please ensure the following variables are defined in your .env file:",
   );
-  console.error("  R2_ACCOUNT_ID");
-  console.error("  R2_ACCESS_KEY_ID");
-  console.error("  R2_SECRET_ACCESS_KEY");
-  console.error("  R2_BUCKET_NAME");
+  console.error("  AWS_S3_BUCKET");
+  console.error("  YOUR_ACCESS_KEY_ID");
+  console.error("  YOUR_SECRET_ACCESS_KEY");
+  console.error("  YOUR_AWS_REGION");
   process.exit(1);
 }
 
 const s3 = new S3Client({
-  region: "auto",
-  endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  region: YOUR_AWS_REGION,
   credentials: {
-    accessKeyId: R2_ACCESS_KEY_ID,
-    secretAccessKey: R2_SECRET_ACCESS_KEY,
+    accessKeyId: YOUR_ACCESS_KEY_ID,
+    secretAccessKey: YOUR_SECRET_ACCESS_KEY,
   },
 });
 
@@ -87,11 +86,11 @@ const uploadFile = async (filePath, key) => {
   const contentType = getContentType(filePath);
 
   console.log(
-    `Uploading ${filePath} to bucket as '${key}' (${contentType})...`,
+    `Uploading ${filePath} to S3 bucket as '${key}' (${contentType})...`,
   );
 
   const command = new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
+    Bucket: AWS_S3_BUCKET.trim(),
     Key: key,
     Body: fileStream,
     ContentType: contentType,
@@ -106,6 +105,7 @@ const uploadFile = async (filePath, key) => {
 };
 
 const main = async () => {
+  console.log("Using AWS S3 bucket configuration...");
   const dirPath = path.join(process.cwd(), "public", "home");
   if (!fs.existsSync(dirPath)) {
     console.error(`Directory ${dirPath} does not exist.`);
