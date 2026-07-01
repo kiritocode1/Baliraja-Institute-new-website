@@ -285,47 +285,41 @@ export const academyContextItems: AcademyContextItem[] = [
 
 /* Campus-life gallery. Prefer local/public images first; replace or append as
  * real academy/gallery photographs become available. */
-export type GalleryImage = { src: string; alt: string; caption: string };
+export type GalleryImage = {
+  src: string;
+  alt: string;
+  caption: string;
+  type?: "image" | "video";
+  aspect?: "vertical" | "horizontal";
+};
 export const galleryImages: GalleryImage[] = [
   {
-    src: "/img-classroom.jpg",
-    alt: "Baliraja Institute classroom arranged for competitive exam coaching",
-    caption: "Classroom",
+    src: "/home/camp-v1.mov",
+    alt: "Baliraja campus video 1",
+    caption: "Campus rhythm",
+    type: "video",
+    aspect: "vertical",
   },
   {
-    src: "/img-study.jpg",
-    alt: "A Baliraja Institute student writing notes during preparation",
-    caption: "Study hour",
+    src: "/home/camp-v2.mov",
+    alt: "Baliraja campus video 2",
+    caption: "Active library",
+    type: "video",
+    aspect: "vertical",
   },
   {
-    src: "/img-books.jpg",
-    alt: "Reference books and study notes for competitive exam preparation",
-    caption: "Reference shelf",
+    src: "/home/camp-v3.mp4",
+    alt: "Baliraja campus video 3",
+    caption: "Classroom debate",
+    type: "video",
+    aspect: "vertical",
   },
   {
-    src: "/img-reading.jpg",
-    alt: "A student reading exam preparation material",
-    caption: "Reading routine",
-  },
-  {
-    src: "/hero-poster.jpg",
-    alt: "Students walking toward an institutional campus building",
-    caption: "Campus arrival",
-  },
-  {
-    src: "/img-classroom.jpg",
-    alt: "Lecture room view at Baliraja Institute",
-    caption: "Lecture day",
-  },
-  {
-    src: "/img-study.jpg",
-    alt: "Student desk with notebooks during focused preparation",
+    src: "/home/camp-v4.mp4",
+    alt: "Baliraja campus video 4",
     caption: "Mentor review",
-  },
-  {
-    src: "/img-reading.jpg",
-    alt: "Reading material used by Baliraja Institute aspirants",
-    caption: "Revision work",
+    type: "video",
+    aspect: "vertical",
   },
 ];
 
