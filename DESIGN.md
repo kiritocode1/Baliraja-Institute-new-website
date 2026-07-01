@@ -66,7 +66,7 @@ Section rhythm: `dark video → maroon → parchment → parchment-deep → maro
   resolve to plain visible text. Always test it.
 
 ## Imagery
-Self-hosted in `/public`: `hero.mp4` (+ `hero-poster.jpg`), `img-classroom.jpg`,
+Self-hosted in `/public`: `home/hero-video.mp4` (+ `hero-poster.jpg`), `img-classroom.jpg`,
 `img-reading.jpg`, `img-study.jpg`, `img-books.jpg`. Warm-toned to sit with maroon.
 Hero video is graded with a maroon gradient for legible cream text. Swap these for
 real Baliraja photography (campus, faculty, study hall, selected students) before launch.
