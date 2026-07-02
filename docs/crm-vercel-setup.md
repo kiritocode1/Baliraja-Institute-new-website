@@ -26,6 +26,10 @@ GMAIL_FROM_EMAIL=baliraja.example@gmail.com
 GMAIL_FROM_NAME=Baliraja Institute
 DATABASE_URL=postgresql://...
 BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
+AWS_S3_BUCKET=baliraja
+YOUR_ACCESS_KEY_ID=replace-with-aws-access-key-id
+YOUR_AWS_REGION=ap-south-1
+YOUR_SECRET_ACCESS_KEY=replace-with-aws-secret-access-key
 RAZORPAY_KEY_ID=rzp_test_...
 RAZORPAY_KEY_SECRET=...
 NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_...
@@ -119,6 +123,12 @@ system simple:
 
 If the CRM later adds document uploads, use Vercel Blob only for those files and
 keep lead metadata in Neon.
+
+## AWS S3 asset upload
+
+The `pnpm upload-assets` helper uploads files from `public/home` to S3. Keep the
+AWS access key and secret in local or Vercel environment variables only; do not
+commit real values.
 
 ## Student portal
 
