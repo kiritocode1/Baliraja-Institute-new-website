@@ -1,17 +1,91 @@
 "use server";
 
 import { createLead, parseLeadRequestType } from "@/lib/crm/leads";
+import {
+  type AdmissionFormInput,
+  admissionFormSchema,
+  admissionProgramLabels,
+} from "@/schemas/admission.schema";
 
 export type EnquiryState = {
   status: "idle" | "success" | "error";
   message?: string;
-  errors?: Partial<
-    Record<"name" | "phone" | "email" | "track" | "requestType", string>
-  >;
+  errors?: Record<string, string>;
 };
 
-const PHONE_RE = /^[0-9+\-\s()]{10,18}$/;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function text(formData: FormData, name: string) {
+  return String(formData.get(name) ?? "").trim();
+}
+
+function optionalText(formData: FormData, name: string) {
+  return text(formData, name) || undefined;
+}
+
+function numberValue(formData: FormData, name: string) {
+  return Number(text(formData, name));
+}
+
+function admissionValues(formData: FormData) {
+  const education: Partial<AdmissionFormInput["education"]> = {};
+  const tenthPercentage = text(formData, "education.tenth.percentage");
+  const twelfthStream = text(formData, "education.twelfth.stream");
+  const twelfthPercentage = text(formData, "education.twelfth.percentage");
+  const graduationCourse = text(formData, "education.graduation.course");
+  const graduationPercentage = text(
+    formData,
+    "education.graduation.percentage",
+  );
+
+  if (tenthPercentage) {
+    education.tenth = { percentage: Number(tenthPercentage) };
+  }
+
+  if (twelfthStream || twelfthPercentage) {
+    education.twelfth = {
+      ...(twelfthStream ? { stream: twelfthStream } : {}),
+      percentage: Number(twelfthPercentage),
+    };
+  }
+
+  if (graduationCourse || graduationPercentage) {
+    education.graduation = {
+      course: graduationCourse,
+      ...(graduationPercentage
+        ? { percentage: Number(graduationPercentage) }
+        : {}),
+    };
+  }
+
+  return {
+    fullName: text(formData, "fullName"),
+    gender: text(formData, "gender"),
+    guardianName: text(formData, "guardianName"),
+    dateOfBirth: text(formData, "dateOfBirth"),
+    fullAddress: text(formData, "fullAddress"),
+    mobile1: text(formData, "mobile1"),
+    mobile2: optionalText(formData, "mobile2"),
+    education,
+    desiredPrograms: formData.getAll("desiredPrograms").map(String),
+    weightKg: numberValue(formData, "weightKg"),
+    heightCm: numberValue(formData, "heightCm"),
+    referralSources: formData.getAll("referralSources").map(String),
+    otherReferralDetail: optionalText(formData, "otherReferralDetail"),
+    declarationAgreed: formData.get("declarationAgreed") === "true",
+  };
+}
+
+function fieldErrors(error: {
+  issues: { path: PropertyKey[]; message: string }[];
+}) {
+  const errors: Record<string, string> = {};
+
+  for (const issue of error.issues) {
+    const key = issue.path.join(".") || "form";
+    errors[key] ??= issue.message;
+  }
+
+  return errors;
+}
 
 export async function submitEnquiry(
   _prev: EnquiryState,
@@ -22,35 +96,39 @@ export async function submitEnquiry(
     return { status: "success", message: "Thank you. We'll be in touch." };
   }
 
-  const name = String(formData.get("name") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const track = String(formData.get("track") ?? "").trim();
+  const parsed = admissionFormSchema.safeParse(admissionValues(formData));
   const requestType = parseLeadRequestType(
     String(formData.get("requestType") ?? ""),
   );
-  const message = String(formData.get("message") ?? "").trim();
 
-  const errors: EnquiryState["errors"] = {};
-  if (name.length < 2) errors.name = "Please enter your full name.";
-  if (!PHONE_RE.test(phone))
-    errors.phone = "Enter a valid phone number we can call you on.";
-  if (email && !EMAIL_RE.test(email))
-    errors.email = "That email address doesn't look right.";
-  if (!track) errors.track = "Choose the exam you're preparing for.";
-  if (!requestType) errors.requestType = "Choose what this enquiry is about.";
-
-  if (Object.keys(errors).length > 0) {
-    return { status: "error", errors };
+  if (!parsed.success) {
+    return { status: "error", errors: fieldErrors(parsed.error) };
   }
 
+  const admission = parsed.data;
+  const track = admission.desiredPrograms
+    .map((program) => admissionProgramLabels[program])
+    .join(", ");
   const enquiry = {
-    name,
-    phone,
-    email: email || null,
+    name: admission.fullName,
+    phone: admission.mobile1,
+    email: null,
     track,
     requestType: requestType ?? "admission",
-    message: message || null,
+    message: null,
+    source: "admission_form",
+    gender: admission.gender,
+    guardianName: admission.guardianName,
+    dateOfBirth: admission.dateOfBirth,
+    fullAddress: admission.fullAddress,
+    mobile2: admission.mobile2 ?? null,
+    education: admission.education,
+    desiredPrograms: admission.desiredPrograms,
+    weightKg: admission.weightKg,
+    heightCm: admission.heightCm,
+    referralSources: admission.referralSources,
+    otherReferralDetail: admission.otherReferralDetail ?? null,
+    declarationAgreed: admission.declarationAgreed,
   };
 
   try {
@@ -62,6 +140,6 @@ export async function submitEnquiry(
 
   return {
     status: "success",
-    message: `Thank you, ${name.split(" ")[0]}. Your enquiry for ${track} has reached us; our team will call you within two working days.`,
+    message: `Thank you, ${admission.fullName.split(" ")[0]}. Your admission form for ${track} has reached us; our team will call you within two working days.`,
   };
 }

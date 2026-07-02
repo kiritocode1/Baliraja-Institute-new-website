@@ -47,6 +47,10 @@ import {
   listStudents,
 } from "@/lib/crm/students";
 import { galleryImages } from "@/lib/site";
+import {
+  admissionProgramLabels,
+  referralSourceLabels,
+} from "@/schemas/admission.schema";
 
 export const dynamic = "force-dynamic";
 
@@ -142,6 +146,109 @@ function CrmQuickLink({
     <Link href={href} className={className}>
       {content}
     </Link>
+  );
+}
+
+function formatProgramList(programs: Lead["desiredPrograms"]) {
+  return programs
+    .map((program) => admissionProgramLabels[program] ?? program)
+    .join(", ");
+}
+
+function formatReferralList(referrals: Lead["referralSources"]) {
+  return referrals
+    .map((source) => referralSourceLabels[source] ?? source)
+    .join(", ");
+}
+
+function formatEducation(education: Lead["education"]) {
+  if (!education) return "";
+
+  return [
+    education.tenth ? `10th ${education.tenth.percentage}%` : "",
+    education.twelfth
+      ? `12th ${education.twelfth.stream ? `${education.twelfth.stream} ` : ""}${education.twelfth.percentage}%`
+      : "",
+    education.graduation
+      ? `Graduation ${education.graduation.course}${
+          education.graduation.percentage
+            ? ` ${education.graduation.percentage}%`
+            : ""
+        }`
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function AdmissionDetails({ lead }: { lead: Lead }) {
+  const programs = formatProgramList(lead.desiredPrograms);
+  const referrals = formatReferralList(lead.referralSources);
+  const education = formatEducation(lead.education);
+  const hasDetails = Boolean(
+    lead.gender ||
+      lead.guardianName ||
+      lead.dateOfBirth ||
+      lead.fullAddress ||
+      lead.mobile2 ||
+      programs ||
+      education ||
+      lead.weightKg ||
+      lead.heightCm ||
+      referrals ||
+      lead.otherReferralDetail,
+  );
+
+  if (!hasDetails) return null;
+
+  return (
+    <div className="grid gap-4 border border-line bg-parchment-deep p-4 text-sm xl:col-span-3 md:grid-cols-3">
+      <div>
+        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
+          Student
+        </p>
+        <p className="mt-2 text-ink">
+          {[lead.gender, lead.dateOfBirth].filter(Boolean).join(" · ") || "—"}
+        </p>
+        {lead.guardianName ? (
+          <p className="mt-1 text-ink-soft">Guardian: {lead.guardianName}</p>
+        ) : null}
+        {lead.fullAddress ? (
+          <p className="mt-1 text-ink-soft">{lead.fullAddress}</p>
+        ) : null}
+      </div>
+      <div>
+        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
+          Program
+        </p>
+        {programs ? <p className="mt-2 text-ink">{programs}</p> : null}
+        {education ? <p className="mt-1 text-ink-soft">{education}</p> : null}
+        {lead.weightKg || lead.heightCm ? (
+          <p className="mt-1 text-ink-soft">
+            {lead.weightKg ? `${lead.weightKg} kg` : ""}
+            {lead.weightKg && lead.heightCm ? " · " : ""}
+            {lead.heightCm ? `${lead.heightCm} cm` : ""}
+          </p>
+        ) : null}
+      </div>
+      <div>
+        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
+          Referral
+        </p>
+        {referrals ? <p className="mt-2 text-ink">{referrals}</p> : null}
+        {lead.otherReferralDetail ? (
+          <p className="mt-1 text-ink-soft">{lead.otherReferralDetail}</p>
+        ) : null}
+        {lead.mobile2 ? (
+          <a
+            href={`tel:${lead.mobile2}`}
+            className="mt-1 block w-fit text-ink-soft hover:text-oxblood"
+          >
+            Alternate: {lead.mobile2}
+          </a>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
@@ -326,6 +433,8 @@ function LeadRow({
           Save lead
         </button>
       </form>
+
+      <AdmissionDetails lead={lead} />
 
       {lead.email ? (
         <form

@@ -38,13 +38,13 @@ export const metadata = createPageMetadata({
 const steps: { num: string; title: string; body: string }[] = [
   {
     num: "01",
-    title: "You send an enquiry",
-    body: "Tell us your exam, your attempt and how to reach you. It takes a minute.",
+    title: "You submit the form",
+    body: "Share student, education, program and contact details in one place.",
   },
   {
     num: "02",
     title: "We call you back",
-    body: "Within two working days, a mentor discusses the right track, schedule and fees.",
+    body: "Within two working days, a mentor checks the right track, schedule and fees.",
   },
   {
     num: "03",
@@ -72,8 +72,8 @@ export default async function AdmissionsPage({
     <div className="bg-parchment">
       <PageHero
         eyebrow="Admissions · Open for the next batch"
-        title="Your journey starts here"
-        body="One short form. No payment, no obligation. We read every enquiry and call you back to plan the right track, batch timing and fee structure in person."
+        title="Your admission starts here"
+        body="Complete the student admission form. No payment, no obligation. We review every submission and call back to plan the right track, batch timing and fee structure in person."
         image="/hero-poster.jpg"
         imageAlt="Baliraja Institute students beginning exam preparation"
         actions={[

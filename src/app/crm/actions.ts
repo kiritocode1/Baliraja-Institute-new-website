@@ -337,8 +337,10 @@ export async function convertLeadToStudentAction(formData: FormData) {
     name: lead.name,
     email: lead.email,
     phone: lead.phone,
+    guardianName: lead.guardianName,
+    guardianPhone: lead.mobile2,
     active: true,
-    notes: lead.message,
+    notes: lead.notes ?? lead.message,
   });
 
   if (!student) throw new Error("Unable to create student.");
