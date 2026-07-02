@@ -265,7 +265,7 @@ export const KineticTextReveal = forwardRef<
             <span
               key={`${run}-${segment.key}`}
               className={cn(
-                "inline-block overflow-hidden align-baseline pb-1",
+                "inline-block max-w-full overflow-hidden break-words align-baseline pb-1 [overflow-wrap:anywhere]",
                 maskClassName,
               )}
               aria-hidden="true"
@@ -276,7 +276,7 @@ export const KineticTextReveal = forwardRef<
                 initial="hidden"
                 animate={visible ? "visible" : "hidden"}
                 className={cn(
-                  "inline-block will-change-transform",
+                  "inline-block max-w-full break-words whitespace-normal will-change-transform [overflow-wrap:anywhere]",
                   segmentClassName,
                 )}
                 onAnimationComplete={

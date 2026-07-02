@@ -43,7 +43,7 @@ export function PageHero({
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
             {eyebrow}
           </p>
-          <h1 className="mt-5 max-w-[11ch] font-title text-[clamp(4.3rem,10vw,10rem)] font-normal leading-[0.82] tracking-normal">
+          <h1 className="mt-5 max-w-full font-title text-[clamp(3rem,14vw,10rem)] font-normal leading-[0.88] tracking-normal sm:max-w-[11ch] sm:text-[clamp(4.3rem,10vw,10rem)] sm:leading-[0.82]">
             <RevealText
               text={title}
               immediate
