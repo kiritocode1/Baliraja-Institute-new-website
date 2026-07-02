@@ -2,7 +2,7 @@
 
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
-import { useActionState, useEffect, useId, useMemo, useState } from "react";
+import { useActionState, useId } from "react";
 import { type EnquiryState, submitEnquiry } from "@/app/admissions/actions";
 import {
   admissionProgramLabels,
@@ -12,7 +12,6 @@ import {
 } from "@/schemas/admission.schema";
 
 const initialEnquiryState: EnquiryState = { status: "idle" };
-const lastStep = 3;
 
 const fieldBase =
   "w-full border bg-parchment px-4 py-3.5 text-ink placeholder:text-ink-soft/60 transition-colors focus-visible:outline-none focus-visible:border-brass-deep";
@@ -20,6 +19,10 @@ const labelClass =
   "mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-ink";
 const choiceClass =
   "group flex min-h-14 cursor-pointer items-center gap-3 border border-line-strong bg-parchment px-4 py-3 text-sm font-medium text-ink transition-colors hover:border-oxblood";
+const navButtonClass =
+  "inline-flex cursor-pointer items-center justify-center gap-2 border border-line-strong px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:border-oxblood hover:text-oxblood";
+const primaryButtonClass =
+  "inline-flex cursor-pointer items-center justify-center gap-2 bg-oxblood px-6 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright disabled:cursor-not-allowed disabled:opacity-70";
 
 const steps = [
   {
@@ -109,6 +112,24 @@ function defaultProgramFromTrack(track: string) {
   return null;
 }
 
+function StepIntro({ index }: { index: number }) {
+  const step = steps[index];
+
+  return (
+    <div className="sm:col-span-2">
+      <p className="text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-brass-deep">
+        Step {index + 1} of {steps.length}
+      </p>
+      <h2 className="mt-2 font-display text-3xl leading-none text-oxblood">
+        {step.title}
+      </h2>
+      <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
+        {step.description}
+      </p>
+    </div>
+  );
+}
+
 function FieldBlock({
   children,
   className = "",
@@ -179,17 +200,10 @@ export function EnquiryForm({
     submitEnquiry,
     initialEnquiryState,
   );
-  const [currentStep, setCurrentStep] = useState(0);
   const uid = useId();
   const errors = state.status === "error" ? state.errors : undefined;
-  const defaultProgram = useMemo(
-    () => defaultProgramFromTrack(defaultTrack),
-    [defaultTrack],
-  );
-
-  useEffect(() => {
-    if (errors) setCurrentStep(stepForErrors(errors));
-  }, [errors]);
+  const activeStep = stepForErrors(errors);
+  const defaultProgram = defaultProgramFromTrack(defaultTrack);
 
   if (state.status === "success") {
     return (
@@ -215,10 +229,20 @@ export function EnquiryForm({
   return (
     <form
       action={formAction}
-      className="border border-line-strong bg-paper"
+      className="admission-form border border-line-strong bg-paper"
       noValidate
     >
       <input type="hidden" name="requestType" value={defaultRequestType} />
+      {steps.map((step, index) => (
+        <input
+          key={step.title}
+          id={`admission-step-${index}`}
+          className="sr-only"
+          type="radio"
+          name="admissionStep"
+          defaultChecked={activeStep === index}
+        />
+      ))}
 
       {/* Honeypot */}
       <div aria-hidden="true" className="absolute h-0 w-0 overflow-hidden">
@@ -231,39 +255,29 @@ export function EnquiryForm({
         />
       </div>
 
-      <div className="border-b border-line bg-parchment-deep p-5 sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-brass-deep">
-              Step {currentStep + 1} of {steps.length}
-            </p>
-            <h2 className="mt-2 font-display text-3xl leading-none text-oxblood">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
-              {steps[currentStep].description}
-            </p>
-          </div>
-          <div className="grid grid-cols-4 gap-1.5 lg:w-56">
-            {steps.map((step, index) => (
-              <button
-                key={step.title}
-                type="button"
-                onClick={() => setCurrentStep(index)}
-                aria-label={step.title}
-                className={`h-2 transition-colors ${
-                  currentStep === index ? "bg-oxblood" : "bg-line-strong"
-                }`}
-              />
-            ))}
-          </div>
+      <div data-admission-header className="border-b border-line p-5 sm:p-6">
+        <div className="grid grid-cols-4 gap-1.5">
+          {steps.map((step, index) => (
+            <label
+              key={step.title}
+              htmlFor={`admission-step-${index}`}
+              data-step-trigger={index}
+              className="cursor-pointer py-2"
+              aria-label={step.title}
+            >
+              <span className="admission-step-bar block h-2 bg-line-strong transition-colors" />
+              <span className="mt-2 hidden text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-ink-soft sm:block">
+                {step.title}
+              </span>
+            </label>
+          ))}
         </div>
       </div>
 
-      <div className="overflow-hidden p-5 sm:p-7">
-        <section
-          className={currentStep === 0 ? "grid gap-6 sm:grid-cols-2" : "hidden"}
-        >
+      <div data-admission-body className="overflow-hidden p-5 sm:p-7">
+        <section data-step-panel="0" className="grid gap-6 sm:grid-cols-2">
+          <StepIntro index={0} />
+
           <FieldBlock
             id={id("fullName")}
             label="Full name"
@@ -369,9 +383,9 @@ export function EnquiryForm({
           </FieldBlock>
         </section>
 
-        <section
-          className={currentStep === 1 ? "grid gap-6 sm:grid-cols-2" : "hidden"}
-        >
+        <section data-step-panel="1" className="grid gap-6 sm:grid-cols-2">
+          <StepIntro index={1} />
+
           <FieldBlock
             id={id("mobile1")}
             label="Primary mobile"
@@ -500,9 +514,9 @@ export function EnquiryForm({
           </div>
         </section>
 
-        <section
-          className={currentStep === 2 ? "grid gap-6 sm:grid-cols-2" : "hidden"}
-        >
+        <section data-step-panel="2" className="grid gap-6 sm:grid-cols-2">
+          <StepIntro index={2} />
+
           <div className="sm:col-span-2">
             <p className={labelClass}>
               Desired programs <span className="text-destructive">*</span>
@@ -568,9 +582,9 @@ export function EnquiryForm({
           </FieldBlock>
         </section>
 
-        <section
-          className={currentStep === 3 ? "grid gap-6 sm:grid-cols-2" : "hidden"}
-        >
+        <section data-step-panel="3" className="grid gap-6 sm:grid-cols-2">
+          <StepIntro index={3} />
+
           <div className="sm:col-span-2">
             <p className={labelClass}>
               How did you hear about us?{" "}
@@ -626,41 +640,49 @@ export function EnquiryForm({
         </section>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-line bg-parchment-deep p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-        <button
-          type="button"
-          onClick={() => setCurrentStep((step) => Math.max(0, step - 1))}
-          disabled={currentStep === 0 || isPending}
-          className="inline-flex items-center justify-center gap-2 border border-line-strong px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:border-oxblood hover:text-oxblood disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <ChevronLeft className="size-4" aria-hidden="true" />
-          Back
-        </button>
-
-        {currentStep === lastStep ? (
+      <div className="border-t border-line bg-parchment-deep p-5 sm:p-6">
+        <div data-step-nav="0" className="justify-end">
+          <label htmlFor="admission-step-1" className={primaryButtonClass}>
+            Continue
+            <ChevronRight className="size-4" aria-hidden="true" />
+          </label>
+        </div>
+        <div data-step-nav="1" className="justify-between">
+          <label htmlFor="admission-step-0" className={navButtonClass}>
+            <ChevronLeft className="size-4" aria-hidden="true" />
+            Back
+          </label>
+          <label htmlFor="admission-step-2" className={primaryButtonClass}>
+            Continue
+            <ChevronRight className="size-4" aria-hidden="true" />
+          </label>
+        </div>
+        <div data-step-nav="2" className="justify-between">
+          <label htmlFor="admission-step-1" className={navButtonClass}>
+            <ChevronLeft className="size-4" aria-hidden="true" />
+            Back
+          </label>
+          <label htmlFor="admission-step-3" className={primaryButtonClass}>
+            Continue
+            <ChevronRight className="size-4" aria-hidden="true" />
+          </label>
+        </div>
+        <div data-step-nav="3" className="justify-between">
+          <label htmlFor="admission-step-2" className={navButtonClass}>
+            <ChevronLeft className="size-4" aria-hidden="true" />
+            Back
+          </label>
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center justify-center gap-2 bg-oxblood px-6 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright disabled:cursor-not-allowed disabled:opacity-70"
+            className={primaryButtonClass}
           >
             {isPending ? "Submitting" : "Submit admission form"}
             {!isPending ? (
               <Check className="size-4" aria-hidden="true" />
             ) : null}
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() =>
-              setCurrentStep((step) => Math.min(lastStep, step + 1))
-            }
-            disabled={isPending}
-            className="inline-flex items-center justify-center gap-2 bg-oxblood px-6 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            Continue
-            <ChevronRight className="size-4" aria-hidden="true" />
-          </button>
-        )}
+        </div>
       </div>
     </form>
   );
