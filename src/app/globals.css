@@ -646,3 +646,25 @@ html[data-a11y-hide-media]
   ) {
   opacity: 0;
 }
+
+#google_translate_element {
+  position: absolute;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget,
+.goog-te-balloon-frame,
+.VIpgJd-ZVi9od-ORHb-OEVmcd {
+  /* biome-ignore lint/complexity/noImportantStyles: Google Translate injects competing inline chrome. */
+  display: none !important;
+}
+
+body {
+  /* biome-ignore lint/complexity/noImportantStyles: Google Translate injects inline top offsets. */
+  top: 0 !important;
+}

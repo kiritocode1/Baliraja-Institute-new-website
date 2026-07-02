@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/validate-translations.mjs && next build",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
+    "validate:translations": "node scripts/validate-translations.mjs",
     "upload-assets": "node scripts/upload-to-s3.mjs"
   },
   "dependencies": {
