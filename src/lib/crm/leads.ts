@@ -5,6 +5,11 @@ import {
   readJsonFile,
   writeJsonFile,
 } from "@/lib/crm/local-store";
+import {
+  type AdmissionFormInput,
+  programValues,
+  referralValues,
+} from "@/schemas/admission.schema";
 
 export const leadStatuses = [
   "new",
@@ -26,7 +31,22 @@ export const leadRequestTypes = [
 
 export type LeadRequestType = (typeof leadRequestTypes)[number];
 
-export type Lead = {
+export type AdmissionLeadDetails = {
+  gender: AdmissionFormInput["gender"] | null;
+  guardianName: string | null;
+  dateOfBirth: string | null;
+  fullAddress: string | null;
+  mobile2: string | null;
+  education: AdmissionFormInput["education"] | null;
+  desiredPrograms: AdmissionFormInput["desiredPrograms"];
+  weightKg: number | null;
+  heightCm: number | null;
+  referralSources: AdmissionFormInput["referralSources"];
+  otherReferralDetail: string | null;
+  declarationAgreed: boolean;
+};
+
+export type Lead = AdmissionLeadDetails & {
   id: string;
   name: string;
   phone: string;
@@ -42,7 +62,7 @@ export type Lead = {
   updatedAt: string;
 };
 
-export type CreateLeadInput = {
+export type CreateLeadInput = Partial<AdmissionLeadDetails> & {
   name: string;
   phone: string;
   email: string | null;
@@ -75,8 +95,78 @@ function normalizeLeadRequestType(value: unknown): LeadRequestType {
   return isLeadRequestType(normalized) ? normalized : "admission";
 }
 
+function maybeString(value: unknown) {
+  const normalized = String(value ?? "").trim();
+  return normalized || null;
+}
+
+function maybeNumber(value: unknown) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseJsonValue(value: unknown) {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function parseProgramList(
+  value: unknown,
+): AdmissionLeadDetails["desiredPrograms"] {
+  const parsed = parseJsonValue(value);
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed.filter((item): item is (typeof programValues)[number] =>
+    programValues.includes(item),
+  );
+}
+
+function parseReferralList(
+  value: unknown,
+): AdmissionLeadDetails["referralSources"] {
+  const parsed = parseJsonValue(value);
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed.filter((item): item is (typeof referralValues)[number] =>
+    referralValues.includes(item),
+  );
+}
+
+function parseEducation(value: unknown): AdmissionLeadDetails["education"] {
+  const parsed = parseJsonValue(value);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return null;
+  }
+
+  return parsed as AdmissionLeadDetails["education"];
+}
+
+function normalizeAdmissionDetails(
+  input: Partial<AdmissionLeadDetails>,
+): AdmissionLeadDetails {
+  return {
+    gender: input.gender ?? null,
+    guardianName: input.guardianName ?? null,
+    dateOfBirth: input.dateOfBirth ?? null,
+    fullAddress: input.fullAddress ?? null,
+    mobile2: input.mobile2 ?? null,
+    education: input.education ?? null,
+    desiredPrograms: input.desiredPrograms ?? [],
+    weightKg: input.weightKg ?? null,
+    heightCm: input.heightCm ?? null,
+    referralSources: input.referralSources ?? [],
+    otherReferralDetail: input.otherReferralDetail ?? null,
+    declarationAgreed: input.declarationAgreed ?? false,
+  };
+}
+
 function mapDbLead(row: Record<string, unknown>): Lead {
   const status = String(row.status);
+  const gender = String(row.gender ?? "");
 
   return {
     id: String(row.id),
@@ -92,12 +182,26 @@ function mapDbLead(row: Record<string, unknown>): Lead {
     source: String(row.source ?? "admissions_form"),
     receivedAt: new Date(String(row.received_at)).toISOString(),
     updatedAt: new Date(String(row.updated_at)).toISOString(),
+    gender: gender === "male" || gender === "female" ? gender : null,
+    guardianName: maybeString(row.guardian_name),
+    dateOfBirth: maybeString(row.date_of_birth),
+    fullAddress: maybeString(row.full_address),
+    mobile2: maybeString(row.mobile2),
+    education: parseEducation(row.education),
+    desiredPrograms: parseProgramList(row.desired_programs),
+    weightKg: maybeNumber(row.weight_kg),
+    heightCm: maybeNumber(row.height_cm),
+    referralSources: parseReferralList(row.referral_sources),
+    otherReferralDetail: maybeString(row.other_referral_detail),
+    declarationAgreed: row.declaration_agreed === true,
   };
 }
 
 function normalizeStoredLead(lead: Lead): Lead {
+  const details = normalizeAdmissionDetails(lead);
   return {
     ...lead,
+    ...details,
     requestType: normalizeLeadRequestType(lead.requestType),
     status: isLeadStatus(lead.status) ? lead.status : "new",
   };
@@ -112,7 +216,9 @@ export function getStatusLabel(status: LeadStatus) {
 
 export async function createLead(input: CreateLeadInput) {
   const now = new Date().toISOString();
+  const admissionDetails = normalizeAdmissionDetails(input);
   const lead: Lead = {
+    ...admissionDetails,
     id: crypto.randomUUID(),
     name: input.name,
     phone: input.phone,
@@ -145,7 +251,19 @@ export async function createLead(input: CreateLeadInput) {
         notes,
         source,
         received_at,
-        updated_at
+        updated_at,
+        gender,
+        guardian_name,
+        date_of_birth,
+        full_address,
+        mobile2,
+        education,
+        desired_programs,
+        weight_kg,
+        height_cm,
+        referral_sources,
+        other_referral_detail,
+        declaration_agreed
       )
       VALUES (
         ${lead.id},
@@ -160,7 +278,19 @@ export async function createLead(input: CreateLeadInput) {
         ${lead.notes},
         ${lead.source},
         ${lead.receivedAt},
-        ${lead.updatedAt}
+        ${lead.updatedAt},
+        ${lead.gender},
+        ${lead.guardianName},
+        ${lead.dateOfBirth},
+        ${lead.fullAddress},
+        ${lead.mobile2},
+        ${JSON.stringify(lead.education)}::jsonb,
+        ${JSON.stringify(lead.desiredPrograms)}::jsonb,
+        ${lead.weightKg},
+        ${lead.heightCm},
+        ${JSON.stringify(lead.referralSources)}::jsonb,
+        ${lead.otherReferralDetail},
+        ${lead.declarationAgreed}
       )
     `;
     return lead;
@@ -193,7 +323,19 @@ export async function listLeads(limit = 100) {
         notes,
         source,
         received_at,
-        updated_at
+        updated_at,
+        gender,
+        guardian_name,
+        date_of_birth,
+        full_address,
+        mobile2,
+        education,
+        desired_programs,
+        weight_kg,
+        height_cm,
+        referral_sources,
+        other_referral_detail,
+        declaration_agreed
       FROM crm_leads
       ORDER BY received_at DESC
       LIMIT ${limit}

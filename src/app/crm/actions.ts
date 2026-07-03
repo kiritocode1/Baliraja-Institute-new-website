@@ -36,15 +36,21 @@ import {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function revalidateCrmPaths(...paths: string[]) {
+  for (const path of new Set(["/crm", ...paths])) {
+    revalidatePath(path);
+  }
+}
+
 function revalidateBlogSurfaces() {
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/blog");
   revalidatePath("/");
   revalidatePath("/news-events");
   revalidatePath("/news-events/[slug]", "page");
 }
 
 function revalidateCourseSurfaces() {
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/courses");
   revalidatePath("/");
   revalidatePath("/courses");
   revalidatePath("/courses/[slug]", "page");
@@ -179,7 +185,7 @@ export async function updateLeadAction(formData: FormData) {
   }
 
   await updateLead(id, { status, requestType, assignedTo, notes });
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/leads", "/crm/scholarships");
 }
 
 export async function addAdminAction(formData: FormData) {
@@ -193,7 +199,7 @@ export async function addAdminAction(formData: FormData) {
   }
 
   await addAdmin({ email, name });
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/admins");
 }
 
 export async function setAdminActiveAction(formData: FormData) {
@@ -211,7 +217,7 @@ export async function setAdminActiveAction(formData: FormData) {
   }
 
   await setAdminActive(id, active);
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/admins");
 }
 
 export async function createBlogPostAction(input: BlogPostInput) {
@@ -287,7 +293,7 @@ export async function saveStudentAction(formData: FormData) {
     active: true,
     notes,
   });
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/students");
   revalidatePath("/student");
 }
 
@@ -300,7 +306,7 @@ export async function setStudentActiveAction(formData: FormData) {
   if (!id) throw new Error("Invalid student update.");
 
   await setStudentActive(id, active);
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/students");
   revalidatePath("/student");
 }
 
@@ -316,7 +322,7 @@ export async function createEnrollmentAction(formData: FormData) {
   }
 
   await createEnrollment({ studentId, courseKey, batchName });
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/students");
   revalidatePath("/student");
 }
 
@@ -337,8 +343,10 @@ export async function convertLeadToStudentAction(formData: FormData) {
     name: lead.name,
     email: lead.email,
     phone: lead.phone,
+    guardianName: lead.guardianName,
+    guardianPhone: lead.mobile2,
     active: true,
-    notes: lead.message,
+    notes: lead.notes ?? lead.message,
   });
 
   if (!student) throw new Error("Unable to create student.");
@@ -366,7 +374,7 @@ export async function convertLeadToStudentAction(formData: FormData) {
     assignedTo: lead.assignedTo,
     notes: lead.notes,
   });
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/leads", "/crm/scholarships", "/crm/students");
   revalidatePath("/student");
 }
 
@@ -392,7 +400,7 @@ export async function createCourseNoticeAction(formData: FormData) {
     attachmentName: String(formData.get("attachmentName") ?? "").trim() || null,
     expiresAt: String(formData.get("expiresAt") ?? "").trim() || null,
   });
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/students");
   revalidatePath("/student");
   revalidatePath("/student/notices");
 }
@@ -422,7 +430,7 @@ export async function createFeeInvoiceAction(formData: FormData) {
     amountPaise,
     dueDate,
   });
-  revalidatePath("/crm");
+  revalidateCrmPaths("/crm/students");
   revalidatePath("/student");
   revalidatePath("/student/fees");
 }

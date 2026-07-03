@@ -215,6 +215,45 @@
   stroke-dashoffset: 0;
 }
 
+.admission-form [data-step-panel],
+.admission-form [data-step-nav] {
+  display: none;
+}
+
+#admission-step-0:checked ~ [data-admission-body] [data-step-panel="0"],
+#admission-step-1:checked ~ [data-admission-body] [data-step-panel="1"],
+#admission-step-2:checked ~ [data-admission-body] [data-step-panel="2"],
+#admission-step-3:checked ~ [data-admission-body] [data-step-panel="3"] {
+  display: grid;
+}
+
+#admission-step-0:checked ~ div [data-step-nav="0"],
+#admission-step-1:checked ~ div [data-step-nav="1"],
+#admission-step-2:checked ~ div [data-step-nav="2"],
+#admission-step-3:checked ~ div [data-step-nav="3"] {
+  display: flex;
+  gap: 0.75rem;
+}
+
+#admission-step-0:checked
+  ~ [data-admission-header]
+  [data-step-trigger="0"]
+  .admission-step-bar,
+#admission-step-1:checked
+  ~ [data-admission-header]
+  [data-step-trigger="1"]
+  .admission-step-bar,
+#admission-step-2:checked
+  ~ [data-admission-header]
+  [data-step-trigger="2"]
+  .admission-step-bar,
+#admission-step-3:checked
+  ~ [data-admission-header]
+  [data-step-trigger="3"]
+  .admission-step-bar {
+  background: var(--oxblood);
+}
+
 .crm-blog-editor,
 .blog-content {
   color: var(--ink);
@@ -606,4 +645,26 @@ html[data-a11y-hide-media]
     [data-accessibility-panel] *
   ) {
   opacity: 0;
+}
+
+#google_translate_element {
+  position: absolute;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget,
+.goog-te-balloon-frame,
+.VIpgJd-ZVi9od-ORHb-OEVmcd {
+  /* biome-ignore lint/complexity/noImportantStyles: Google Translate injects competing inline chrome. */
+  display: none !important;
+}
+
+body {
+  /* biome-ignore lint/complexity/noImportantStyles: Google Translate injects inline top offsets. */
+  top: 0 !important;
 }

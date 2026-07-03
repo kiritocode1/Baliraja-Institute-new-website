@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { SvgUnderlineLink } from "@/components/links";
 import { overlayNavGroups, primaryNav, site, socials } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -264,6 +265,8 @@ export function SiteHeader() {
                 </SvgUnderlineLink>
               ))}
             </nav>
+
+            <LanguageSwitcher light={light} />
 
             <button
               type="button"

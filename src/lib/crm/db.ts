@@ -51,13 +51,85 @@ export async function ensureCrmSchema() {
       notes TEXT,
       source TEXT NOT NULL DEFAULT 'admissions_form',
       received_at TIMESTAMPTZ NOT NULL,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      gender TEXT,
+      guardian_name TEXT,
+      date_of_birth TEXT,
+      full_address TEXT,
+      mobile2 TEXT,
+      education JSONB,
+      desired_programs JSONB,
+      weight_kg NUMERIC,
+      height_cm NUMERIC,
+      referral_sources JSONB,
+      other_referral_detail TEXT,
+      declaration_agreed BOOLEAN NOT NULL DEFAULT FALSE
     )
   `;
 
   await db`
     ALTER TABLE crm_leads
     ADD COLUMN IF NOT EXISTS request_type TEXT NOT NULL DEFAULT 'admission'
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS gender TEXT
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS guardian_name TEXT
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS date_of_birth TEXT
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS full_address TEXT
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS mobile2 TEXT
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS education JSONB
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS desired_programs JSONB
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS weight_kg NUMERIC
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS height_cm NUMERIC
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS referral_sources JSONB
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS other_referral_detail TEXT
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS declaration_agreed BOOLEAN NOT NULL DEFAULT FALSE
   `;
 
   await db`

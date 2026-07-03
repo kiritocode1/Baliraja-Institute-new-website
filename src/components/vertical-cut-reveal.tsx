@@ -169,7 +169,10 @@ export const VerticalCutReveal = forwardRef<
           return (
             <span
               aria-hidden="true"
-              className={cn("inline-flex overflow-hidden", wordLevelClassName)}
+              className={cn(
+                "inline-flex max-w-full overflow-hidden break-words [overflow-wrap:anywhere]",
+                wordLevelClassName,
+              )}
               key={`${wordObj.characters.join("")}-${wordIndex}`}
             >
               {wordObj.characters.map((char, charIndex) => (
@@ -183,7 +186,7 @@ export const VerticalCutReveal = forwardRef<
                 >
                   <motion.span
                     animate={isAnimating ? "visible" : "hidden"}
-                    className="inline-block"
+                    className="inline-block max-w-full break-words whitespace-normal [overflow-wrap:anywhere]"
                     custom={previousCharsCount + charIndex}
                     initial="hidden"
                     onAnimationComplete={

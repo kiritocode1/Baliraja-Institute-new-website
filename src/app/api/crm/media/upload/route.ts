@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/crm/auth";
-import { hasBlobStorage, uploadCrmBlob } from "@/lib/crm/blob";
+import { hasS3Storage, uploadCrmS3 } from "@/lib/crm/s3";
 
 export const runtime = "nodejs";
 
@@ -69,21 +69,20 @@ export async function POST(req: NextRequest) {
     const bucketFolder = folder === "notices" ? "notices" : "blog";
     const pathname = `${bucketFolder}/${month}/${safeName}`;
 
-    if (hasBlobStorage()) {
-      const blob = await uploadCrmBlob({
+    if (hasS3Storage()) {
+      const asset = await uploadCrmS3({
         pathname,
         body: buffer,
         contentType: file.type,
-        access: "public",
       });
 
       return NextResponse.json({
         success: true,
-        url: blob.url,
+        url: asset.url,
         filename: file.name,
         size: file.size,
         type: file.type,
-        storage: "vercel-blob",
+        storage: "s3",
       });
     }
 

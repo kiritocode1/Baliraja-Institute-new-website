@@ -34,7 +34,7 @@ import type {
 
 type CourseEditorProps = {
   pages: CoursePage[];
-  usesBlobStorage: boolean;
+  usesS3Storage: boolean;
 };
 
 const EMPTY_BODY =
@@ -183,12 +183,12 @@ function ToolbarButton({
 function CourseComposer({
   page,
   allPages,
-  usesBlobStorage,
+  usesS3Storage,
   onClose,
 }: {
   page: CoursePage | null;
   allPages: CoursePage[];
-  usesBlobStorage: boolean;
+  usesS3Storage: boolean;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -280,8 +280,8 @@ function CourseComposer({
       }
 
       setMessage(
-        usesBlobStorage
-          ? "Image uploaded to Vercel Blob."
+        usesS3Storage
+          ? "Image uploaded to S3."
           : "Image uploaded locally for development.",
       );
     } catch (error) {
@@ -379,12 +379,12 @@ function CourseComposer({
           <div className="flex items-center gap-2">
             <span
               className={`hidden border px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] sm:inline-flex ${
-                usesBlobStorage
+                usesS3Storage
                   ? "border-brass text-brass"
                   : "border-cream/25 text-cream-muted"
               }`}
             >
-              {usesBlobStorage ? "Blob uploads" : "Local uploads"}
+              {usesS3Storage ? "S3 uploads" : "Local uploads"}
             </span>
             <button
               type="button"
@@ -769,7 +769,7 @@ function CourseComposer({
   );
 }
 
-export function CourseEditor({ pages, usesBlobStorage }: CourseEditorProps) {
+export function CourseEditor({ pages, usesS3Storage }: CourseEditorProps) {
   const [query, setQuery] = React.useState("");
   const [editingPage, setEditingPage] = React.useState<CoursePage | null>(null);
   const [composerOpen, setComposerOpen] = React.useState(false);
@@ -884,7 +884,7 @@ export function CourseEditor({ pages, usesBlobStorage }: CourseEditorProps) {
           key={editingPage?.id ?? "new-course"}
           page={editingPage}
           allPages={pages}
-          usesBlobStorage={usesBlobStorage}
+          usesS3Storage={usesS3Storage}
           onClose={() => setComposerOpen(false)}
         />
       ) : null}

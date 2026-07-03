@@ -39,7 +39,7 @@ import type {
 
 type BlogEditorProps = {
   posts: BlogPost[];
-  usesBlobStorage: boolean;
+  usesS3Storage: boolean;
 };
 
 const EMPTY_BODY =
@@ -193,12 +193,12 @@ function ToolbarButton({
 function BlogComposer({
   post,
   allPosts,
-  usesBlobStorage,
+  usesS3Storage,
   onClose,
 }: {
   post: BlogPost | null;
   allPosts: BlogPost[];
-  usesBlobStorage: boolean;
+  usesS3Storage: boolean;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -290,8 +290,8 @@ function BlogComposer({
       }
 
       setMessage(
-        usesBlobStorage
-          ? "Image uploaded to Vercel Blob."
+        usesS3Storage
+          ? "Image uploaded to S3."
           : "Image uploaded locally for development.",
       );
     } catch (error) {
@@ -404,12 +404,12 @@ function BlogComposer({
           <div className="flex items-center gap-2">
             <span
               className={`hidden border px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] sm:inline-flex ${
-                usesBlobStorage
+                usesS3Storage
                   ? "border-brass text-brass"
                   : "border-cream/25 text-cream-muted"
               }`}
             >
-              {usesBlobStorage ? "Blob uploads" : "Local uploads"}
+              {usesS3Storage ? "S3 uploads" : "Local uploads"}
             </span>
             <button
               type="button"
@@ -766,7 +766,7 @@ function BlogComposer({
   );
 }
 
-export function BlogEditor({ posts, usesBlobStorage }: BlogEditorProps) {
+export function BlogEditor({ posts, usesS3Storage }: BlogEditorProps) {
   const [query, setQuery] = React.useState("");
   const [editingPost, setEditingPost] = React.useState<BlogPost | null>(null);
   const [composerOpen, setComposerOpen] = React.useState(false);
@@ -838,7 +838,7 @@ export function BlogEditor({ posts, usesBlobStorage }: BlogEditorProps) {
             Media storage
           </p>
           <p className="mt-2 font-display text-3xl text-oxblood">
-            {usesBlobStorage ? "Blob" : "Local"}
+            {usesS3Storage ? "S3" : "Local"}
           </p>
         </div>
       </div>
@@ -880,7 +880,7 @@ export function BlogEditor({ posts, usesBlobStorage }: BlogEditorProps) {
           key={editingPost?.id ?? "new-post"}
           post={editingPost}
           allPosts={posts}
-          usesBlobStorage={usesBlobStorage}
+          usesS3Storage={usesS3Storage}
           onClose={() => setComposerOpen(false)}
         />
       ) : null}

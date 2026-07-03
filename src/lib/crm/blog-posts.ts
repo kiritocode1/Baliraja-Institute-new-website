@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { ensureCrmSchema, getSql } from "@/lib/crm/db";
 import { readJsonFile, writeJsonFile } from "@/lib/crm/local-store";
+import { isAllowedCrmMediaUrl } from "@/lib/crm/media-storage";
 import { blogPosts as staticBlogPosts } from "@/lib/site";
 
 export const blogPostStatuses = ["draft", "published", "archived"] as const;
@@ -113,23 +114,7 @@ function safeUrl(value: string, allowedDataImages = false) {
 function safeCoverImageUrl(value: string) {
   const trimmed = value.trim();
 
-  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
-
-  try {
-    const url = new URL(trimmed);
-
-    if (
-      url.protocol === "https:" &&
-      (url.hostname === "images.unsplash.com" ||
-        url.hostname.endsWith(".public.blob.vercel-storage.com"))
-    ) {
-      return trimmed;
-    }
-  } catch {
-    return "";
-  }
-
-  return "";
+  return isAllowedCrmMediaUrl(trimmed) ? trimmed : "";
 }
 
 export function sanitizeBlogHtml(input: string) {
