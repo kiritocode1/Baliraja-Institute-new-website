@@ -451,7 +451,7 @@ export function StudentAdminPanel({
             <input
               id="notice-attachment-url"
               name="attachmentUrl"
-              placeholder="Vercel Blob URL"
+              placeholder="S3 URL"
               className={fieldClass}
             />
             <label

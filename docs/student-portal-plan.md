@@ -18,7 +18,7 @@ materials, and fee dues from the CRM.
   - students with name, phone, email, guardian/contact info, and active status
   - enrollments linking students to CRM-managed course pages and batches
   - course notices/materials targeted by course, batch, or individual student
-  - notice attachments stored in Vercel Blob
+  - notice attachments stored in S3
 - Add fee management:
   - admins create fee invoices/installments for students
   - students see pending/paid fees in `/student/fees`
@@ -87,6 +87,6 @@ STUDENT_SESSION_SECRET=
 - Phase one uses simple one-time fee invoices/installments, not subscriptions or
   autopay.
 - Razorpay webhook is mandatory before a payment becomes final.
-- Existing Neon DB and Vercel Blob remain the storage stack.
+- Existing Neon DB and S3 remain the storage stack.
 - Gmail OTP is reused for students, but tables/cookies/secrets remain separate
   from admins.

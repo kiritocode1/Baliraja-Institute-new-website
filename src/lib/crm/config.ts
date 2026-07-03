@@ -7,10 +7,10 @@ export const STUDENT_OTP_TTL_MINUTES = 10;
 
 export type CrmEnvStatus = {
   bootstrapAdminsConfigured: boolean;
-  blobConfigured: boolean;
   databaseConfigured: boolean;
   gmailConfigured: boolean;
   razorpayConfigured: boolean;
+  s3Configured: boolean;
   sessionSecretConfigured: boolean;
   studentSessionSecretConfigured: boolean;
 };
@@ -35,7 +35,6 @@ export function getBootstrapAdminEmails() {
 export function getCrmEnvStatus(): CrmEnvStatus {
   return {
     bootstrapAdminsConfigured: getBootstrapAdminEmails().size > 0,
-    blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
     databaseConfigured: Boolean(process.env.DATABASE_URL),
     gmailConfigured: Boolean(
       process.env.GMAIL_SMTP_USER && process.env.GMAIL_SMTP_APP_PASSWORD,
@@ -45,6 +44,12 @@ export function getCrmEnvStatus(): CrmEnvStatus {
         process.env.RAZORPAY_KEY_SECRET &&
         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID &&
         process.env.RAZORPAY_WEBHOOK_SECRET,
+    ),
+    s3Configured: Boolean(
+      (process.env.AWS_S3_BUCKET || process.env.NEXT_PUBLIC_AWS_S3_BUCKET) &&
+        (process.env.YOUR_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID) &&
+        (process.env.YOUR_SECRET_ACCESS_KEY ||
+          process.env.AWS_SECRET_ACCESS_KEY),
     ),
     sessionSecretConfigured: Boolean(
       process.env.CRM_SESSION_SECRET || process.env.AUTH_SECRET,

@@ -289,7 +289,7 @@ export function CrmChrome({
           <EnvPill ok={admins.length > 0} label="Admin table" />
           <EnvPill ok={env.gmailConfigured} label="Gmail OTP" />
           <EnvPill ok={env.databaseConfigured} label="Neon DB" />
-          <EnvPill ok={env.blobConfigured} label="Blob" />
+          <EnvPill ok={env.s3Configured} label="S3" />
           <EnvPill ok={env.sessionSecretConfigured} label="Session secret" />
           <EnvPill
             ok={env.studentSessionSecretConfigured}
@@ -878,9 +878,9 @@ export function ScholarshipRequestsPanel({ leads }: { leads: Lead[] }) {
 }
 
 export function GalleryAdminPanel({
-  usesBlobStorage,
+  usesS3Storage,
 }: {
-  usesBlobStorage: boolean;
+  usesS3Storage: boolean;
 }) {
   return (
     <section className="mt-8 bg-parchment px-5 py-7 sm:px-7">
@@ -900,12 +900,12 @@ export function GalleryAdminPanel({
         <div className="flex flex-wrap gap-2">
           <span
             className={`border px-3 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em] ${
-              usesBlobStorage
+              usesS3Storage
                 ? "border-brass text-brass-deep"
                 : "border-destructive/40 text-destructive"
             }`}
           >
-            Blob storage: {usesBlobStorage ? "Ready" : "Missing"}
+            S3 storage: {usesS3Storage ? "Ready" : "Missing"}
           </span>
           <Link
             href="/gallery"

@@ -100,7 +100,7 @@ export default async function CrmSectionPage({ params }: CrmSectionPageProps) {
       >
         <CourseEditor
           pages={coursePages}
-          usesBlobStorage={chrome.env.blobConfigured}
+          usesS3Storage={chrome.env.s3Configured}
         />
       </CrmChrome>
     );
@@ -119,10 +119,7 @@ export default async function CrmSectionPage({ params }: CrmSectionPageProps) {
         env={chrome.env}
         sessionEmail={chrome.session.email}
       >
-        <BlogEditor
-          posts={blogPosts}
-          usesBlobStorage={chrome.env.blobConfigured}
-        />
+        <BlogEditor posts={blogPosts} usesS3Storage={chrome.env.s3Configured} />
       </CrmChrome>
     );
   }
@@ -137,7 +134,7 @@ export default async function CrmSectionPage({ params }: CrmSectionPageProps) {
         env={chrome.env}
         sessionEmail={chrome.session.email}
       >
-        <GalleryAdminPanel usesBlobStorage={chrome.env.blobConfigured} />
+        <GalleryAdminPanel usesS3Storage={chrome.env.s3Configured} />
       </CrmChrome>
     );
   }

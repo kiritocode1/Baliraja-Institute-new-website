@@ -6,8 +6,7 @@ The CRM is designed for a low-cost Vercel deployment:
 - Gmail SMTP through `nodemailer` for OTP emails
 - Neon Postgres through the Vercel Marketplace for admins, CRM leads, OTPs, and
   blog/course content
-- Vercel Blob for blog images, course images, and future CRM files/document
-  uploads
+- AWS S3 for blog images, course images, and future CRM files/document uploads
 - Signed HTTP-only cookies for separate admin and student sessions
 - Razorpay Orders, Checkout, and signed webhooks for student fee invoices
 - No Resend dependency
@@ -25,8 +24,8 @@ GMAIL_SMTP_APP_PASSWORD=xxxx xxxx xxxx xxxx
 GMAIL_FROM_EMAIL=baliraja.example@gmail.com
 GMAIL_FROM_NAME=Baliraja Institute
 DATABASE_URL=postgresql://...
-BLOB_READ_WRITE_TOKEN=vercel_blob_rw_...
 AWS_S3_BUCKET=baliraja
+AWS_S3_PUBLIC_URL=https://baliraja.s3.ap-south-1.amazonaws.com
 YOUR_ACCESS_KEY_ID=replace-with-aws-access-key-id
 YOUR_AWS_REGION=ap-south-1
 YOUR_SECRET_ACCESS_KEY=replace-with-aws-secret-access-key
@@ -85,31 +84,15 @@ Local development can run without `DATABASE_URL`; it falls back to `.data/`
 files. Production should always use Neon because Vercel's filesystem is not
 persistent.
 
-## Blob storage
+## S3 media storage
 
-Use Vercel Blob for blog/course images and future CRM file storage, such as
-notice PDFs, concession documents, and gallery uploads. The app includes a CRM
-Blob helper under `src/lib/crm/blob.ts`, an authenticated media upload endpoint
-at `/api/crm/media/upload`, and reads the standard `BLOB_READ_WRITE_TOKEN`
-environment variable.
+Use S3 for blog/course images and future CRM file storage, such as notice PDFs,
+concession documents, and gallery uploads. The authenticated media upload
+endpoint at `/api/crm/media/upload` writes files under the `crm/` prefix when
+S3 credentials are configured.
 
-Create and connect a Blob store from the linked project:
-
-```bash
-vercel blob create-store baliraja-crm --access private --yes
-```
-
-If your installed Vercel CLI exposes the older command shape, use:
-
-```bash
-vercel blob store add baliraja-crm
-```
-
-After connecting the store, pull env vars locally:
-
-```bash
-vercel env pull .env.local --yes
-```
+The bucket or `crm/` prefix must be publicly readable, or `AWS_S3_PUBLIC_URL`
+must point at a public CDN/custom domain for that bucket.
 
 ## Budget notes
 
@@ -118,11 +101,11 @@ system simple:
 
 - Gmail handles OTP email, so there is no transactional email vendor bill.
 - Neon stores small CRM rows; leads and OTPs are tiny relational records.
-- Blob should only store files; lead/admin/blog/course metadata stays in Neon.
+- S3 should only store files; lead/admin/blog/course metadata stays in Neon.
 - CRM pages are dynamic and admin-only, so traffic should be low.
 
-If the CRM later adds document uploads, use Vercel Blob only for those files and
-keep lead metadata in Neon.
+If the CRM later adds document uploads, keep the files in S3 and the metadata in
+Neon.
 
 ## AWS S3 asset upload
 
