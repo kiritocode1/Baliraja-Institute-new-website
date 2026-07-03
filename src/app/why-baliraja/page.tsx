@@ -5,6 +5,7 @@ import {
   StatBand,
   SupportGrid,
 } from "@/components/page-sections";
+import { PlayableReelGrid } from "@/components/playable-reel-grid";
 import { createPageMetadata } from "@/lib/seo";
 import { proofStats, supportPoints, whyPoints } from "@/lib/site";
 
@@ -33,13 +34,12 @@ export default function WhyBalirajaPage() {
         eyebrow="Why Baliraja"
         title="Why Baliraja"
         body="This page answers the first parent and student question: what makes this academy worth visiting before choosing a batch?"
-        image="/img-study.jpg"
-        imageAlt="A Baliraja Institute student writing notes during focused preparation"
         actions={[
           { href: "/admissions", label: "Start admission enquiry" },
           { href: "/courses", label: "Compare courses" },
         ]}
       />
+      <PlayableReelGrid />
 
       <StatBand stats={proofStats} />
 

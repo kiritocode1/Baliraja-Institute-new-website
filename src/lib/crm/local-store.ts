@@ -19,6 +19,7 @@ export async function readJsonFile<T>(file: string, fallback: T): Promise<T> {
   }
 }
 
+
 export async function writeJsonFile(file: string, value: unknown) {
   await fs.mkdir(path.join(process.cwd(), DATA_DIR), { recursive: true });
   await fs.writeFile(dataPath(file), JSON.stringify(value, null, 2), "utf8");

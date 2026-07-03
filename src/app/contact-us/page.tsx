@@ -42,8 +42,8 @@ export default function ContactPage() {
         eyebrow="Contact"
         title="Visit the campus"
         body="Clear contact details matter before a student commits: address, phone, email and a simple path to admissions."
-        image="/hero-poster.jpg"
-        imageAlt="Baliraja Institute campus visual"
+        image="/student-life/aboutv-v3.mp4"
+        imageAlt="Baliraja Institute background video"
         actions={[
           { href: "/admissions", label: "Start admission enquiry" },
           { href: "/courses", label: "Explore courses" },

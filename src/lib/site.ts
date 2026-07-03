@@ -33,6 +33,7 @@ export type NavGroup = {
 
 /** Top-bar primary links (desktop, inline). */
 export const primaryNav: NavLink[] = [
+  { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Student Life", href: "/student-life" },
   { label: "Courses", href: "/courses" },
@@ -340,35 +341,35 @@ export const updates: Update[] = [
     tag: "Admissions",
     title: "Enquiries open for the 2026 to 2027 batch",
     date: "June 2026",
-    image: unsplash("1567057420215-0afa9aa9253a"),
+    image: getAssetUrl("/student-life/Explore-v-2.png"),
     href: "/admissions",
   },
   {
     tag: "Defence",
     title: "New NDA and Agniveer foundation batch begins this monsoon",
     date: "July 2026",
-    image: unsplash("1615482319206-d2545553676e"),
+    image: getAssetUrl("/student-life/Explore-v-4.webp"),
     href: "/courses",
   },
   {
     tag: "Event",
     title: "Free SSB interview guidance camp for defence aspirants",
     date: "July 2026",
-    image: unsplash("1726450663094-b90adfeea0f8"),
+    image: getAssetUrl("/student-life/Explore-v-5.png"),
     href: "/news-events",
   },
   {
     tag: "Test Series",
     title: "UPSC prelims full-length series now open for registration",
     date: "August 2026",
-    image: unsplash("1513475382585-d06e58bcb0e0"),
+    image: getAssetUrl("/student-life/Explore-v-6.png"),
     href: "/admissions",
   },
   {
     tag: "Scholarship",
     title: "Merit fee concession for farming families announced",
     date: "August 2026",
-    image: unsplash("1561089489-f13d5e730d72"),
+    image: getAssetUrl("/student-life/Explore-v-2.png"),
     href: "/scholarships",
   },
 ];
@@ -496,7 +497,7 @@ export const campusLifeItems: CampusLifeItem[] = [
     eyebrow: "Daily lectures",
     title: "Syllabus split into workable blocks",
     body: "Faculty-led classes convert large exam syllabi into weekly targets, revision loops and testable outcomes.",
-    image: unsplash("1561089489-f13d5e730d72"),
+    image: getAssetUrl("/student-life/Explore-v-2.png"),
     href: "/courses",
   },
   {
@@ -510,21 +511,21 @@ export const campusLifeItems: CampusLifeItem[] = [
     eyebrow: "Defence practice",
     title: "Written, physical and interview prep",
     body: "Army and Navy aspirants get written preparation alongside physical-test guidance and SSB orientation.",
-    image: unsplash("1615482319206-d2545553676e"),
+    image: getAssetUrl("/student-life/Explore-v-4.webp"),
     href: "/courses",
   },
   {
     eyebrow: "Mentoring",
     title: "A plan for the attempt in front of you",
     body: "Mentors help students choose the right batch, medium, timetable and test strategy based on their current level.",
-    image: unsplash("1606761568499-6d2451b23c66"),
+    image: getAssetUrl("/student-life/Explore-v-5.png"),
     href: "/about",
   },
   {
     eyebrow: "Community",
     title: "A cohort that keeps the pace",
     body: "Students preparing for similar exams learn together, discuss current affairs and keep each other accountable.",
-    image: unsplash("1574130303188-31a915382726"),
+    image: getAssetUrl("/student-life/Explore-v-6.png"),
     href: "/student-life",
   },
 ];
@@ -717,28 +718,28 @@ export const studentVoices: StudentVoice[] = [
     track: "Rajyaseva track",
     quote:
       "The weekly test review showed me where I was losing marks, not just what I had studied.",
-    image: unsplash("1598981457915-aea220950616"),
+    image: getAssetUrl("/student-life/student-v-1.png"),
   },
   {
     name: "Defence aspirant",
     track: "NDA and Agniveer",
     quote:
       "Written practice, physical targets and interview preparation were treated as one plan.",
-    image: unsplash("1615482319206-d2545553676e"),
+    image: getAssetUrl("/student-life/student-v-2.webp"),
   },
   {
     name: "Banking student",
     track: "IBPS and SBI",
     quote:
       "Speed drills helped me stop guessing and start solving sections in the right order.",
-    image: unsplash("1567057420215-0afa9aa9253a"),
+    image: getAssetUrl("/student-life/student-v-3.png"),
   },
   {
     name: "Rural first-generation student",
     track: "Talathi and ZP",
     quote:
       "The study hall and simple guidance made it possible to prepare seriously from Gangapur.",
-    image: unsplash("1606761568499-6d2451b23c66"),
+    image: getAssetUrl("/student-life/student-v-4.png"),
   },
 ];
 

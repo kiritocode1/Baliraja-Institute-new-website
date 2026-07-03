@@ -5,6 +5,7 @@ import {
   PageHero,
   StatBand,
 } from "@/components/page-sections";
+import { PlayableReelGrid } from "@/components/playable-reel-grid";
 import {
   getCoursePageBySeedKey,
   listPublishedCourseCards,
@@ -18,6 +19,29 @@ export const metadata = createPageMetadata({
     "Explore Baliraja Institute exam tracks for MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP preparation.",
   path: "/courses",
 });
+
+const courseReels = [
+  {
+    id: "course-1",
+    src: "/courses/course-hero-v1.mp4",
+    title: "MPSC & UPSC Tracks",
+  },
+  {
+    id: "course-2",
+    src: "/student-life/about-v4.mp4",
+    title: "Academy Overview",
+  },
+  {
+    id: "course-3",
+    src: "/courses/course-hero-v2.mp4",
+    title: "Defence & Banking Tracks",
+  },
+  {
+    id: "course-4",
+    src: "/student-life/aboutv-v3.mp4",
+    title: "Student Mentorship",
+  },
+];
 
 function featuredBody(course: {
   exams: string | null;
@@ -62,13 +86,13 @@ export default async function CoursesPage() {
         eyebrow="Courses"
         title="Choose the right exam track"
         body="Defence entries, civil services, banking, SSC, police and local government tracks are separated clearly so students can choose with confidence."
-        image="/img-reading.jpg"
         imageAlt="A Baliraja student reading exam preparation material"
         actions={[
           { href: "/admissions", label: "Ask for guidance" },
           { href: "/scholarships", label: "See concessions" },
         ]}
       />
+      <PlayableReelGrid reels={courseReels} />
 
       <FeatureBand
         eyebrow={army.category}

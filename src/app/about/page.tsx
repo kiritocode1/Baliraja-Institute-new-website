@@ -6,6 +6,7 @@ import {
   StatBand,
   SupportGrid,
 } from "@/components/page-sections";
+import { AboutHeroVideoPlayer } from "@/components/about-hero-video-player";
 import { createPageMetadata } from "@/lib/seo";
 import { pillars, proofStats, site, supportPoints } from "@/lib/site";
 
@@ -28,19 +29,19 @@ export default function AboutPage() {
         eyebrow="About Baliraja"
         title="The Baliraja difference"
         body={`${site.longName} is built for serious aspirants from Gangapur, Marathwada and nearby rural communities who need structure, mentoring and a place to study with purpose.`}
-        image="/img-classroom.jpg"
-        imageAlt="Baliraja Institute classroom with students preparing for competitive exams"
         actions={[
           { href: "/admissions", label: "Start admission enquiry" },
           { href: "/student-life", label: "See student life" },
         ]}
-      />
+      >
+        <AboutHeroVideoPlayer />
+      </PageHero>
 
       <FeatureBand
         eyebrow="Welcome"
         title="An academy shaped around the student who has to earn every attempt."
         body="Baliraja keeps the day practical: clear lectures, current-affairs routines, reading hours, mock tests and review conversations. The aim is not to impress students with complexity. It is to help them prepare consistently until the exam date arrives."
-        image="/img-study.jpg"
+        image="/about/about-featured.png"
         imageAlt="A Baliraja Institute aspirant studying at a desk"
         action={{ href: "/courses", label: "Explore exam tracks" }}
       />
@@ -60,7 +61,7 @@ export default function AboutPage() {
         eyebrow="Method"
         title="Preparation is treated as a routine, not a slogan."
         body="Every exam track is broken into classes, reading, revision and test practice. Mentors help students choose a realistic route through the syllabus instead of trying to chase every notification at once."
-        image="/img-reading.jpg"
+        image="about/about-featured-2.JPG"
         imageAlt="A student reading reference material for a competitive exam"
         action={{ href: "/news-events", label: "Read academy updates" }}
         reverse

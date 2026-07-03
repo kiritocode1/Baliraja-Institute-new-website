@@ -7,6 +7,7 @@ import {
   SupportGrid,
   VoiceGrid,
 } from "@/components/page-sections";
+import { PlayableReelGrid } from "@/components/playable-reel-grid";
 import { StudentLifeMarquee } from "@/components/sections/student-life-marquee";
 import { createPageMetadata } from "@/lib/seo";
 import {
@@ -31,15 +32,13 @@ export default function StudentLifePage() {
         eyebrow="Student life"
         title="Live the preparation day"
         body="Aspirants and parents should be able to picture the day before admission: study rhythm, classroom energy, mentoring and the community that keeps students moving."
-        image="/img-books.jpg"
         imageAlt="Competitive exam books and notes used by Baliraja Institute students"
         actions={[
           { href: "/admissions", label: "Enquire for a batch" },
           { href: "/courses", label: "Compare courses" },
         ]}
       />
-
-      <StudentLifeMarquee />
+      <PlayableReelGrid />
 
       <ImageCardGrid
         eyebrow="Explore"

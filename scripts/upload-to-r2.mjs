@@ -27,34 +27,35 @@ const loadEnv = () => {
 loadEnv();
 
 const {
-  AWS_S3_BUCKET,
-  YOUR_ACCESS_KEY_ID,
-  YOUR_SECRET_ACCESS_KEY,
-  YOUR_AWS_REGION,
+  R2_ACCOUNT_ID,
+  R2_ACCESS_KEY_ID,
+  R2_SECRET_ACCESS_KEY,
+  R2_BUCKET_NAME,
 } = process.env;
 
 if (
-  !AWS_S3_BUCKET ||
-  !YOUR_ACCESS_KEY_ID ||
-  !YOUR_SECRET_ACCESS_KEY ||
-  !YOUR_AWS_REGION
+  !R2_ACCOUNT_ID ||
+  !R2_ACCESS_KEY_ID ||
+  !R2_SECRET_ACCESS_KEY ||
+  !R2_BUCKET_NAME
 ) {
-  console.error("Error: Missing S3 environment variables.");
+  console.error("Error: Missing Cloudflare R2 environment variables.");
   console.error(
     "Please ensure the following variables are defined in your .env file:",
   );
-  console.error("  AWS_S3_BUCKET");
-  console.error("  YOUR_ACCESS_KEY_ID");
-  console.error("  YOUR_SECRET_ACCESS_KEY");
-  console.error("  YOUR_AWS_REGION");
+  console.error("  R2_ACCOUNT_ID");
+  console.error("  R2_ACCESS_KEY_ID");
+  console.error("  R2_SECRET_ACCESS_KEY");
+  console.error("  R2_BUCKET_NAME");
   process.exit(1);
 }
 
 const s3 = new S3Client({
-  region: YOUR_AWS_REGION,
+  region: "auto",
+  endpoint: `https://${R2_ACCOUNT_ID.trim()}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: YOUR_ACCESS_KEY_ID,
-    secretAccessKey: YOUR_SECRET_ACCESS_KEY,
+    accessKeyId: R2_ACCESS_KEY_ID.trim(),
+    secretAccessKey: R2_SECRET_ACCESS_KEY.trim(),
   },
 });
 
@@ -82,17 +83,17 @@ const getContentType = (filePath) => {
 };
 
 const uploadFile = async (filePath, key) => {
-  const fileStream = fs.createReadStream(filePath);
+  const fileBuffer = fs.readFileSync(filePath);
   const contentType = getContentType(filePath);
 
   console.log(
-    `Uploading ${filePath} to S3 bucket as '${key}' (${contentType})...`,
+    `Uploading ${filePath} to Cloudflare R2 bucket as '${key}' (${contentType})...`,
   );
 
   const command = new PutObjectCommand({
-    Bucket: AWS_S3_BUCKET.trim(),
+    Bucket: R2_BUCKET_NAME.trim(),
     Key: key,
-    Body: fileStream,
+    Body: fileBuffer,
     ContentType: contentType,
   });
 
@@ -105,7 +106,7 @@ const uploadFile = async (filePath, key) => {
 };
 
 const main = async () => {
-  console.log("Using AWS S3 bucket configuration...");
+  console.log("Using Cloudflare R2 bucket configuration...");
   const dirPath = path.join(process.cwd(), "public", "home");
   if (!fs.existsSync(dirPath)) {
     console.error(`Directory ${dirPath} does not exist.`);

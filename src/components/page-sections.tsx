@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { RevealText } from "@/components/reveal-text";
+import { getAssetUrl } from "@/lib/assets";
 import type {
   CampusLifeItem,
   DiscoveryStep,
@@ -31,8 +32,8 @@ export function PageHero({
   eyebrow: string;
   title: string;
   body: string;
-  image: string;
-  imageAlt: string;
+  image?: string;
+  imageAlt?: string;
   actions?: Action[];
   children?: ReactNode;
 }) {
@@ -80,17 +81,31 @@ export function PageHero({
           ) : null}
         </div>
 
-        <div className="relative aspect-[16/8] overflow-hidden bg-parchment-deep lg:col-span-12">
-          <Image
-            src={image}
-            alt={imageAlt}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/18 to-transparent" />
-        </div>
+        {image ? (
+          <div className="relative aspect-[16/8] overflow-hidden bg-parchment-deep lg:col-span-12">
+            {image.endsWith(".mp4") || image.endsWith(".mov") || image.endsWith(".webm") ? (
+              <video
+                className="absolute inset-0 h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
+                <source src={getAssetUrl(image)} type={image.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
+              </video>
+            ) : (
+              <Image
+                src={image}
+                alt={imageAlt || ""}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/18 to-transparent" />
+          </div>
+        ) : null}
 
         {children ? <div className="lg:col-span-12">{children}</div> : null}
       </div>

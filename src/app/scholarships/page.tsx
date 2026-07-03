@@ -23,8 +23,8 @@ export default function ScholarshipsPage() {
         eyebrow="Scholarships"
         title="Support for serious students"
         body="Fee support should be easy to find before a family visits the office. Baliraja focuses on practical concessions for rural, farming, defence and repeat-attempt students."
-        image="/img-study.jpg"
-        imageAlt="A student writing notes during competitive exam preparation"
+        image="/student-life/Explore-v-4.webp"
+        imageAlt="Baliraja Institute study support and scholarships"
         actions={[
           {
             href: "/admissions?request=scholarship",

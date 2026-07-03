@@ -46,4 +46,16 @@ next-env.d.ts
 .env*.local
 
 # Large media assets hosted on R2
-/public/home
+/public/home/
+/public/about/
+/public/courses/
+/public/student-life/
+/public/admissions/
+/public/gallery/
+/public/hero.mp4
+/public/hero-poster.jpg
+/public/model.glb
+/public/img-books.jpg
+/public/img-classroom.jpg
+/public/img-reading.jpg
+/public/img-study.jpg

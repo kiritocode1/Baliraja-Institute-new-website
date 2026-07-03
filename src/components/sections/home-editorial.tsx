@@ -1,9 +1,16 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
 import {
   ArrowRight,
   BookOpenCheck,
   GraduationCap,
   MessageCircleQuestion,
   NotebookPen,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -302,6 +309,31 @@ export function AcademyContext() {
 }
 
 export function HomeStories() {
+  const [activeStoryId, setActiveStoryId] = useState<string | null>(null);
+
+  const STORIES = [
+    {
+      id: "story-1",
+      src: "/home/story-v1.mov",
+      title: "Journey 1",
+    },
+    {
+      id: "story-2",
+      src: "/home/story-v2.MOV",
+      title: "Journey 2",
+    },
+    {
+      id: "story-3",
+      src: "/home/story-v3.mp4",
+      title: "Journey 3",
+    },
+    {
+      id: "story-4",
+      src: "/student-life/about-v1.mp4",
+      title: "Journey 4",
+    },
+  ];
+
   return (
     <section className="bg-stone py-20 sm:py-28">
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
@@ -318,34 +350,21 @@ export function HomeStories() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3 lg:mt-14 max-w-5xl mx-auto">
-          <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
-            {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
-            <video
-              src={getAssetUrl("/home/story-v1.mov")}
-              className="h-full w-full object-cover"
-              controls
-              preload="metadata"
+        <div className="mt-12 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-[104rem] mx-auto">
+          {STORIES.map((story) => (
+            <StoryCard
+              key={story.id}
+              src={story.src}
+              title={story.title}
+              isActive={activeStoryId === story.id}
+              onPlay={() => setActiveStoryId(story.id)}
+              onPause={() => {
+                if (activeStoryId === story.id) {
+                  setActiveStoryId(null);
+                }
+              }}
             />
-          </div>
-          <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
-            {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
-            <video
-              src={getAssetUrl("/home/story-v2.MOV")}
-              className="h-full w-full object-cover"
-              controls
-              preload="metadata"
-            />
-          </div>
-          <div className="overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg aspect-[9/16] relative">
-            {/* biome-ignore lint/a11y/useMediaCaption: user stories are uploaded dynamically without captions */}
-            <video
-              src={getAssetUrl("/home/story-v3.mp4")}
-              className="h-full w-full object-cover"
-              controls
-              preload="metadata"
-            />
-          </div>
+          ))}
         </div>
 
         <div className="mt-10 flex justify-center">
@@ -361,5 +380,113 @@ export function HomeStories() {
         </div>
       </div>
     </section>
+  );
+}
+
+interface StoryCardProps {
+  src: string;
+  title: string;
+  isActive: boolean;
+  onPlay: () => void;
+  onPause: () => void;
+}
+
+function StoryCard({ src, title, isActive, onPlay, onPause }: StoryCardProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    if (isActive) {
+      videoRef.current.play().catch((err) => {
+        console.error("Error playing story video:", err);
+      });
+    } else {
+      videoRef.current.pause();
+    }
+  }, [isActive]);
+
+  const togglePlay = () => {
+    if (isActive) {
+      onPause();
+    } else {
+      onPlay();
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  return (
+    <div
+      className="group relative aspect-[9/16] overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+      onClick={togglePlay}
+    >
+      <video
+        ref={videoRef}
+        src={getAssetUrl(src)}
+        className="h-full w-full object-cover"
+        loop
+        playsInline
+        muted={isMuted}
+        preload="metadata"
+      />
+
+      {/* Subtle bottom gradient overlay */}
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
+      {/* Interactive Play Overlay */}
+      {!isActive && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 transition-colors group-hover:bg-black/30">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cream/90 text-ink shadow-lg transition-transform duration-300 group-hover:scale-110">
+            <Play className="ml-1 h-8 w-8 fill-current" />
+          </div>
+          <span className="mt-4 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-cream drop-shadow-md">
+            Click to Play
+          </span>
+        </div>
+      )}
+
+      {/* Floating Header & Footer controls when playing */}
+      {isActive && (
+        <>
+          {/* Pause overlay on hover */}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-200 hover:bg-black/20 hover:opacity-100">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-cream/90 text-ink shadow-md">
+              <Pause className="h-6 w-6 fill-current" />
+            </div>
+          </div>
+
+          {/* Mute toggle button */}
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-cream backdrop-blur-sm transition-transform hover:scale-105"
+            aria-label={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? (
+              <VolumeX className="h-4 w-4" />
+            ) : (
+              <Volume2 className="h-4 w-4" />
+            )}
+          </button>
+        </>
+      )}
+
+      {/* Title label at bottom */}
+      <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
+        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-brass-bright">
+          Story
+        </p>
+        <p className="mt-1 font-display text-sm font-medium text-cream drop-shadow-sm">
+          {title}
+        </p>
+      </div>
+    </div>
   );
 }

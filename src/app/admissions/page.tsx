@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { EnquiryForm } from "@/components/enquiry-form";
+import { AdmissionHeroVideoPlayer } from "@/components/admission-hero-video-player";
 import {
   DiscoveryProcess,
   FaqBand,
@@ -74,13 +75,13 @@ export default async function AdmissionsPage({
         eyebrow="Admissions · Open for the next batch"
         title="Your journey starts here"
         body="One short form. No payment, no obligation. We read every enquiry and call you back to plan the right track, batch timing and fee structure in person."
-        image="/hero-poster.jpg"
-        imageAlt="Baliraja Institute students beginning exam preparation"
         actions={[
           { href: "/courses", label: "Compare courses" },
           { href: "/scholarships", label: "See concessions" },
         ]}
-      />
+      >
+        <AdmissionHeroVideoPlayer />
+      </PageHero>
 
       <DiscoveryProcess
         eyebrow="Discovering you"
@@ -102,7 +103,7 @@ export default async function AdmissionsPage({
           <aside className="flex flex-col gap-12 lg:col-span-5">
             <div className="relative aspect-[5/3] overflow-hidden">
               <Image
-                src="/img-study.jpg"
+                src="admissions/adminssion-study.png"
                 alt="A Baliraja Institute aspirant at work in the academy's study hall"
                 fill
                 sizes="(max-width: 1024px) 100vw, 40vw"

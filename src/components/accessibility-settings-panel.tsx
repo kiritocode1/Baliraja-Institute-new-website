@@ -258,14 +258,11 @@ export function AccessibilitySettingsPanel() {
         aria-label="Open accessibility settings"
         aria-expanded={isOpen}
         onClick={() => setIsOpen(true)}
-        className="group flex h-14 min-w-14 items-center justify-center gap-3 overflow-hidden border border-brass/70 bg-oxblood px-4 text-cream shadow-[0_18px_45px_rgba(50,18,12,0.28)] transition-[background-color,min-width] duration-300 hover:min-w-52 hover:bg-oxblood-bright focus-visible:min-w-52 sm:h-16 sm:min-w-16"
+        className="relative flex h-12 w-12 items-center justify-center rounded-full border border-brass/70 bg-oxblood text-cream shadow-[0_8px_30px_rgba(50,18,12,0.28)] transition-transform duration-300 hover:scale-110 hover:bg-oxblood-bright focus-visible:scale-110 sm:h-14 sm:w-14"
       >
-        <Accessibility className="size-6 shrink-0" aria-hidden="true" />
-        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[0.76rem] font-semibold uppercase tracking-[0.14em] opacity-0 transition-all duration-300 group-hover:max-w-40 group-hover:opacity-100 group-focus-visible:max-w-40 group-focus-visible:opacity-100">
-          Accessibility
-        </span>
+        <Accessibility className="size-5 sm:size-6 shrink-0" aria-hidden="true" />
         {activeCount > 0 ? (
-          <span className="absolute -right-1 -top-1 grid size-6 place-items-center bg-brass text-[0.68rem] font-bold text-oxblood-deep">
+          <span className="absolute -right-0.5 -top-0.5 grid size-5 place-items-center rounded-full bg-brass text-[0.6rem] font-bold text-oxblood-deep sm:size-6 sm:text-[0.68rem]">
             {activeCount}
           </span>
         ) : null}
