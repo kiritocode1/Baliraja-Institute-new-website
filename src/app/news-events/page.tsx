@@ -6,6 +6,7 @@ import {
   PageHero,
   SectionIntro,
 } from "@/components/page-sections";
+import { PlayableReelGrid } from "@/components/playable-reel-grid";
 import { listPublishedBlogCards } from "@/lib/crm/blog-posts";
 import { createPageMetadata } from "@/lib/seo";
 import { notices, updates } from "@/lib/site";
@@ -16,6 +17,29 @@ export const metadata = createPageMetadata({
     "Latest Baliraja Institute notices, test-series updates, events, admissions announcements and exam preparation insights in one place.",
   path: "/news-events",
 });
+
+const storyReels = [
+  {
+    id: "story-1",
+    src: "/home/story-v1.mov",
+    title: "Journey 1",
+  },
+  {
+    id: "story-2",
+    src: "/home/story-v2.MOV",
+    title: "Journey 2",
+  },
+  {
+    id: "story-3",
+    src: "/home/story-v3.mp4",
+    title: "Journey 3",
+  },
+  {
+    id: "story-4",
+    src: "/student-life/about-v1.mp4",
+    title: "Journey 4",
+  },
+];
 
 const updateCards = updates.map((update) => ({
   eyebrow: update.tag,
@@ -41,13 +65,12 @@ export default async function NewsEventsPage() {
         eyebrow="News & notices"
         title="Updates in one place"
         body="Students need one destination for admissions notices, test-series updates, exam guidance and event announcements."
-        image="/img-classroom.jpg"
-        imageAlt="Students in a Baliraja Institute classroom"
         actions={[
           { href: "/admissions", label: "Ask about admission" },
           { href: "/courses", label: "Explore courses" },
         ]}
       />
+      <PlayableReelGrid reels={storyReels} />
 
       <ImageCardGrid
         eyebrow="Latest"
