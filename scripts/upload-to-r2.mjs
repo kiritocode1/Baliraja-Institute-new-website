@@ -105,24 +105,50 @@ const uploadFile = async (filePath, key) => {
   }
 };
 
+const walkDir = (dir, fileList = []) => {
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+    if (stat.isDirectory()) {
+      walkDir(filePath, fileList);
+    } else {
+      fileList.push(filePath);
+    }
+  }
+  return fileList;
+};
+
 const main = async () => {
   console.log("Using Cloudflare R2 bucket configuration...");
-  const dirPath = path.join(process.cwd(), "public", "home");
-  if (!fs.existsSync(dirPath)) {
-    console.error(`Directory ${dirPath} does not exist.`);
+  const publicDir = path.join(process.cwd(), "public");
+  if (!fs.existsSync(publicDir)) {
+    console.error(`Directory ${publicDir} does not exist.`);
     return;
   }
 
-  const files = fs.readdirSync(dirPath);
-  for (const file of files) {
-    const filePath = path.join(dirPath, file);
-    const stat = fs.statSync(filePath);
-    if (stat.isFile()) {
-      const key = `home/${file}`;
-      await uploadFile(filePath, key);
+  console.log("Scanning public directory recursively for assets...");
+  const allFiles = walkDir(publicDir);
+  console.log(`Found ${allFiles.length} files to process.`);
+
+  for (const filePath of allFiles) {
+    const relativePath = path.relative(publicDir, filePath);
+    const key = relativePath.replace(/\\/g, "/"); // Convert Windows backslashes
+
+    // Skip Next.js system/boilerplate files that should remain locally
+    if (
+      key === "favicon.ico" ||
+      key === "manifest.webmanifest" ||
+      key === "robots.txt" ||
+      key.includes(".DS_Store")
+    ) {
+      console.log(`Skipping system file: ${key}`);
+      continue;
     }
+
+    await uploadFile(filePath, key);
   }
-  console.log("Upload job finished.");
+  console.log("Upload job finished successfully.");
 };
 
 main();

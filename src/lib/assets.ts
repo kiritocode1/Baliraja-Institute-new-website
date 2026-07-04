@@ -9,7 +9,22 @@ const ASSET_BASE_URL =
 
 export function getAssetUrl(path: string): string {
   if (!path) return "";
-  if (path.startsWith("/home/")) {
+  const prefixes = [
+    "/home/",
+    "/about/",
+    "/courses/",
+    "/student-life/",
+    "/admissions/",
+    "/gallery/",
+    "/hero.mp4",
+    "/hero-poster.jpg",
+    "/model.glb",
+    "/img-books.jpg",
+    "/img-classroom.jpg",
+    "/img-reading.jpg",
+    "/img-study.jpg"
+  ];
+  if (prefixes.some((p) => path.startsWith(p))) {
     return `${ASSET_BASE_URL}${path}`;
   }
   return path;
