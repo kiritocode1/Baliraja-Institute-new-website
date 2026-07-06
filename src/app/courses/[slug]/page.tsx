@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { sanitizeBlogHtml } from "@/lib/crm/blog-posts";
 import { getCoursePageBySlug } from "@/lib/crm/course-pages";
 import { absoluteUrl } from "@/lib/seo";
+import { getAssetUrl } from "@/lib/assets";
 import { site } from "@/lib/site";
 
 type PageProps = {
@@ -81,7 +82,7 @@ export default async function CoursePage({ params }: PageProps) {
     <article className="bg-parchment">
       <section className="relative isolate min-h-[72svh] overflow-hidden bg-oxblood-deep text-cream">
         <Image
-          src={page.image}
+          src={getAssetUrl(page.image)}
           alt={page.imageAlt ?? ""}
           fill
           priority

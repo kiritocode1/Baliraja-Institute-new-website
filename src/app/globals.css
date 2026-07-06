@@ -397,6 +397,7 @@
   clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
   will-change: clip-path;
   display: grid;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 .bal-menu a {
@@ -417,6 +418,9 @@
 .bal-menu-secondary a,
 .bal-menu-meta a {
   line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .bal-menu-primary a:hover {
   color: var(--brass-bright);

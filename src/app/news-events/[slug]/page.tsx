@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogPostBySlug, sanitizeBlogHtml } from "@/lib/crm/blog-posts";
 import { absoluteUrl } from "@/lib/seo";
+import { getAssetUrl } from "@/lib/assets";
 import { site } from "@/lib/site";
 
 type PageProps = {
@@ -93,7 +94,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     <article className="bg-parchment">
       <section className="relative isolate min-h-[68svh] overflow-hidden bg-oxblood-deep text-cream">
         <Image
-          src={post.image}
+          src={getAssetUrl(post.image)}
           alt=""
           fill
           priority

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { RevealText } from "@/components/reveal-text";
+import { getAssetUrl } from "@/lib/assets";
 import { examTracks, featuredExams } from "@/lib/site";
 
 function TrackRow({
@@ -292,7 +293,7 @@ export function ExamTracks({
             >
               <div className="relative aspect-[5/4] overflow-hidden">
                 <Image
-                  src={f.image}
+                  src={getAssetUrl(f.image)}
                   alt={f.alt}
                   fill
                   sizes="(max-width: 640px) 100vw, 50vw"

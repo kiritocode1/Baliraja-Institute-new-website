@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { RevealText } from "@/components/reveal-text";
+import { getAssetUrl } from "@/lib/assets";
 import { listPublishedBlogCards } from "@/lib/crm/blog-posts";
 
 export async function Blog() {
@@ -34,7 +35,7 @@ export async function Blog() {
             <Link key={p.title} href={p.href} className="group flex flex-col">
               <div className="relative aspect-[4/3] overflow-hidden bg-parchment-deep">
                 <Image
-                  src={p.image}
+                  src={getAssetUrl(p.image)}
                   alt=""
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

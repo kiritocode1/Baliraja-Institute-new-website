@@ -3,7 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
-    unoptimized: true,
+    // sharp is installed — Next.js Image Optimization is active.
+    // Images are fetched from R2 once, converted to WebP/AVIF, and cached for 30 days.
+    qualities: [60, 75],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 2592000, // 30 days
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 64, 128, 256, 384, 512],
     remotePatterns: [
       {
         protocol: "https",
@@ -23,6 +29,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "**.r2.dev",
+        pathname: "/**",
+      },
+      // Custom domains that proxy Cloudflare R2 (e.g. assets.baliraja.com)
+      {
+        protocol: "https",
+        hostname: "**.baliraja.com",
         pathname: "/**",
       },
     ],

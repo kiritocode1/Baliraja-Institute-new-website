@@ -1,5 +1,6 @@
 import Image from "next/image";
 import MarqueeAlongSvgPath from "@/components/fancy/blocks/marquee-along-svg-path";
+import { getAssetUrl } from "@/lib/assets";
 import { campusLifeItems } from "@/lib/site";
 
 const studentLifePath =
@@ -52,7 +53,7 @@ export function StudentLifeMarquee() {
                   draggable={false}
                   fill
                   sizes="(max-width: 640px) 3.25rem, (max-width: 1024px) 3.5rem, 4rem"
-                  src={item.image}
+                  src={getAssetUrl(item.image)}
                 />
                 <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-oxblood-deep via-oxblood-deep/78 to-transparent px-1.5 pb-1.5 pt-7 text-cream">
                   <span className="block text-[0.38rem] font-semibold uppercase tracking-[0.14em] text-brass-bright sm:text-[0.43rem]">

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import { RevealText } from "@/components/reveal-text";
+import { getAssetUrl } from "@/lib/assets";
 import { updates } from "@/lib/site";
 
 export function LatestUpdates() {
@@ -70,7 +71,7 @@ export function LatestUpdates() {
             className="group relative aspect-[4/5] w-[82vw] shrink-0 snap-start overflow-hidden sm:aspect-[5/4] sm:w-[30rem] lg:w-[34rem]"
           >
             <Image
-              src={u.image}
+              src={getAssetUrl(u.image)}
               alt=""
               fill
               sizes="(max-width: 640px) 82vw, 34rem"

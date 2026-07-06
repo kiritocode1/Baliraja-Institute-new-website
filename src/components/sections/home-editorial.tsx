@@ -259,7 +259,7 @@ export function AcademyContext() {
               <>
                 <div className="relative aspect-[16/10] overflow-hidden bg-stone sm:aspect-[5/4] md:aspect-[4/3] xl:aspect-[5/4]">
                   <Image
-                    src={item.image}
+                    src={getAssetUrl(item.image)}
                     alt={item.alt}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"

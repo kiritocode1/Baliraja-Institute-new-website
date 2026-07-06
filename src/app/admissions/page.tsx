@@ -11,6 +11,7 @@ import {
   SupportGrid,
 } from "@/components/page-sections";
 import { createPageMetadata } from "@/lib/seo";
+import { getAssetUrl } from "@/lib/assets";
 import {
   admissionsDiscoverySteps,
   admissionsFaqs,
@@ -103,7 +104,7 @@ export default async function AdmissionsPage({
           <aside className="flex flex-col gap-12 lg:col-span-5">
             <div className="relative aspect-[5/3] overflow-hidden">
               <Image
-                src="admissions/adminssion-study.png"
+                src={getAssetUrl("admissions/adminssion-study.png")}
                 alt="A Baliraja Institute aspirant at work in the academy's study hall"
                 fill
                 sizes="(max-width: 1024px) 100vw, 40vw"

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { RevealText } from "@/components/reveal-text";
+import { getAssetUrl } from "@/lib/assets";
 import { galleryImages } from "@/lib/site";
 
 export function Gallery({
@@ -17,7 +18,7 @@ export function Gallery({
 
   const displayItems = images
     ? images.map((img, i) => ({
-        src: img,
+        src: getAssetUrl(img),
         alt: `Campus photo ${i + 1}`,
         caption: `Gallery Photo ${i + 1}`,
         type: "image" as const,
@@ -147,7 +148,7 @@ function GalleryVideoCard({ src, alt, caption, isActive, onPlay, onPause }: Gall
     <div className="relative w-full h-full cursor-pointer" onClick={togglePlay}>
       <video
         ref={videoRef}
-        src={src}
+        src={getAssetUrl(src)}
         className="h-full w-full object-cover"
         loop
         playsInline

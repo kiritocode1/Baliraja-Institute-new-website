@@ -95,7 +95,7 @@ export function PageHero({
               </video>
             ) : (
               <Image
-                src={image}
+                src={getAssetUrl(image)}
                 alt={imageAlt || ""}
                 fill
                 priority
@@ -183,7 +183,7 @@ export function FeatureBand({
         <div className={reverse ? "lg:order-2 lg:col-span-6" : "lg:col-span-6"}>
           <div className="relative aspect-[4/3] overflow-hidden bg-stone">
             <Image
-              src={image}
+              src={getAssetUrl(image)}
               alt={imageAlt}
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -323,7 +323,7 @@ function ImageCard({ item }: { item: CampusLifeItem }) {
     <>
       <div className="relative aspect-[4/3] overflow-hidden bg-ink">
         <Image
-          src={item.image}
+          src={getAssetUrl(item.image)}
           alt=""
           fill
           sizes="(max-width: 1024px) 50vw, 33vw"
@@ -431,7 +431,7 @@ export function ExperienceExplorer({
               <article className="flex min-h-full flex-col">
                 <div className="relative aspect-[5/4] overflow-hidden bg-oxblood-deep">
                   <Image
-                    src={item.image}
+                    src={getAssetUrl(item.image)}
                     alt=""
                     fill
                     sizes="(max-width: 1024px) 100vw, 36vw"
@@ -524,7 +524,7 @@ export function GuideCtaPanel({ guide }: { guide: GuideCta }) {
       <div className="mx-auto grid max-w-[92rem] px-5 sm:px-8 lg:grid-cols-2">
         <div className="relative min-h-[24rem] overflow-hidden bg-ink lg:min-h-[35rem]">
           <Image
-            src={guide.image}
+            src={getAssetUrl(guide.image)}
             alt={guide.imageAlt}
             fill
             sizes="(max-width: 1024px) 100vw, 45vw"
@@ -628,7 +628,7 @@ export function VoiceGrid({ voices }: { voices: StudentVoice[] }) {
             <article key={voice.name} className="bg-paper text-ink">
               <div className="relative aspect-[4/3] overflow-hidden bg-ink">
                 <Image
-                  src={voice.image}
+                  src={getAssetUrl(voice.image)}
                   alt=""
                   fill
                   sizes="(max-width: 1024px) 50vw, 25vw"
