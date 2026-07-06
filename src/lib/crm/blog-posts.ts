@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { ensureCrmSchema, getSql } from "@/lib/crm/db";
 import { readJsonFile, writeJsonFile } from "@/lib/crm/local-store";
+import { resolveCrmMediaUrl } from "@/lib/crm/media-proxy";
 import { isAllowedCrmMediaUrl } from "@/lib/crm/media-storage";
 import { blogPosts as staticBlogPosts } from "@/lib/site";
 
@@ -112,7 +113,7 @@ function safeUrl(value: string, allowedDataImages = false) {
 }
 
 function safeCoverImageUrl(value: string) {
-  const trimmed = value.trim();
+  const trimmed = resolveCrmMediaUrl(value.trim());
 
   return isAllowedCrmMediaUrl(trimmed) ? trimmed : "";
 }
@@ -178,7 +179,7 @@ export function sanitizeBlogHtml(input: string) {
         }
 
         if (tag === "img" && name === "src") {
-          const src = safeUrl(value, true);
+          const src = resolveCrmMediaUrl(safeUrl(value, true));
           if (src) attrs.push(`src="${src.replace(/"/g, "&quot;")}"`);
           continue;
         }
@@ -323,7 +324,7 @@ export async function listPublishedBlogCards(
     excerpt: post.excerpt,
     category: post.category,
     readTime: post.readTime,
-    image: post.image,
+    image: resolveCrmMediaUrl(post.image),
     href: `/news-events/${post.slug}`,
   }));
 }
@@ -336,7 +337,10 @@ export async function getBlogPostBySlug(slug: string, publishedOnly = true) {
   if (!post) return null;
   if (publishedOnly && post.status !== "published") return null;
 
-  return post;
+  return {
+    ...post,
+    image: resolveCrmMediaUrl(post.image),
+  };
 }
 
 export async function createBlogPost(input: BlogPostInput) {

@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/crm/auth";
+import { getCrmMediaProxyUrl } from "@/lib/crm/media-proxy";
 import { hasR2Storage, uploadCrmR2 } from "@/lib/crm/r2";
 import { hasS3Storage, uploadCrmS3 } from "@/lib/crm/s3";
 
@@ -118,57 +119,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const storageKey = `crm/${pathname}`;
+
     if (hasR2Storage()) {
-      const asset = await uploadCrmR2({
+      await uploadCrmR2({
         pathname,
         body: buffer,
         contentType,
       });
-
-      return NextResponse.json({
-        success: true,
-        url: asset.url,
-        filename: file.name,
-        size: file.size,
-        type: contentType,
-        storage: "r2",
-      });
-    }
-
-    if (hasS3Storage()) {
-      const asset = await uploadCrmS3({
+    } else if (hasS3Storage()) {
+      await uploadCrmS3({
         pathname,
         body: buffer,
         contentType,
       });
-
-      return NextResponse.json({
-        success: true,
-        url: asset.url,
-        filename: file.name,
-        size: file.size,
-        type: contentType,
-        storage: "s3",
-      });
+    } else {
+      const uploadDir = path.join(
+        process.cwd(),
+        "public",
+        "media",
+        `crm-${bucketFolder}`,
+        month,
+      );
+      await mkdir(uploadDir, { recursive: true });
+      await writeFile(path.join(uploadDir, safeName), buffer);
     }
-
-    const uploadDir = path.join(
-      process.cwd(),
-      "public",
-      "media",
-      `crm-${bucketFolder}`,
-      month,
-    );
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(path.join(uploadDir, safeName), buffer);
 
     return NextResponse.json({
       success: true,
-      url: `/media/crm-${bucketFolder}/${month}/${safeName}`,
+      url: getCrmMediaProxyUrl(storageKey),
       filename: file.name,
       size: file.size,
-      type: file.type,
-      storage: "local",
+      type: contentType,
+      storage: hasR2Storage() ? "r2" : hasS3Storage() ? "s3" : "local",
     });
   } catch (error) {
     console.error("[crm/media/upload] Error:", error);

@@ -1,4 +1,5 @@
 import { isPublicMediaHostname } from "@/lib/assets";
+import { CRM_MEDIA_PROXY_PREFIX, extractCrmMediaKey } from "@/lib/crm/media-proxy";
 
 export function getS3Bucket() {
   return process.env.AWS_S3_BUCKET || process.env.NEXT_PUBLIC_AWS_S3_BUCKET;
@@ -39,7 +40,9 @@ export function getS3ObjectUrl(key: string) {
 export function isAllowedCrmMediaUrl(value: string) {
   const trimmed = value.trim();
 
+  if (trimmed.startsWith(`${CRM_MEDIA_PROXY_PREFIX}/`)) return true;
   if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return true;
+  if (extractCrmMediaKey(trimmed)) return true;
 
   try {
     const url = new URL(trimmed);
