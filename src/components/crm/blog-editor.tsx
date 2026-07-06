@@ -31,6 +31,7 @@ import {
   deleteBlogPostAction,
   updateBlogPostAction,
 } from "@/app/crm/actions";
+import type { CrmMediaStorage } from "@/lib/crm/config";
 import type {
   BlogPost,
   BlogPostInput,
@@ -39,7 +40,7 @@ import type {
 
 type BlogEditorProps = {
   posts: BlogPost[];
-  usesS3Storage: boolean;
+  mediaStorage: CrmMediaStorage;
 };
 
 const EMPTY_BODY =
@@ -190,15 +191,22 @@ function ToolbarButton({
   );
 }
 
+function mediaStorageLabel(storage: CrmMediaStorage) {
+  if (storage === "r2") return "R2";
+  if (storage === "s3") return "S3";
+  if (storage === "blob") return "Vercel Blob";
+  return "Local";
+}
+
 function BlogComposer({
   post,
   allPosts,
-  usesS3Storage,
+  mediaStorage,
   onClose,
 }: {
   post: BlogPost | null;
   allPosts: BlogPost[];
-  usesS3Storage: boolean;
+  mediaStorage: CrmMediaStorage;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -271,8 +279,27 @@ function BlogComposer({
   }
 
   function insertImage(url: string) {
-    editorRef.current?.focus();
-    document.execCommand("insertImage", false, url);
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = "";
+
+    const selection = window.getSelection();
+    if (selection?.rangeCount) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(img);
+      range.setStartAfter(img);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } else {
+      editor.appendChild(img);
+    }
+
     syncEditor();
   }
 
@@ -290,9 +317,9 @@ function BlogComposer({
       }
 
       setMessage(
-        usesS3Storage
-          ? "Image uploaded to S3."
-          : "Image uploaded locally for development.",
+        mediaStorage === "local"
+          ? "Image uploaded locally for development."
+          : `Image uploaded to ${mediaStorageLabel(mediaStorage)}.`,
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Upload failed.");
@@ -404,12 +431,14 @@ function BlogComposer({
           <div className="flex items-center gap-2">
             <span
               className={`hidden border px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] sm:inline-flex ${
-                usesS3Storage
+                mediaStorage !== "local"
                   ? "border-brass text-brass"
                   : "border-cream/25 text-cream-muted"
               }`}
             >
-              {usesS3Storage ? "S3 uploads" : "Local uploads"}
+              {mediaStorage === "local"
+                ? "Local uploads"
+                : `${mediaStorageLabel(mediaStorage)} uploads`}
             </span>
             <button
               type="button"
@@ -766,7 +795,7 @@ function BlogComposer({
   );
 }
 
-export function BlogEditor({ posts, usesS3Storage }: BlogEditorProps) {
+export function BlogEditor({ posts, mediaStorage }: BlogEditorProps) {
   const [query, setQuery] = React.useState("");
   const [editingPost, setEditingPost] = React.useState<BlogPost | null>(null);
   const [composerOpen, setComposerOpen] = React.useState(false);
@@ -838,7 +867,7 @@ export function BlogEditor({ posts, usesS3Storage }: BlogEditorProps) {
             Media storage
           </p>
           <p className="mt-2 font-display text-3xl text-oxblood">
-            {usesS3Storage ? "S3" : "Local"}
+            {mediaStorageLabel(mediaStorage)}
           </p>
         </div>
       </div>
@@ -880,7 +909,7 @@ export function BlogEditor({ posts, usesS3Storage }: BlogEditorProps) {
           key={editingPost?.id ?? "new-post"}
           post={editingPost}
           allPosts={posts}
-          usesS3Storage={usesS3Storage}
+          mediaStorage={mediaStorage}
           onClose={() => setComposerOpen(false)}
         />
       ) : null}

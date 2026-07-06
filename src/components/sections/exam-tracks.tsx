@@ -65,7 +65,7 @@ export function ExamTracks({
     // Warm the preview cache so the first hover is instant.
     examTracks.forEach((t) => {
       const im = new window.Image();
-      im.src = t.image;
+      im.src = getAssetUrl(t.image);
     });
 
     let H = rows[0].getBoundingClientRect().height;
@@ -92,7 +92,7 @@ export function ExamTracks({
 
     const addPreview = (index: number) => {
       const img = document.createElement("img");
-      img.src = examTracks[index].image;
+      img.src = getAssetUrl(examTracks[index].image);
       img.alt = "";
       img.style.transform = "scale(0)";
       img.style.zIndex = String(Date.now());

@@ -24,28 +24,28 @@ const routeCards = [
     title: "Courses",
     body: "Civil services, defence, banking, SSC, police, Talathi and ZP tracks.",
     href: "/courses",
-    image: getAssetUrl("/home/pre-courses.png"),
+    image: "/home/pre-courses.png",
   },
   {
     eyebrow: "02",
     title: "Student Life",
     body: "Study hall, classroom rhythm, mocks, mentoring and daily discipline.",
     href: "/student-life",
-    image: getAssetUrl("/home/pre-student-life.png"),
+    image: "/home/pre-student-life.png",
   },
   {
     eyebrow: "03",
     title: "Admissions",
     body: "A short enquiry, a mentor call, and a batch recommendation.",
     href: "/admissions",
-    image: getAssetUrl("/home/pre-admission.jpeg"),
+    image: "/home/pre-admission.jpeg",
   },
   {
     eyebrow: "04",
     title: "Scholarships",
     body: "Practical fee support for serious students and farming families.",
     href: "/scholarships",
-    image: getAssetUrl("/home/pre-scholarship.png"),
+    image: "/home/pre-scholarship.png",
   },
 ];
 
@@ -162,7 +162,7 @@ export function HomeRouteLauncher() {
               key={card.title}
             >
               <Image
-                src={card.image}
+                src={getAssetUrl(card.image)}
                 alt=""
                 fill
                 sizes="(max-width: 768px) 100vw, 25vw"

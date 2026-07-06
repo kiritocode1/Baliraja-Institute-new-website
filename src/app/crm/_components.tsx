@@ -26,7 +26,7 @@ import type { CrmAdmin } from "@/lib/crm/admins";
 import { listAdmins } from "@/lib/crm/admins";
 import { requireAdminSession } from "@/lib/crm/auth";
 import type { BlogPost } from "@/lib/crm/blog-posts";
-import { getCrmEnvStatus } from "@/lib/crm/config";
+import { type CrmMediaStorage, getCrmEnvStatus } from "@/lib/crm/config";
 import type { CoursePage } from "@/lib/crm/course-pages";
 import {
   getLeadRequestTypeLabel,
@@ -42,6 +42,7 @@ import type {
   StudentSummary,
 } from "@/lib/crm/students";
 import { formatPaise } from "@/lib/crm/students";
+import { getAssetUrl } from "@/lib/assets";
 import { galleryImages } from "@/lib/site";
 import {
   admissionProgramLabels,
@@ -289,6 +290,7 @@ export function CrmChrome({
           <EnvPill ok={admins.length > 0} label="Admin table" />
           <EnvPill ok={env.gmailConfigured} label="Gmail OTP" />
           <EnvPill ok={env.databaseConfigured} label="Neon DB" />
+          <EnvPill ok={env.r2Configured} label="R2" />
           <EnvPill ok={env.s3Configured} label="S3" />
           <EnvPill ok={env.sessionSecretConfigured} label="Session secret" />
           <EnvPill
@@ -878,9 +880,9 @@ export function ScholarshipRequestsPanel({ leads }: { leads: Lead[] }) {
 }
 
 export function GalleryAdminPanel({
-  usesS3Storage,
+  mediaStorage,
 }: {
-  usesS3Storage: boolean;
+  mediaStorage: CrmMediaStorage;
 }) {
   return (
     <section className="mt-8 bg-parchment px-5 py-7 sm:px-7">
@@ -900,12 +902,13 @@ export function GalleryAdminPanel({
         <div className="flex flex-wrap gap-2">
           <span
             className={`border px-3 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em] ${
-              usesS3Storage
+              mediaStorage !== "local"
                 ? "border-brass text-brass-deep"
                 : "border-destructive/40 text-destructive"
             }`}
           >
-            S3 storage: {usesS3Storage ? "Ready" : "Missing"}
+            Media storage:{" "}
+            {mediaStorage === "local" ? "Missing" : mediaStorage.toUpperCase()}
           </span>
           <Link
             href="/gallery"
@@ -925,7 +928,7 @@ export function GalleryAdminPanel({
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-parchment-deep">
               <Image
-                src={item.src}
+                src={getAssetUrl(item.src)}
                 alt={item.alt}
                 fill
                 sizes="(max-width: 768px) 50vw, 25vw"
@@ -935,7 +938,7 @@ export function GalleryAdminPanel({
             <div className="p-4">
               <h3 className="font-semibold text-ink">{item.caption}</h3>
               <p className="mt-2 break-all text-xs leading-relaxed text-ink-soft">
-                {item.src}
+                {getAssetUrl(item.src)}
               </p>
             </div>
           </article>

@@ -68,7 +68,7 @@ export function Gallery({
               >
                 {img.type === "video" ? (
                   <GalleryVideoCard
-                    src={img.src}
+                    src={getAssetUrl(img.src)}
                     alt={img.alt}
                     caption={img.caption}
                     isActive={activeVideoSrc === img.src}
@@ -82,7 +82,7 @@ export function Gallery({
                 ) : (
                   <>
                     <Image
-                      src={img.src}
+                      src={getAssetUrl(img.src)}
                       alt={img.alt}
                       fill
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
