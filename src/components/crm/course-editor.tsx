@@ -41,6 +41,7 @@ type CourseEditorProps = {
 function mediaStorageLabel(storage: CrmMediaStorage) {
   if (storage === "r2") return "R2";
   if (storage === "s3") return "S3";
+  if (storage === "blob") return "Vercel Blob";
   return "Local";
 }
 

@@ -24,7 +24,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "Media not found." }, { status: 404 });
   }
 
-  return new NextResponse(asset.body, {
+  return new NextResponse(new Uint8Array(asset.body), {
     headers: {
       "Content-Type": asset.contentType,
       "Cache-Control": "public, max-age=31536000, immutable",

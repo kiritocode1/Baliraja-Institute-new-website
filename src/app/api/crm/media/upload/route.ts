@@ -3,6 +3,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/crm/auth";
+import type { CrmMediaStorage } from "@/lib/crm/config";
+import { hasBlobStorage, uploadCrmBlob } from "@/lib/crm/blob";
 import { getCrmMediaProxyUrl } from "@/lib/crm/media-proxy";
 import { hasR2Storage, uploadCrmR2 } from "@/lib/crm/r2";
 import { hasS3Storage, uploadCrmS3 } from "@/lib/crm/s3";
@@ -109,30 +111,62 @@ export async function POST(req: NextRequest) {
     const bucketFolder = folder === "notices" ? "notices" : "blog";
     const pathname = `${bucketFolder}/${month}/${safeName}`;
 
-    if (!hasR2Storage() && !hasS3Storage() && isProductionDeploy()) {
+    if (
+      !hasR2Storage() &&
+      !hasBlobStorage() &&
+      !hasS3Storage() &&
+      isProductionDeploy()
+    ) {
       return NextResponse.json(
         {
           error:
-            "Cloud storage is not configured for production uploads. Set R2 variables or AWS S3 credentials in Vercel.",
+            "Cloud storage is not configured for production uploads. Set R2, Vercel Blob, or AWS S3 credentials in Vercel.",
         },
         { status: 503 },
       );
     }
 
     const storageKey = `crm/${pathname}`;
+    const uploadInput = { pathname, body: buffer, contentType };
+    let storage: CrmMediaStorage = "local";
 
     if (hasR2Storage()) {
-      await uploadCrmR2({
-        pathname,
-        body: buffer,
-        contentType,
-      });
+      try {
+        await uploadCrmR2(uploadInput);
+        storage = "r2";
+      } catch (error) {
+        console.warn(
+          "[crm/media/upload] R2 upload failed, trying Blob fallback:",
+          error,
+        );
+
+        if (hasBlobStorage()) {
+          await uploadCrmBlob(uploadInput);
+          storage = "blob";
+        } else if (hasS3Storage()) {
+          await uploadCrmS3(uploadInput);
+          storage = "s3";
+        } else if (!isProductionDeploy()) {
+          const uploadDir = path.join(
+            process.cwd(),
+            "public",
+            "media",
+            `crm-${bucketFolder}`,
+            month,
+          );
+          await mkdir(uploadDir, { recursive: true });
+          await writeFile(path.join(uploadDir, safeName), buffer);
+          storage = "local";
+        } else {
+          throw error;
+        }
+      }
+    } else if (hasBlobStorage()) {
+      await uploadCrmBlob(uploadInput);
+      storage = "blob";
     } else if (hasS3Storage()) {
-      await uploadCrmS3({
-        pathname,
-        body: buffer,
-        contentType,
-      });
+      await uploadCrmS3(uploadInput);
+      storage = "s3";
     } else {
       const uploadDir = path.join(
         process.cwd(),
@@ -151,7 +185,7 @@ export async function POST(req: NextRequest) {
       filename: file.name,
       size: file.size,
       type: contentType,
-      storage: hasR2Storage() ? "r2" : hasS3Storage() ? "s3" : "local",
+      storage,
     });
   } catch (error) {
     console.error("[crm/media/upload] Error:", error);

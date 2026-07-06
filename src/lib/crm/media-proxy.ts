@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getS3Bucket, getS3Region } from "@/lib/crm/media-storage";
+import { readCrmBlob } from "@/lib/crm/blob";
 import { getR2Bucket, hasR2Storage } from "@/lib/crm/r2";
 import { hasS3Storage } from "@/lib/crm/s3";
 
@@ -109,36 +110,48 @@ async function readObjectBody(
   return Buffer.from(await body.transformToByteArray());
 }
 
+async function readCrmR2Object(key: string) {
+  const bucket = getR2Bucket();
+  const accountId = process.env.R2_ACCOUNT_ID;
+  const credentials = getR2Credentials();
+
+  if (!bucket || !accountId || !credentials) return null;
+
+  const r2 = new S3Client({
+    region: "auto",
+    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    credentials,
+  });
+  const result = await r2.send(
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    }),
+  );
+  const body = await readObjectBody(result.Body);
+
+  if (!body) return null;
+
+  return {
+    body,
+    contentType: result.ContentType || "application/octet-stream",
+  };
+}
+
 export async function readCrmMediaObject(key: string) {
   if (!isValidCrmMediaKey(key)) return null;
 
   if (hasR2Storage()) {
-    const bucket = getR2Bucket();
-    const accountId = process.env.R2_ACCOUNT_ID;
-    const credentials = getR2Credentials();
-
-    if (bucket && accountId && credentials) {
-      const r2 = new S3Client({
-        region: "auto",
-        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-        credentials,
-      });
-      const result = await r2.send(
-        new GetObjectCommand({
-          Bucket: bucket,
-          Key: key,
-        }),
-      );
-      const body = await readObjectBody(result.Body);
-
-      if (body) {
-        return {
-          body,
-          contentType: result.ContentType || "application/octet-stream",
-        };
-      }
+    try {
+      const asset = await readCrmR2Object(key);
+      if (asset) return asset;
+    } catch (error) {
+      console.warn("[crm/media] R2 read failed, trying Blob fallback:", error);
     }
   }
+
+  const blobAsset = await readCrmBlob(key);
+  if (blobAsset) return blobAsset;
 
   if (hasS3Storage()) {
     const bucket = getS3Bucket();

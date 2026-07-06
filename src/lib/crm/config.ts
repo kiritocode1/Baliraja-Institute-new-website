@@ -5,10 +5,11 @@ export const STUDENT_SESSION_COOKIE = "baliraja_student_session";
 export const STUDENT_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 export const STUDENT_OTP_TTL_MINUTES = 10;
 
-export type CrmMediaStorage = "r2" | "s3" | "local";
+export type CrmMediaStorage = "r2" | "s3" | "blob" | "local";
 
 export type CrmEnvStatus = {
   bootstrapAdminsConfigured: boolean;
+  blobConfigured: boolean;
   databaseConfigured: boolean;
   gmailConfigured: boolean;
   mediaStorage: CrmMediaStorage;
@@ -37,9 +38,14 @@ function getS3Configured() {
   );
 }
 
+function getBlobConfigured() {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
 export function getCrmMediaStorage(): CrmMediaStorage {
   if (getR2Configured()) return "r2";
   if (getS3Configured()) return "s3";
+  if (getBlobConfigured()) return "blob";
   return "local";
 }
 
@@ -73,6 +79,7 @@ export function getCrmEnvStatus(): CrmEnvStatus {
         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID &&
         process.env.RAZORPAY_WEBHOOK_SECRET,
     ),
+    blobConfigured: getBlobConfigured(),
     mediaStorage: getCrmMediaStorage(),
     r2Configured: getR2Configured(),
     s3Configured: getS3Configured(),
