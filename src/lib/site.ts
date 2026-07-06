@@ -4,6 +4,8 @@
  * and footer all read from this module.
  */
 
+import { getAssetUrl } from "@/lib/assets";
+
 export const site = {
   name: "Baliraja Institute",
   longName: "Baliraja Institute Career Academy",
