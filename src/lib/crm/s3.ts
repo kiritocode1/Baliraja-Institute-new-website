@@ -40,15 +40,28 @@ export async function uploadCrmS3(input: {
     credentials,
   });
 
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: input.body,
-      ContentType: input.contentType,
-      CacheControl: "public, max-age=31536000, immutable",
-    }),
-  );
+  const commandInput = {
+    Bucket: bucket,
+    Key: key,
+    Body: input.body,
+    ContentType: input.contentType,
+    CacheControl: "public, max-age=31536000, immutable",
+  };
+
+  try {
+    await s3.send(
+      new PutObjectCommand({ ...commandInput, ACL: "public-read" }),
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    const aclUnsupported =
+      (error as { name?: string }).name === "AccessControlListNotSupported" ||
+      message.includes("ACL");
+
+    if (!aclUnsupported) throw error;
+
+    await s3.send(new PutObjectCommand(commandInput));
+  }
 
   return {
     key,

@@ -2,14 +2,25 @@ import crypto from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
-import { requireAdminSession } from "@/lib/crm/auth";
+import { getAdminSession } from "@/lib/crm/auth";
 import { hasS3Storage, uploadCrmS3 } from "@/lib/crm/s3";
 
 export const runtime = "nodejs";
 
 const MAX_UPLOAD_SIZE = 15 * 1024 * 1024;
+const EXTENSION_CONTENT_TYPES: Record<string, string> = {
+  gif: "image/gif",
+  heic: "image/heic",
+  heif: "image/heif",
+  jpeg: "image/jpeg",
+  jpg: "image/jpeg",
+  png: "image/png",
+  svg: "image/svg+xml",
+  webp: "image/webp",
+};
 const ALLOWED_FILE_TYPES = new Set([
   "image/jpeg",
+  "image/jpg",
   "image/png",
   "image/webp",
   "image/gif",
@@ -29,8 +40,23 @@ function getSafeExtension(file: File) {
   return file.type.split("/")[1]?.replace(/[^a-z0-9]/g, "") || "bin";
 }
 
+function resolveContentType(file: File) {
+  if (file.type && ALLOWED_FILE_TYPES.has(file.type)) return file.type;
+
+  const extension = getSafeExtension(file);
+  return EXTENSION_CONTENT_TYPES[extension] ?? file.type;
+}
+
+function isProductionDeploy() {
+  return process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+}
+
 export async function POST(req: NextRequest) {
-  await requireAdminSession();
+  const session = await getAdminSession();
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
 
   try {
     const formData = await req.formData();
@@ -41,11 +67,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided." }, { status: 400 });
     }
 
-    if (!ALLOWED_FILE_TYPES.has(file.type)) {
+    const contentType = resolveContentType(file);
+
+    if (contentType === "image/heic" || contentType === "image/heif") {
       return NextResponse.json(
         {
           error:
-            "Unsupported file type. Use an image, PDF, Word, or PowerPoint file.",
+            "HEIC photos are not supported in the browser. Export the image as JPEG or PNG and try again.",
+        },
+        { status: 415 },
+      );
+    }
+
+    if (!ALLOWED_FILE_TYPES.has(contentType)) {
+      return NextResponse.json(
+        {
+          error:
+            "Unsupported file type. Use a JPEG, PNG, WebP, or GIF image.",
         },
         { status: 415 },
       );
@@ -69,11 +107,21 @@ export async function POST(req: NextRequest) {
     const bucketFolder = folder === "notices" ? "notices" : "blog";
     const pathname = `${bucketFolder}/${month}/${safeName}`;
 
+    if (!hasS3Storage() && isProductionDeploy()) {
+      return NextResponse.json(
+        {
+          error:
+            "S3 is not configured for production uploads. Set AWS_S3_BUCKET, YOUR_ACCESS_KEY_ID, and YOUR_SECRET_ACCESS_KEY in Vercel.",
+        },
+        { status: 503 },
+      );
+    }
+
     if (hasS3Storage()) {
       const asset = await uploadCrmS3({
         pathname,
         body: buffer,
-        contentType: file.type,
+        contentType,
       });
 
       return NextResponse.json({
@@ -81,7 +129,7 @@ export async function POST(req: NextRequest) {
         url: asset.url,
         filename: file.name,
         size: file.size,
-        type: file.type,
+        type: contentType,
         storage: "s3",
       });
     }
