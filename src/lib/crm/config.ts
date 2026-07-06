@@ -5,15 +5,43 @@ export const STUDENT_SESSION_COOKIE = "baliraja_student_session";
 export const STUDENT_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 export const STUDENT_OTP_TTL_MINUTES = 10;
 
+export type CrmMediaStorage = "r2" | "s3" | "local";
+
 export type CrmEnvStatus = {
   bootstrapAdminsConfigured: boolean;
   databaseConfigured: boolean;
   gmailConfigured: boolean;
+  mediaStorage: CrmMediaStorage;
   razorpayConfigured: boolean;
+  r2Configured: boolean;
   s3Configured: boolean;
   sessionSecretConfigured: boolean;
   studentSessionSecretConfigured: boolean;
 };
+
+function getR2Configured() {
+  return Boolean(
+    process.env.R2_ACCOUNT_ID &&
+      process.env.R2_ACCESS_KEY_ID &&
+      process.env.R2_SECRET_ACCESS_KEY &&
+      process.env.R2_BUCKET_NAME &&
+      process.env.NEXT_PUBLIC_R2_PUBLIC_URL,
+  );
+}
+
+function getS3Configured() {
+  return Boolean(
+    (process.env.AWS_S3_BUCKET || process.env.NEXT_PUBLIC_AWS_S3_BUCKET) &&
+      (process.env.YOUR_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID) &&
+      (process.env.YOUR_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY),
+  );
+}
+
+export function getCrmMediaStorage(): CrmMediaStorage {
+  if (getR2Configured()) return "r2";
+  if (getS3Configured()) return "s3";
+  return "local";
+}
 
 export function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -45,12 +73,9 @@ export function getCrmEnvStatus(): CrmEnvStatus {
         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID &&
         process.env.RAZORPAY_WEBHOOK_SECRET,
     ),
-    s3Configured: Boolean(
-      (process.env.AWS_S3_BUCKET || process.env.NEXT_PUBLIC_AWS_S3_BUCKET) &&
-        (process.env.YOUR_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID) &&
-        (process.env.YOUR_SECRET_ACCESS_KEY ||
-          process.env.AWS_SECRET_ACCESS_KEY),
-    ),
+    mediaStorage: getCrmMediaStorage(),
+    r2Configured: getR2Configured(),
+    s3Configured: getS3Configured(),
     sessionSecretConfigured: Boolean(
       process.env.CRM_SESSION_SECRET || process.env.AUTH_SECRET,
     ),

@@ -26,6 +26,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { saveCoursePageAction } from "@/app/crm/actions";
+import type { CrmMediaStorage } from "@/lib/crm/config";
 import type {
   CoursePage,
   CoursePageInput,
@@ -34,8 +35,14 @@ import type {
 
 type CourseEditorProps = {
   pages: CoursePage[];
-  usesS3Storage: boolean;
+  mediaStorage: CrmMediaStorage;
 };
+
+function mediaStorageLabel(storage: CrmMediaStorage) {
+  if (storage === "r2") return "R2";
+  if (storage === "s3") return "S3";
+  return "Local";
+}
 
 const EMPTY_BODY =
   "<h2>What this course covers</h2><p>Write the course promise, exam focus, and preparation structure here.</p><h3>Who should join</h3><p>Add student level, medium, and batch guidance.</p>";
@@ -183,12 +190,12 @@ function ToolbarButton({
 function CourseComposer({
   page,
   allPages,
-  usesS3Storage,
+  mediaStorage,
   onClose,
 }: {
   page: CoursePage | null;
   allPages: CoursePage[];
-  usesS3Storage: boolean;
+  mediaStorage: CrmMediaStorage;
   onClose: () => void;
 }) {
   const router = useRouter();
@@ -261,8 +268,27 @@ function CourseComposer({
   }
 
   function insertImage(url: string) {
-    editorRef.current?.focus();
-    document.execCommand("insertImage", false, url);
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = "";
+
+    const selection = window.getSelection();
+    if (selection?.rangeCount) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(img);
+      range.setStartAfter(img);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } else {
+      editor.appendChild(img);
+    }
+
     syncEditor();
   }
 
@@ -280,9 +306,9 @@ function CourseComposer({
       }
 
       setMessage(
-        usesS3Storage
-          ? "Image uploaded to S3."
-          : "Image uploaded locally for development.",
+        mediaStorage === "local"
+          ? "Image uploaded locally for development."
+          : `Image uploaded to ${mediaStorageLabel(mediaStorage)}.`,
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Upload failed.");
@@ -379,12 +405,14 @@ function CourseComposer({
           <div className="flex items-center gap-2">
             <span
               className={`hidden border px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] sm:inline-flex ${
-                usesS3Storage
+                mediaStorage !== "local"
                   ? "border-brass text-brass"
                   : "border-cream/25 text-cream-muted"
               }`}
             >
-              {usesS3Storage ? "S3 uploads" : "Local uploads"}
+              {mediaStorage === "local"
+                ? "Local uploads"
+                : `${mediaStorageLabel(mediaStorage)} uploads`}
             </span>
             <button
               type="button"
@@ -769,7 +797,7 @@ function CourseComposer({
   );
 }
 
-export function CourseEditor({ pages, usesS3Storage }: CourseEditorProps) {
+export function CourseEditor({ pages, mediaStorage }: CourseEditorProps) {
   const [query, setQuery] = React.useState("");
   const [editingPage, setEditingPage] = React.useState<CoursePage | null>(null);
   const [composerOpen, setComposerOpen] = React.useState(false);
@@ -884,7 +912,7 @@ export function CourseEditor({ pages, usesS3Storage }: CourseEditorProps) {
           key={editingPage?.id ?? "new-course"}
           page={editingPage}
           allPages={pages}
-          usesS3Storage={usesS3Storage}
+          mediaStorage={mediaStorage}
           onClose={() => setComposerOpen(false)}
         />
       ) : null}

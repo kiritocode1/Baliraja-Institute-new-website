@@ -26,7 +26,7 @@ import type { CrmAdmin } from "@/lib/crm/admins";
 import { listAdmins } from "@/lib/crm/admins";
 import { requireAdminSession } from "@/lib/crm/auth";
 import type { BlogPost } from "@/lib/crm/blog-posts";
-import { getCrmEnvStatus } from "@/lib/crm/config";
+import { type CrmMediaStorage, getCrmEnvStatus } from "@/lib/crm/config";
 import type { CoursePage } from "@/lib/crm/course-pages";
 import {
   getLeadRequestTypeLabel,
@@ -290,6 +290,7 @@ export function CrmChrome({
           <EnvPill ok={admins.length > 0} label="Admin table" />
           <EnvPill ok={env.gmailConfigured} label="Gmail OTP" />
           <EnvPill ok={env.databaseConfigured} label="Neon DB" />
+          <EnvPill ok={env.r2Configured} label="R2" />
           <EnvPill ok={env.s3Configured} label="S3" />
           <EnvPill ok={env.sessionSecretConfigured} label="Session secret" />
           <EnvPill
@@ -879,9 +880,9 @@ export function ScholarshipRequestsPanel({ leads }: { leads: Lead[] }) {
 }
 
 export function GalleryAdminPanel({
-  usesS3Storage,
+  mediaStorage,
 }: {
-  usesS3Storage: boolean;
+  mediaStorage: CrmMediaStorage;
 }) {
   return (
     <section className="mt-8 bg-parchment px-5 py-7 sm:px-7">
@@ -901,12 +902,13 @@ export function GalleryAdminPanel({
         <div className="flex flex-wrap gap-2">
           <span
             className={`border px-3 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em] ${
-              usesS3Storage
+              mediaStorage !== "local"
                 ? "border-brass text-brass-deep"
                 : "border-destructive/40 text-destructive"
             }`}
           >
-            S3 storage: {usesS3Storage ? "Ready" : "Missing"}
+            Media storage:{" "}
+            {mediaStorage === "local" ? "Missing" : mediaStorage.toUpperCase()}
           </span>
           <Link
             href="/gallery"

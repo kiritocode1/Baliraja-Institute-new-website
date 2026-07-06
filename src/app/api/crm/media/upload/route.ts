@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/crm/auth";
+import { hasR2Storage, uploadCrmR2 } from "@/lib/crm/r2";
 import { hasS3Storage, uploadCrmS3 } from "@/lib/crm/s3";
 
 export const runtime = "nodejs";
@@ -107,14 +108,31 @@ export async function POST(req: NextRequest) {
     const bucketFolder = folder === "notices" ? "notices" : "blog";
     const pathname = `${bucketFolder}/${month}/${safeName}`;
 
-    if (!hasS3Storage() && isProductionDeploy()) {
+    if (!hasR2Storage() && !hasS3Storage() && isProductionDeploy()) {
       return NextResponse.json(
         {
           error:
-            "S3 is not configured for production uploads. Set AWS_S3_BUCKET, YOUR_ACCESS_KEY_ID, and YOUR_SECRET_ACCESS_KEY in Vercel.",
+            "Cloud storage is not configured for production uploads. Set R2 variables or AWS S3 credentials in Vercel.",
         },
         { status: 503 },
       );
+    }
+
+    if (hasR2Storage()) {
+      const asset = await uploadCrmR2({
+        pathname,
+        body: buffer,
+        contentType,
+      });
+
+      return NextResponse.json({
+        success: true,
+        url: asset.url,
+        filename: file.name,
+        size: file.size,
+        type: contentType,
+        storage: "r2",
+      });
     }
 
     if (hasS3Storage()) {
