@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getAssetUrl } from "@/lib/assets";
 import { sanitizeBlogHtml } from "@/lib/crm/blog-posts";
 import { getCoursePageBySlug } from "@/lib/crm/course-pages";
 import { absoluteUrl } from "@/lib/seo";
@@ -27,7 +28,7 @@ export async function generateMetadata({
   const title = page.seoTitle || `${page.title} Course`;
   const description = page.seoDescription || page.summary;
   const url = `/courses/${page.slug}`;
-  const image = absoluteUrl(page.image);
+  const image = absoluteUrl(getAssetUrl(page.image));
   const imageAlt = page.imageAlt ?? title;
 
   return {
@@ -65,7 +66,7 @@ export default async function CoursePage({ params }: PageProps) {
     name: page.title,
     description: page.seoDescription || page.summary,
     url,
-    image: absoluteUrl(page.image),
+    image: absoluteUrl(getAssetUrl(page.image)),
     provider: {
       "@type": "EducationalOrganization",
       name: site.longName,
@@ -81,7 +82,7 @@ export default async function CoursePage({ params }: PageProps) {
     <article className="bg-parchment">
       <section className="relative isolate min-h-[72svh] overflow-hidden bg-oxblood-deep text-cream">
         <Image
-          src={page.image}
+          src={getAssetUrl(page.image)}
           alt={page.imageAlt ?? ""}
           fill
           priority

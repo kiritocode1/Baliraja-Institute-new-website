@@ -2,25 +2,25 @@ import fs from "node:fs";
 import path from "node:path";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
-// Helper to manually load .env file if it exists, since this runs outside Next.js process
 const loadEnv = () => {
-  if (fs.existsSync(".env")) {
-    const content = fs.readFileSync(".env", "utf8");
-    for (const line of content.split("\n")) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) continue;
-      const match = trimmed.match(/^([\w.-]+)\s*=\s*(.*)?$/);
-      if (match) {
-        const key = match[1];
-        let val = match[2] || "";
-        if (val.startsWith('"') && val.endsWith('"')) {
-          val = val.substring(1, val.length - 1);
-        } else if (val.startsWith("'") && val.endsWith("'")) {
-          val = val.substring(1, val.length - 1);
-        }
-        process.env[key] = val;
-      }
+  if (!fs.existsSync(".env")) return;
+
+  const content = fs.readFileSync(".env", "utf8");
+  for (const line of content.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const match = trimmed.match(/^([\w.-]+)\s*=\s*(.*)?$/);
+    if (!match) continue;
+
+    const key = match[1];
+    let val = match[2] || "";
+    if (
+      (val.startsWith('"') && val.endsWith('"')) ||
+      (val.startsWith("'") && val.endsWith("'"))
+    ) {
+      val = val.slice(1, -1);
     }
+    process.env[key] = val;
   }
 };
 
@@ -95,6 +95,7 @@ const uploadFile = async (filePath, key) => {
     Key: key,
     Body: fileBuffer,
     ContentType: contentType,
+    CacheControl: "public, max-age=31536000, immutable",
   });
 
   try {
@@ -133,9 +134,8 @@ const main = async () => {
 
   for (const filePath of allFiles) {
     const relativePath = path.relative(publicDir, filePath);
-    const key = relativePath.replace(/\\/g, "/"); // Convert Windows backslashes
+    const key = relativePath.replace(/\\/g, "/");
 
-    // Skip Next.js system/boilerplate files that should remain locally
     if (
       key === "favicon.ico" ||
       key === "manifest.webmanifest" ||
@@ -151,4 +151,7 @@ const main = async () => {
   console.log("Upload job finished successfully.");
 };
 
-main();
+main().catch((error) => {
+  console.error("R2 upload failed:", error);
+  process.exit(1);
+});

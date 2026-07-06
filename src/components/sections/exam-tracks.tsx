@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { RevealText } from "@/components/reveal-text";
+import { getAssetUrl } from "@/lib/assets";
 import { examTracks, featuredExams } from "@/lib/site";
 
 function TrackRow({
@@ -64,7 +65,7 @@ export function ExamTracks({
     // Warm the preview cache so the first hover is instant.
     examTracks.forEach((t) => {
       const im = new window.Image();
-      im.src = t.image;
+      im.src = getAssetUrl(t.image);
     });
 
     let H = rows[0].getBoundingClientRect().height;
@@ -91,7 +92,7 @@ export function ExamTracks({
 
     const addPreview = (index: number) => {
       const img = document.createElement("img");
-      img.src = examTracks[index].image;
+      img.src = getAssetUrl(examTracks[index].image);
       img.alt = "";
       img.style.transform = "scale(0)";
       img.style.zIndex = String(Date.now());
@@ -292,7 +293,7 @@ export function ExamTracks({
             >
               <div className="relative aspect-[5/4] overflow-hidden">
                 <Image
-                  src={f.image}
+                  src={getAssetUrl(f.image)}
                   alt={f.alt}
                   fill
                   sizes="(max-width: 640px) 100vw, 50vw"

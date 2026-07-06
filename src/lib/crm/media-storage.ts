@@ -1,3 +1,5 @@
+import { isPublicMediaHostname } from "@/lib/assets";
+
 export function getS3Bucket() {
   return process.env.AWS_S3_BUCKET || process.env.NEXT_PUBLIC_AWS_S3_BUCKET;
 }
@@ -13,8 +15,7 @@ export function getS3Region() {
 }
 
 export function getS3PublicBaseUrl() {
-  const customBase =
-    process.env.AWS_S3_PUBLIC_URL || process.env.NEXT_PUBLIC_ASSET_BASE_URL;
+  const customBase = process.env.AWS_S3_PUBLIC_URL;
 
   if (customBase) return customBase.replace(/\/+$/, "");
 
@@ -47,9 +48,7 @@ export function isAllowedCrmMediaUrl(value: string) {
 
     return (
       url.protocol === "https:" &&
-      (url.hostname === "images.unsplash.com" ||
-        url.hostname === s3Host ||
-        url.hostname.endsWith(".public.blob.vercel-storage.com"))
+      (isPublicMediaHostname(url.hostname) || url.hostname === s3Host)
     );
   } catch {
     return false;

@@ -42,6 +42,7 @@ import type {
   StudentSummary,
 } from "@/lib/crm/students";
 import { formatPaise } from "@/lib/crm/students";
+import { getAssetUrl } from "@/lib/assets";
 import { galleryImages } from "@/lib/site";
 import {
   admissionProgramLabels,
@@ -925,7 +926,7 @@ export function GalleryAdminPanel({
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-parchment-deep">
               <Image
-                src={item.src}
+                src={getAssetUrl(item.src)}
                 alt={item.alt}
                 fill
                 sizes="(max-width: 768px) 50vw, 25vw"
@@ -935,7 +936,7 @@ export function GalleryAdminPanel({
             <div className="p-4">
               <h3 className="font-semibold text-ink">{item.caption}</h3>
               <p className="mt-2 break-all text-xs leading-relaxed text-ink-soft">
-                {item.src}
+                {getAssetUrl(item.src)}
               </p>
             </div>
           </article>

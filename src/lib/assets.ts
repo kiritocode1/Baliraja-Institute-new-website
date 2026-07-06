@@ -1,31 +1,71 @@
 const bucket = process.env.NEXT_PUBLIC_AWS_S3_BUCKET || "baliraja";
 const region = process.env.NEXT_PUBLIC_YOUR_AWS_REGION || "ap-south-1";
 
-const ASSET_BASE_URL =
-  process.env.NEXT_PUBLIC_ASSET_BASE_URL ||
-  (process.env.NEXT_PUBLIC_R2_PUBLIC_URL
-    ? process.env.NEXT_PUBLIC_R2_PUBLIC_URL
-    : `https://${bucket}.s3.${region}.amazonaws.com`);
+const R2_MEDIA_PREFIXES = [
+  "/home/",
+  "/about/",
+  "/courses/",
+  "/student-life/",
+  "/admissions/",
+  "/gallery/",
+  "/hero.mp4",
+  "/hero-poster.jpg",
+  "/model.glb",
+  "/img-books.jpg",
+  "/img-classroom.jpg",
+  "/img-reading.jpg",
+  "/img-study.jpg",
+];
+
+export function getPublicMediaBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_R2_PUBLIC_URL) {
+    return process.env.NEXT_PUBLIC_R2_PUBLIC_URL.replace(/\/+$/, "");
+  }
+
+  if (process.env.NEXT_PUBLIC_ASSET_BASE_URL) {
+    return process.env.NEXT_PUBLIC_ASSET_BASE_URL.replace(/\/+$/, "");
+  }
+
+  return `https://${bucket}.s3.${region}.amazonaws.com`;
+}
+
+export function getPublicMediaHostnames(): string[] {
+  const hosts = new Set<string>();
+
+  for (const base of [
+    process.env.NEXT_PUBLIC_R2_PUBLIC_URL,
+    process.env.NEXT_PUBLIC_ASSET_BASE_URL,
+    process.env.AWS_S3_PUBLIC_URL,
+  ]) {
+    if (!base) continue;
+
+    try {
+      hosts.add(new URL(base).hostname);
+    } catch {
+      // Ignore invalid env URLs.
+    }
+  }
+
+  hosts.add(`${bucket}.s3.${region}.amazonaws.com`);
+
+  return [...hosts];
+}
+
+export function isPublicMediaHostname(hostname: string) {
+  return (
+    hostname === "images.unsplash.com" ||
+    hostname.endsWith(".public.blob.vercel-storage.com") ||
+    hostname.endsWith(".r2.dev") ||
+    getPublicMediaHostnames().includes(hostname)
+  );
+}
 
 export function getAssetUrl(path: string): string {
   if (!path) return "";
-  const prefixes = [
-    "/home/",
-    "/about/",
-    "/courses/",
-    "/student-life/",
-    "/admissions/",
-    "/gallery/",
-    "/hero.mp4",
-    "/hero-poster.jpg",
-    "/model.glb",
-    "/img-books.jpg",
-    "/img-classroom.jpg",
-    "/img-reading.jpg",
-    "/img-study.jpg"
-  ];
-  if (prefixes.some((p) => path.startsWith(p))) {
-    return `${ASSET_BASE_URL}${path}`;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (R2_MEDIA_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+    return `${getPublicMediaBaseUrl()}${path}`;
   }
+
   return path;
 }

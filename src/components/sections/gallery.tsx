@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { RevealText } from "@/components/reveal-text";
+import { getAssetUrl } from "@/lib/assets";
 import { galleryImages } from "@/lib/site";
 
 export function Gallery({
@@ -67,7 +68,7 @@ export function Gallery({
               >
                 {img.type === "video" ? (
                   <GalleryVideoCard
-                    src={img.src}
+                    src={getAssetUrl(img.src)}
                     alt={img.alt}
                     caption={img.caption}
                     isActive={activeVideoSrc === img.src}
@@ -81,7 +82,7 @@ export function Gallery({
                 ) : (
                   <>
                     <Image
-                      src={img.src}
+                      src={getAssetUrl(img.src)}
                       alt={img.alt}
                       fill
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

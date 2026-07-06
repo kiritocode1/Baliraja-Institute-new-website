@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getAssetUrl } from "@/lib/assets";
 import { listBlogPosts } from "@/lib/crm/blog-posts";
 import { listCoursePages } from "@/lib/crm/course-pages";
 import { site } from "@/lib/site";
@@ -45,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const courseEntries = courses
     .filter((page) => page.status === "published")
     .map((page) => {
-      const image = absoluteImageUrl(page.image);
+      const image = absoluteImageUrl(getAssetUrl(page.image));
 
       return {
         url: absoluteUrl(`/courses/${page.slug}`),
@@ -58,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogEntries = blogs
     .filter((post) => post.status === "published")
     .map((post) => {
-      const image = absoluteImageUrl(post.image);
+      const image = absoluteImageUrl(getAssetUrl(post.image));
 
       return {
         url: absoluteUrl(`/news-events/${post.slug}`),
