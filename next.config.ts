@@ -53,16 +53,13 @@ const nextConfig: NextConfig = {
         hostname: "**.r2.dev",
         pathname: "/**",
       },
-<<<<<<< HEAD
       // Custom domains that proxy Cloudflare R2 (e.g. assets.baliraja.com)
       {
         protocol: "https",
         hostname: "**.baliraja.com",
         pathname: "/**",
       },
-=======
       ...(r2RemotePattern ? [r2RemotePattern] : []),
->>>>>>> b184cbead06cc2deddc526d0dfb22a3603275800
     ],
   },
 };

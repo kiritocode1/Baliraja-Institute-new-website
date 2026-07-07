@@ -7,7 +7,6 @@ import { getAssetUrl } from "@/lib/assets";
 import { sanitizeBlogHtml } from "@/lib/crm/blog-posts";
 import { getCoursePageBySlug } from "@/lib/crm/course-pages";
 import { absoluteUrl } from "@/lib/seo";
-import { getAssetUrl } from "@/lib/assets";
 import { site } from "@/lib/site";
 
 type PageProps = {

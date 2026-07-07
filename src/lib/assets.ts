@@ -73,32 +73,9 @@ export function isPublicMediaHostname(hostname: string) {
 export function getAssetUrl(path: string): string {
   if (!path) return "";
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
-<<<<<<< HEAD
-  const normalised = path.startsWith("/") ? path : `/${path}`;
-  return `${ASSET_BASE_URL}${normalised}`;
-}
-
-/**
- * Derive a poster / thumbnail URL from a video path.
- *
- * Convention: upload `<videoname>-poster.jpg` to R2 alongside each video.
- * Example: `/home/hero-video.mp4` → `<BASE>/home/hero-video-poster.jpg`
- *
- * If the poster file is absent on R2 the browser silently shows a blank frame —
- * no error is thrown.
- */
-export function getVideoPosterUrl(videoPath: string): string {
-  if (!videoPath) return "";
-  // Strip query-string / fragment, then swap extension for -poster.jpg
-  const base = videoPath.split("?")[0].split("#")[0];
-  const poster = base.replace(/\.(mp4|mov|webm|MOV|MP4|WEBM)$/, "-poster.jpg");
-  return getAssetUrl(poster);
-}
-=======
   if (R2_MEDIA_PREFIXES.some((prefix) => path.startsWith(prefix))) {
     return `${getPublicMediaBaseUrl()}${path}`;
   }
 
   return path;
 }
->>>>>>> b184cbead06cc2deddc526d0dfb22a3603275800
