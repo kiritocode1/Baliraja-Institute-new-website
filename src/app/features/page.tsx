@@ -328,6 +328,19 @@ const groups: FeatureGroup[] = [
         ],
       },
       {
+        title: "Notices",
+        url: "/crm/notices",
+        audience: "Office staff",
+        description:
+          "Publish, edit, archive, and delete every portal notice in one place — targeted at all students, a course, a batch, or one student, with file attachments.",
+        howTo: [
+          "Fill the “Publish a notice” form; pick the target and status.",
+          "Attach a PDF or image — it uploads to cloud storage automatically.",
+          "Expand “Edit notice” under any existing notice to change or archive it; archived notices disappear from the portal without being deleted.",
+          "Set an expiry to have a notice hide itself automatically.",
+        ],
+      },
+      {
         title: "Tests & Results",
         url: "/crm/tests",
         audience: "Instructors & office staff",

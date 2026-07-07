@@ -983,11 +983,20 @@ export async function listCourseNotices() {
   return listStoredNotices();
 }
 
-export async function createCourseNotice(input: NoticeInput) {
+export async function getCourseNoticeById(id: string) {
+  return (await listStoredNotices()).find((notice) => notice.id === id) ?? null;
+}
+
+/** Create (id null) or update a notice. */
+export async function saveCourseNotice(id: string | null, input: NoticeInput) {
   const now = new Date().toISOString();
-  const status = input.status === "published" ? "published" : "draft";
+  const existing = id ? await getCourseNoticeById(id) : null;
+
+  if (id && !existing) throw new Error("Notice not found.");
+
+  const status = isNoticeStatus(input.status) ? input.status : "draft";
   const notice: CourseNotice = {
-    id: crypto.randomUUID(),
+    id: existing?.id ?? crypto.randomUUID(),
     title: cleanText(input.title),
     bodyHtml: sanitizeBlogHtml(input.bodyHtml),
     attachmentUrl: nullableText(input.attachmentUrl),
@@ -999,9 +1008,9 @@ export async function createCourseNotice(input: NoticeInput) {
     batchName: nullableText(input.batchName),
     studentId: nullableText(input.studentId),
     status,
-    publishedAt: status === "published" ? now : null,
+    publishedAt: status === "published" ? (existing?.publishedAt ?? now) : null,
     expiresAt: nullableText(input.expiresAt),
-    createdAt: now,
+    createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   };
 
@@ -1013,6 +1022,27 @@ export async function createCourseNotice(input: NoticeInput) {
   const db = getSql();
 
   if (ready && db) {
+    if (existing) {
+      await db`
+        UPDATE crm_course_notices
+        SET
+          title = ${notice.title},
+          body_html = ${notice.bodyHtml},
+          attachment_url = ${notice.attachmentUrl},
+          attachment_name = ${notice.attachmentName},
+          target_scope = ${notice.targetScope},
+          course_key = ${notice.courseKey},
+          batch_name = ${notice.batchName},
+          student_id = ${notice.studentId},
+          status = ${notice.status},
+          published_at = ${notice.publishedAt},
+          expires_at = ${notice.expiresAt},
+          updated_at = ${notice.updatedAt}
+        WHERE id = ${notice.id}
+      `;
+      return notice;
+    }
+
     await db`
       INSERT INTO crm_course_notices (
         id,
@@ -1051,9 +1081,31 @@ export async function createCourseNotice(input: NoticeInput) {
   }
 
   const notices = await listStoredNotices();
-  notices.unshift(notice);
-  await writeJsonFile(NOTICES_FILE, notices);
+  const next = existing
+    ? notices.map((item) => (item.id === notice.id ? notice : item))
+    : [notice, ...notices];
+  await writeJsonFile(NOTICES_FILE, next);
   return notice;
+}
+
+export async function createCourseNotice(input: NoticeInput) {
+  return saveCourseNotice(null, input);
+}
+
+export async function deleteCourseNotice(id: string) {
+  const ready = await ensureCrmSchema();
+  const db = getSql();
+
+  if (ready && db) {
+    await db`DELETE FROM crm_course_notices WHERE id = ${id}`;
+    return;
+  }
+
+  const notices = await listStoredNotices();
+  await writeJsonFile(
+    NOTICES_FILE,
+    notices.filter((notice) => notice.id !== id),
+  );
 }
 
 export async function createFeeInvoice(input: FeeInvoiceInput) {

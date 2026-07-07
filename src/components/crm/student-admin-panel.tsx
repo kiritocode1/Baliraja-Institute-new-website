@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createCourseNoticeAction, saveStudentAction } from "@/app/crm/actions";
+import { saveStudentAction } from "@/app/crm/actions";
 import type {
   CourseNotice,
   CourseOption,
@@ -30,21 +30,6 @@ const buttonClass =
   "bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright";
 const summaryClass =
   "cursor-pointer font-display text-2xl text-oxblood [&::-webkit-details-marker]:hidden";
-
-function formatDate(value: string | null) {
-  if (!value) return "No date";
-
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-  }).format(new Date(value));
-}
-
-function stripHtml(value: string) {
-  return value
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 function pendingAmount(student: StudentSummary) {
   return student.invoices
@@ -390,144 +375,18 @@ export function StudentAdminPanel({
           </form>
         </details>
 
-        <details className="border border-line p-5">
-          <summary className={summaryClass}>Create notice</summary>
-          <form action={createCourseNoticeAction}>
-            <label htmlFor="notice-title" className={`mt-5 ${labelClass}`}>
-              Title
-            </label>
-            <input
-              id="notice-title"
-              name="title"
-              required
-              className={fieldClass}
-            />
-            <label htmlFor="notice-target" className={`mt-4 ${labelClass}`}>
-              Target
-            </label>
-            <select
-              id="notice-target"
-              name="targetScope"
-              className={fieldClass}
-            >
-              <option value="all">All students</option>
-              <option value="course">Course</option>
-              <option value="batch">Batch</option>
-              <option value="student">Student</option>
-            </select>
-            <label htmlFor="notice-course" className={`mt-4 ${labelClass}`}>
-              Course
-            </label>
-            <select id="notice-course" name="courseKey" className={fieldClass}>
-              <option value="">No course target</option>
-              {courseOptions.map((course) => (
-                <option key={course.key} value={course.key}>
-                  {course.title}
-                </option>
-              ))}
-            </select>
-            <label htmlFor="notice-batch" className={`mt-4 ${labelClass}`}>
-              Batch name
-            </label>
-            <input
-              id="notice-batch"
-              name="batchName"
-              list="batch-name-options"
-              className={fieldClass}
-            />
-            <datalist id="batch-name-options">
-              {batchNames.map((batch) => (
-                <option key={batch} value={batch} />
-              ))}
-            </datalist>
-            <label htmlFor="notice-student" className={`mt-4 ${labelClass}`}>
-              Student
-            </label>
-            <select id="notice-student" name="studentId" className={fieldClass}>
-              <option value="">No student target</option>
-              {students.map((student) => (
-                <option key={student.id} value={student.id}>
-                  {student.name} · {student.email ?? student.phone}
-                </option>
-              ))}
-            </select>
-            <label htmlFor="notice-body" className={`mt-4 ${labelClass}`}>
-              Body
-            </label>
-            <textarea
-              id="notice-body"
-              name="body"
-              rows={5}
-              required
-              className={`${fieldClass} resize-none`}
-            />
-            <label htmlFor="notice-attachment" className={`mt-4 ${labelClass}`}>
-              Attachment (PDF or image)
-            </label>
-            <input
-              id="notice-attachment"
-              name="attachment"
-              type="file"
-              accept="image/*,.pdf,.doc,.docx,.ppt,.pptx"
-              className="w-full text-sm text-ink file:mr-3 file:border file:border-line-strong file:bg-parchment file:px-3 file:py-2 file:text-xs file:font-semibold file:uppercase file:tracking-[0.12em]"
-            />
-            <label
-              htmlFor="notice-attachment-name"
-              className={`mt-3 ${labelClass}`}
-            >
-              Attachment display name
-            </label>
-            <input
-              id="notice-attachment-name"
-              name="attachmentName"
-              placeholder="Defaults to the file name"
-              className={fieldClass}
-            />
-            <label htmlFor="notice-expires" className={`mt-4 ${labelClass}`}>
-              Expires
-            </label>
-            <input
-              id="notice-expires"
-              name="expiresAt"
-              type="datetime-local"
-              className={fieldClass}
-            />
-            <label htmlFor="notice-status" className={`mt-4 ${labelClass}`}>
-              Status
-            </label>
-            <select id="notice-status" name="status" className={fieldClass}>
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-            </select>
-            <button type="submit" className={`mt-5 ${buttonClass}`}>
-              Save notice
-            </button>
-          </form>
-        </details>
-      </div>
-
-      <div className="mt-8 border border-line p-5">
-        <h3 className="font-display text-2xl text-oxblood">Recent notices</h3>
-        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {notices.slice(0, 6).map((notice) => (
-            <article key={notice.id} className="border border-line p-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="border border-line-strong px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">
-                  {notice.status}
-                </span>
-                <span className="text-[0.68rem] uppercase tracking-[0.14em] text-ink-soft">
-                  {notice.targetScope}
-                </span>
-              </div>
-              <h4 className="mt-2 font-semibold text-ink">{notice.title}</h4>
-              <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-soft">
-                {stripHtml(notice.bodyHtml)}
-              </p>
-              <p className="mt-2 text-xs uppercase tracking-[0.14em] text-ink-soft">
-                {formatDate(notice.publishedAt ?? notice.updatedAt)}
-              </p>
-            </article>
-          ))}
+        <div className="border border-line bg-parchment-deep p-5">
+          <h3 className="font-display text-2xl text-oxblood">Notices</h3>
+          <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+            Publishing, editing, and archiving notices moved to its own page —
+            including attachments and course/batch/student targeting.
+          </p>
+          <Link
+            href="/crm/notices"
+            className="mt-4 inline-flex bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
+          >
+            Open notices
+          </Link>
         </div>
       </div>
     </section>

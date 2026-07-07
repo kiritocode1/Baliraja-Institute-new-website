@@ -103,6 +103,13 @@ export const crmSections = [
     Icon: Users,
   },
   {
+    key: "notices",
+    href: "/crm/notices",
+    title: "Notices",
+    body: "Publish, edit, and archive portal notices and study materials.",
+    Icon: Bell,
+  },
+  {
     key: "tests",
     href: "/crm/tests",
     title: "Tests",

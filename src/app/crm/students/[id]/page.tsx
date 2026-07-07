@@ -4,9 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CrmChrome, getCrmChromeData } from "@/app/crm/_components";
 import {
-  createCourseNoticeAction,
   createEnrollmentAction,
   createFeeInvoiceAction,
+  saveCourseNoticeAction,
   saveStudentAction,
   setStudentActiveAction,
   updateStudentDocumentsAction,
@@ -684,7 +684,7 @@ export default async function StudentDetailPage({
               </div>
 
               <form
-                action={createCourseNoticeAction}
+                action={saveCourseNoticeAction}
                 className="mt-5 grid gap-3 border-t border-line pt-5"
               >
                 <input type="hidden" name="targetScope" value="student" />

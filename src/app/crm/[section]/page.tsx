@@ -12,6 +12,7 @@ import {
 } from "@/app/crm/_components";
 import { BlogEditor } from "@/components/crm/blog-editor";
 import { CourseEditor } from "@/components/crm/course-editor";
+import { NoticesPanel } from "@/components/crm/notices-panel";
 import { StudentAdminPanel } from "@/components/crm/student-admin-panel";
 import { TestsPanel } from "@/components/crm/tests-panel";
 import { isOwnerEmail } from "@/lib/crm/admins";
@@ -20,6 +21,7 @@ import { listCoursePages } from "@/lib/crm/course-pages";
 import { listGalleryImages } from "@/lib/crm/gallery";
 import { listLeads } from "@/lib/crm/leads";
 import {
+  listBatchNames,
   listCourseNotices,
   listCourseOptions,
   listStudents,
@@ -191,6 +193,33 @@ export default async function CrmSectionPage({
             status: firstParam(sp.status),
             fees: firstParam(sp.fees),
           }}
+        />
+      </CrmChrome>
+    );
+  }
+
+  if (section === "notices") {
+    const [chrome, notices, students, courseOptions, batchNames] =
+      await Promise.all([
+        getCrmChromeData(),
+        listCourseNotices(),
+        listStudents(),
+        listCourseOptions(),
+        listBatchNames(),
+      ]);
+
+    return (
+      <CrmChrome
+        active={active}
+        admins={chrome.admins}
+        env={chrome.env}
+        sessionEmail={chrome.session.email}
+      >
+        <NoticesPanel
+          notices={notices}
+          courseOptions={courseOptions}
+          students={students}
+          batchNames={batchNames}
         />
       </CrmChrome>
     );

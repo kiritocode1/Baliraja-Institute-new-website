@@ -31,16 +31,17 @@ import {
 } from "@/lib/crm/leads";
 import { uploadCrmMediaFile } from "@/lib/crm/media-upload";
 import {
-  createCourseNotice,
   createEnrollment,
   createFeeInvoice,
   defaultDocuments,
+  deleteCourseNotice,
   findCourseOption,
   getStudentById,
   listCourseOptions,
   type NoticeStatus,
   type NoticeTargetScope,
   type StudentInput,
+  saveCourseNotice,
   saveStudent,
   setStudentActive,
   updateStudentDocuments,
@@ -655,9 +656,10 @@ export async function saveTestResultsAction(formData: FormData) {
   revalidatePath("/student/results");
 }
 
-export async function createCourseNoticeAction(formData: FormData) {
+export async function saveCourseNoticeAction(formData: FormData) {
   await requireAdminSession();
 
+  const id = String(formData.get("id") ?? "").trim() || null;
   const title = String(formData.get("title") ?? "").trim();
   const bodyHtml = textareaToHtml(String(formData.get("body") ?? ""));
   const status = parseNoticeStatus(String(formData.get("status") ?? ""));
@@ -665,7 +667,7 @@ export async function createCourseNoticeAction(formData: FormData) {
     String(formData.get("targetScope") ?? ""),
   );
 
-  // Prefer an uploaded file; the raw URL field stays as a fallback.
+  // Prefer an uploaded file; the URL field keeps or clears the current one.
   const attachment = formData.get("attachment");
   let attachmentUrl =
     String(formData.get("attachmentUrl") ?? "").trim() || null;
@@ -678,7 +680,7 @@ export async function createCourseNoticeAction(formData: FormData) {
     attachmentName = attachmentName ?? uploaded.filename;
   }
 
-  await createCourseNotice({
+  await saveCourseNotice(id, {
     title,
     bodyHtml,
     status,
@@ -690,7 +692,20 @@ export async function createCourseNoticeAction(formData: FormData) {
     attachmentName,
     expiresAt: String(formData.get("expiresAt") ?? "").trim() || null,
   });
-  revalidateCrmPaths("/crm/students");
+  revalidateCrmPaths("/crm/notices", "/crm/students");
+  revalidatePath("/student");
+  revalidatePath("/student/notices");
+}
+
+export async function deleteCourseNoticeAction(formData: FormData) {
+  await requireAdminSession();
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) throw new Error("Invalid notice delete.");
+
+  await deleteCourseNotice(id);
+  revalidateCrmPaths("/crm/notices", "/crm/students");
   revalidatePath("/student");
   revalidatePath("/student/notices");
 }
