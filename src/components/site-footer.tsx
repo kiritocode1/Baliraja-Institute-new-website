@@ -1,20 +1,21 @@
 import { BrandLogo } from "@/components/brand-logo";
 import { SlideUnderlineLink } from "@/components/links";
-import { examTracks, site, socials } from "@/lib/site";
+import { listCoursePages } from "@/lib/crm/course-pages";
+import { site, socials } from "@/lib/site";
 
-function slugifyCourse(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
+type FooterColumn = {
+  heading: string;
+  links: { label: string; href: string }[];
+};
 
-const columns: { heading: string; links: { label: string; href: string }[] }[] =
-  [
+async function buildColumns(): Promise<FooterColumn[]> {
+  // Exam-track links come from published bharti course pages in the CRM.
+  const courseLinks = (await listCoursePages())
+    .filter((page) => page.status === "published" && page.division === "bharti")
+    .slice(0, 5)
+    .map((page) => ({ label: page.title, href: `/courses/${page.slug}` }));
+
+  return [
     {
       heading: "Academy",
       links: [
@@ -26,13 +27,7 @@ const columns: { heading: string; links: { label: string; href: string }[] }[] =
     },
     {
       heading: "Exam Tracks",
-      links: [
-        { label: "All Courses", href: "/courses" },
-        ...examTracks.slice(0, 5).map((t) => ({
-          label: t.title,
-          href: `/courses/${slugifyCourse(t.title)}`,
-        })),
-      ],
+      links: [{ label: "All Courses", href: "/courses" }, ...courseLinks],
     },
     {
       heading: "Admissions",
@@ -53,8 +48,11 @@ const columns: { heading: string; links: { label: string; href: string }[] }[] =
       ],
     },
   ];
+}
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const columns = await buildColumns();
+
   return (
     <footer
       id="contact"
