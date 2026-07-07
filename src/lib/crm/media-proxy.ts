@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getS3Bucket, getS3Region } from "@/lib/crm/media-storage";
 import { readCrmBlob } from "@/lib/crm/blob";
+import { getS3Bucket, getS3Region } from "@/lib/crm/media-storage";
 import { getR2Bucket, hasR2Storage } from "@/lib/crm/r2";
 import { hasS3Storage } from "@/lib/crm/s3";
 

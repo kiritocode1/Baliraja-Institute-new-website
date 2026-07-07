@@ -5,13 +5,14 @@ import type { CrmStudent } from "@/lib/crm/students";
 
 type StudentPortalShellProps = {
   student: CrmStudent;
-  activePath: "overview" | "notices" | "fees" | "receipts";
+  activePath: "overview" | "notices" | "results" | "fees" | "receipts";
   children: ReactNode;
 };
 
 const navItems = [
   { href: "/student", label: "Overview", key: "overview" },
   { href: "/student/notices", label: "Notices", key: "notices" },
+  { href: "/student/results", label: "Results", key: "results" },
   { href: "/student/fees", label: "Fees", key: "fees" },
 ] as const;
 

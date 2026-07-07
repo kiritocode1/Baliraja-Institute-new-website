@@ -22,7 +22,8 @@ function optionalText(formData: FormData, name: string) {
 }
 
 function numberValue(formData: FormData, name: string) {
-  return Number(text(formData, name));
+  const raw = text(formData, name);
+  return raw ? Number(raw) : undefined;
 }
 
 function admissionValues(formData: FormData) {
@@ -64,10 +65,14 @@ function admissionValues(formData: FormData) {
     fullAddress: text(formData, "fullAddress"),
     mobile1: text(formData, "mobile1"),
     mobile2: optionalText(formData, "mobile2"),
+    email: optionalText(formData, "email"),
+    category: optionalText(formData, "category"),
+    maharashtraDomicile: formData.get("maharashtraDomicile") === "true",
     education,
     desiredPrograms: formData.getAll("desiredPrograms").map(String),
     weightKg: numberValue(formData, "weightKg"),
     heightCm: numberValue(formData, "heightCm"),
+    chestCm: numberValue(formData, "chestCm"),
     referralSources: formData.getAll("referralSources").map(String),
     otherReferralDetail: optionalText(formData, "otherReferralDetail"),
     declarationAgreed: formData.get("declarationAgreed") === "true",
@@ -112,7 +117,7 @@ export async function submitEnquiry(
   const enquiry = {
     name: admission.fullName,
     phone: admission.mobile1,
-    email: null,
+    email: admission.email ?? null,
     track,
     requestType: requestType ?? "admission",
     message: null,
@@ -122,10 +127,13 @@ export async function submitEnquiry(
     dateOfBirth: admission.dateOfBirth,
     fullAddress: admission.fullAddress,
     mobile2: admission.mobile2 ?? null,
-    education: admission.education,
+    education: admission.education ?? null,
     desiredPrograms: admission.desiredPrograms,
-    weightKg: admission.weightKg,
-    heightCm: admission.heightCm,
+    weightKg: admission.weightKg ?? null,
+    heightCm: admission.heightCm ?? null,
+    chestCm: admission.chestCm ?? null,
+    category: admission.category ?? null,
+    maharashtraDomicile: admission.maharashtraDomicile ?? null,
     referralSources: admission.referralSources,
     otherReferralDetail: admission.otherReferralDetail ?? null,
     declarationAgreed: admission.declarationAgreed,

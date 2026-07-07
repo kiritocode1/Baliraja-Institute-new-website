@@ -3,7 +3,9 @@ import { sanitizeBlogHtml } from "@/lib/crm/blog-posts";
 import { normalizeEmail } from "@/lib/crm/config";
 import { listCoursePages } from "@/lib/crm/course-pages";
 import { ensureCrmSchema, getSql } from "@/lib/crm/db";
+import type { ConcessionStatus, StudentCategory } from "@/lib/crm/leads";
 import { readJsonFile, writeJsonFile } from "@/lib/crm/local-store";
+import type { AdmissionFormInput } from "@/schemas/admission.schema";
 
 export const enrollmentStatuses = [
   "active",
@@ -31,15 +33,43 @@ export type NoticeStatus = (typeof noticeStatuses)[number];
 export type NoticeTargetScope = (typeof noticeTargetScopes)[number];
 export type FeeInvoiceStatus = (typeof feeInvoiceStatuses)[number];
 
+export type StudentDocument = {
+  name: string;
+  submitted: boolean;
+};
+
+/** Standard admission-office paperwork for bharti candidates. */
+export const defaultDocumentNames = [
+  "Aadhaar card",
+  "Domicile certificate",
+  "Caste certificate",
+  "School leaving certificate",
+  "Passport photos",
+] as const;
+
 export type CrmStudent = {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   phone: string;
   guardianName: string | null;
   guardianPhone: string | null;
   active: boolean;
   notes: string | null;
+  gender: "male" | "female" | null;
+  dateOfBirth: string | null;
+  fullAddress: string | null;
+  category: StudentCategory | null;
+  maharashtraDomicile: boolean | null;
+  education: AdmissionFormInput["education"] | null;
+  heightCm: number | null;
+  weightKg: number | null;
+  chestCm: number | null;
+  desiredPrograms: string[];
+  documents: StudentDocument[];
+  leadId: string | null;
+  concessionStatus: ConcessionStatus | null;
+  concessionNote: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -128,12 +158,26 @@ export type StudentDashboard = {
 
 export type StudentInput = {
   name: string;
-  email: string;
+  email?: string | null;
   phone: string;
   guardianName?: string | null;
   guardianPhone?: string | null;
   active?: boolean;
   notes?: string | null;
+  gender?: "male" | "female" | null;
+  dateOfBirth?: string | null;
+  fullAddress?: string | null;
+  category?: StudentCategory | null;
+  maharashtraDomicile?: boolean | null;
+  education?: AdmissionFormInput["education"] | null;
+  heightCm?: number | null;
+  weightKg?: number | null;
+  chestCm?: number | null;
+  desiredPrograms?: string[];
+  documents?: StudentDocument[];
+  leadId?: string | null;
+  concessionStatus?: ConcessionStatus | null;
+  concessionNote?: string | null;
 };
 
 export type EnrollmentInput = {
@@ -198,18 +242,104 @@ function isFeeInvoiceStatus(value: string): value is FeeInvoiceStatus {
   return feeInvoiceStatuses.includes(value as FeeInvoiceStatus);
 }
 
+function maybeNumber(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseJsonValue(value: unknown) {
+  if (typeof value !== "string") return value ?? null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function parseDocuments(value: unknown): StudentDocument[] {
+  const parsed = parseJsonValue(value);
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed.flatMap((item) =>
+    item && typeof item === "object" && "name" in item
+      ? [
+          {
+            name: String((item as StudentDocument).name),
+            submitted: Boolean((item as StudentDocument).submitted),
+          },
+        ]
+      : [],
+  );
+}
+
+function parseStringList(value: unknown): string[] {
+  const parsed = parseJsonValue(value);
+  return Array.isArray(parsed) ? parsed.map(String) : [];
+}
+
+export function defaultDocuments(): StudentDocument[] {
+  return defaultDocumentNames.map((name) => ({ name, submitted: false }));
+}
+
 function mapDbStudent(row: Record<string, unknown>): CrmStudent {
+  const gender = String(row.gender ?? "");
+
   return {
     id: String(row.id),
     name: String(row.name),
-    email: String(row.email),
+    email: row.email ? String(row.email) : null,
     phone: String(row.phone),
     guardianName: row.guardian_name ? String(row.guardian_name) : null,
     guardianPhone: row.guardian_phone ? String(row.guardian_phone) : null,
     active: Boolean(row.active),
     notes: row.notes ? String(row.notes) : null,
+    gender: gender === "male" || gender === "female" ? gender : null,
+    dateOfBirth: row.date_of_birth ? String(row.date_of_birth) : null,
+    fullAddress: row.full_address ? String(row.full_address) : null,
+    category: row.category ? (String(row.category) as StudentCategory) : null,
+    maharashtraDomicile:
+      row.maharashtra_domicile === null ||
+      row.maharashtra_domicile === undefined
+        ? null
+        : row.maharashtra_domicile === true,
+    education: parseJsonValue(row.education) as
+      | AdmissionFormInput["education"]
+      | null,
+    heightCm: maybeNumber(row.height_cm),
+    weightKg: maybeNumber(row.weight_kg),
+    chestCm: maybeNumber(row.chest_cm),
+    desiredPrograms: parseStringList(row.desired_programs),
+    documents: parseDocuments(row.documents),
+    leadId: row.lead_id ? String(row.lead_id) : null,
+    concessionStatus: row.concession_status
+      ? (String(row.concession_status) as ConcessionStatus)
+      : null,
+    concessionNote: row.concession_note ? String(row.concession_note) : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
     updatedAt: new Date(String(row.updated_at)).toISOString(),
+  };
+}
+
+/** JSON-fallback rows written before Phase 2 lack the profile fields. */
+function normalizeStoredStudent(student: CrmStudent): CrmStudent {
+  return {
+    ...student,
+    email: student.email ?? null,
+    gender: student.gender ?? null,
+    dateOfBirth: student.dateOfBirth ?? null,
+    fullAddress: student.fullAddress ?? null,
+    category: student.category ?? null,
+    maharashtraDomicile: student.maharashtraDomicile ?? null,
+    education: student.education ?? null,
+    heightCm: student.heightCm ?? null,
+    weightKg: student.weightKg ?? null,
+    chestCm: student.chestCm ?? null,
+    desiredPrograms: student.desiredPrograms ?? [],
+    documents: student.documents ?? [],
+    leadId: student.leadId ?? null,
+    concessionStatus: student.concessionStatus ?? null,
+    concessionNote: student.concessionNote ?? null,
   };
 }
 
@@ -345,6 +475,20 @@ async function listStoredStudents() {
         guardian_phone,
         active,
         notes,
+        gender,
+        date_of_birth,
+        full_address,
+        category,
+        maharashtra_domicile,
+        education,
+        height_cm,
+        weight_kg,
+        chest_cm,
+        desired_programs,
+        documents,
+        lead_id,
+        concession_status,
+        concession_note,
         created_at,
         updated_at
       FROM crm_students
@@ -354,7 +498,9 @@ async function listStoredStudents() {
     return rows.map((row) => mapDbStudent(row));
   }
 
-  return readJsonFile<CrmStudent[]>(STUDENTS_FILE, []);
+  return (await readJsonFile<CrmStudent[]>(STUDENTS_FILE, [])).map((student) =>
+    normalizeStoredStudent(student),
+  );
 }
 
 async function listStoredEnrollments() {
@@ -501,6 +647,9 @@ export async function getStudentById(id: string) {
 
 export async function getActiveStudentByEmail(email: string) {
   const normalized = normalizeEmail(email);
+
+  if (!normalized) return null;
+
   return (
     (await listStoredStudents()).find(
       (student) => student.email === normalized && student.active,
@@ -510,6 +659,9 @@ export async function getActiveStudentByEmail(email: string) {
 
 export async function getStudentByEmail(email: string) {
   const normalized = normalizeEmail(email);
+
+  if (!normalized) return null;
+
   return (
     (await listStoredStudents()).find(
       (student) => student.email === normalized,
@@ -517,9 +669,33 @@ export async function getStudentByEmail(email: string) {
   );
 }
 
+/** Distinct batch names across all enrollments — the batch "table". */
+// ponytail: batches derive from enrollment data instead of a crm_batches
+// table; add the table only if batches ever need dates/capacity of their own.
+export async function listBatchNames() {
+  return [
+    ...new Set(
+      (await listStoredEnrollments()).flatMap((enrollment) =>
+        enrollment.batchName ? [enrollment.batchName] : [],
+      ),
+    ),
+  ].sort();
+}
+
+export async function getStudentByLeadId(leadId: string) {
+  return (
+    (await listStoredStudents()).find((student) => student.leadId === leadId) ??
+    null
+  );
+}
+
 export async function saveStudent(id: string | null, input: StudentInput) {
   const now = new Date().toISOString();
-  const email = normalizeEmail(input.email);
+  const email = normalizeEmail(input.email ?? "") || null;
+  const existing = id ? await getStudentById(id) : null;
+
+  if (id && !existing) throw new Error("Student not found.");
+
   const student: CrmStudent = {
     id: id || crypto.randomUUID(),
     name: cleanText(input.name),
@@ -527,20 +703,99 @@ export async function saveStudent(id: string | null, input: StudentInput) {
     phone: cleanText(input.phone),
     guardianName: nullableText(input.guardianName),
     guardianPhone: nullableText(input.guardianPhone),
-    active: input.active ?? true,
+    // `active` stays managed by setStudentActive on edits.
+    active: existing ? existing.active : (input.active ?? true),
     notes: nullableText(input.notes),
-    createdAt: now,
+    // `undefined` means the caller didn't send the field (keep the stored
+    // value); an empty/null value clears it.
+    gender:
+      input.gender !== undefined ? input.gender : (existing?.gender ?? null),
+    dateOfBirth:
+      input.dateOfBirth !== undefined
+        ? nullableText(input.dateOfBirth)
+        : (existing?.dateOfBirth ?? null),
+    fullAddress:
+      input.fullAddress !== undefined
+        ? nullableText(input.fullAddress)
+        : (existing?.fullAddress ?? null),
+    category:
+      input.category !== undefined
+        ? input.category
+        : (existing?.category ?? null),
+    maharashtraDomicile:
+      input.maharashtraDomicile !== undefined
+        ? input.maharashtraDomicile
+        : (existing?.maharashtraDomicile ?? null),
+    education:
+      input.education !== undefined
+        ? input.education
+        : (existing?.education ?? null),
+    heightCm:
+      input.heightCm !== undefined
+        ? input.heightCm
+        : (existing?.heightCm ?? null),
+    weightKg:
+      input.weightKg !== undefined
+        ? input.weightKg
+        : (existing?.weightKg ?? null),
+    chestCm:
+      input.chestCm !== undefined ? input.chestCm : (existing?.chestCm ?? null),
+    desiredPrograms: input.desiredPrograms ?? existing?.desiredPrograms ?? [],
+    documents: input.documents ?? existing?.documents ?? defaultDocuments(),
+    leadId: input.leadId ?? existing?.leadId ?? null,
+    concessionStatus:
+      input.concessionStatus ?? existing?.concessionStatus ?? null,
+    concessionNote: input.concessionNote ?? existing?.concessionNote ?? null,
+    createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   };
 
-  if (!student.name || !student.email || !student.phone) {
-    throw new Error("Student name, email, and phone are required.");
+  if (!student.name || !student.phone) {
+    throw new Error("Student name and phone are required.");
   }
 
   const ready = await ensureCrmSchema();
   const db = getSql();
 
   if (ready && db) {
+    if (id) {
+      await db`
+        UPDATE crm_students
+        SET
+          name = ${student.name},
+          email = ${student.email},
+          phone = ${student.phone},
+          guardian_name = ${student.guardianName},
+          guardian_phone = ${student.guardianPhone},
+          notes = ${student.notes},
+          gender = ${student.gender},
+          date_of_birth = ${student.dateOfBirth},
+          full_address = ${student.fullAddress},
+          category = ${student.category},
+          maharashtra_domicile = ${student.maharashtraDomicile},
+          education = ${JSON.stringify(student.education)}::jsonb,
+          height_cm = ${student.heightCm},
+          weight_kg = ${student.weightKg},
+          chest_cm = ${student.chestCm},
+          desired_programs = ${JSON.stringify(student.desiredPrograms)}::jsonb,
+          documents = ${JSON.stringify(student.documents)}::jsonb,
+          lead_id = ${student.leadId},
+          concession_status = ${student.concessionStatus},
+          concession_note = ${student.concessionNote},
+          updated_at = ${now}
+        WHERE id = ${id}
+      `;
+      return getStudentById(id);
+    }
+
+    // A new record with an email that already exists should update that
+    // student instead of failing on the unique index.
+    const conflict = student.email
+      ? await getStudentByEmail(student.email)
+      : null;
+
+    if (conflict) return saveStudent(conflict.id, input);
+
     await db`
       INSERT INTO crm_students (
         id,
@@ -551,6 +806,20 @@ export async function saveStudent(id: string | null, input: StudentInput) {
         guardian_phone,
         active,
         notes,
+        gender,
+        date_of_birth,
+        full_address,
+        category,
+        maharashtra_domicile,
+        education,
+        height_cm,
+        weight_kg,
+        chest_cm,
+        desired_programs,
+        documents,
+        lead_id,
+        concession_status,
+        concession_note,
         created_at,
         updated_at
       )
@@ -563,30 +832,37 @@ export async function saveStudent(id: string | null, input: StudentInput) {
         ${student.guardianPhone},
         ${student.active},
         ${student.notes},
+        ${student.gender},
+        ${student.dateOfBirth},
+        ${student.fullAddress},
+        ${student.category},
+        ${student.maharashtraDomicile},
+        ${JSON.stringify(student.education)}::jsonb,
+        ${student.heightCm},
+        ${student.weightKg},
+        ${student.chestCm},
+        ${JSON.stringify(student.desiredPrograms)}::jsonb,
+        ${JSON.stringify(student.documents)}::jsonb,
+        ${student.leadId},
+        ${student.concessionStatus},
+        ${student.concessionNote},
         ${now},
         ${now}
       )
-      ON CONFLICT (email)
-      DO UPDATE SET
-        name = EXCLUDED.name,
-        phone = EXCLUDED.phone,
-        guardian_name = EXCLUDED.guardian_name,
-        guardian_phone = EXCLUDED.guardian_phone,
-        active = EXCLUDED.active,
-        notes = EXCLUDED.notes,
-        updated_at = EXCLUDED.updated_at
     `;
-    return getStudentByEmail(student.email);
+    return student;
   }
 
   const students = await listStoredStudents();
-  const existingIndex = students.findIndex(
-    (item) => item.id === id || item.email === email,
+  const existingIndex = students.findIndex((item) =>
+    id ? item.id === id : Boolean(email) && item.email === email,
   );
 
   if (existingIndex >= 0) {
-    student.id = students[existingIndex].id;
-    student.createdAt = students[existingIndex].createdAt;
+    const stored = students[existingIndex];
+    student.id = stored.id;
+    student.createdAt = stored.createdAt;
+    student.active = stored.active;
     students[existingIndex] = student;
   } else {
     students.unshift(student);
@@ -594,6 +870,32 @@ export async function saveStudent(id: string | null, input: StudentInput) {
 
   await writeJsonFile(STUDENTS_FILE, students);
   return student;
+}
+
+export async function updateStudentDocuments(
+  id: string,
+  documents: StudentDocument[],
+) {
+  const now = new Date().toISOString();
+  const ready = await ensureCrmSchema();
+  const db = getSql();
+
+  if (ready && db) {
+    await db`
+      UPDATE crm_students
+      SET documents = ${JSON.stringify(documents)}::jsonb, updated_at = ${now}
+      WHERE id = ${id}
+    `;
+    return;
+  }
+
+  const students = await listStoredStudents();
+  await writeJsonFile(
+    STUDENTS_FILE,
+    students.map((student) =>
+      student.id === id ? { ...student, documents, updatedAt: now } : student,
+    ),
+  );
 }
 
 export async function setStudentActive(id: string, active: boolean) {
@@ -840,6 +1142,40 @@ export async function getInvoiceByRazorpayOrder(orderId: string) {
       (invoice) => invoice.razorpayOrderId === orderId,
     ) ?? null
   );
+}
+
+export type StudentDetail = {
+  student: CrmStudent;
+  enrollments: StudentEnrollment[];
+  invoices: FeeInvoice[];
+  payments: FeePayment[];
+  notices: CourseNotice[];
+};
+
+export async function getStudentDetail(
+  id: string,
+): Promise<StudentDetail | null> {
+  const [student, enrollments, invoices, payments, notices] = await Promise.all(
+    [
+      getStudentById(id),
+      listStoredEnrollments(),
+      listStoredInvoices(),
+      listStoredPayments(),
+      listStoredNotices(),
+    ],
+  );
+
+  if (!student) return null;
+
+  return {
+    student,
+    enrollments: enrollments.filter((item) => item.studentId === id),
+    invoices: invoices.filter((item) => item.studentId === id),
+    payments: payments.filter((item) => item.studentId === id),
+    notices: notices.filter(
+      (item) => item.targetScope === "student" && item.studentId === id,
+    ),
+  };
 }
 
 export async function getStudentDashboard(

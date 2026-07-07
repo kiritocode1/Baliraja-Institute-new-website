@@ -40,7 +40,7 @@ const groups: FeatureGroup[] = [
         description:
           "The landing page: hero video, exam tracks, latest updates, gallery preview, and editorial sections introducing the institute.",
         howTo: [
-          "Scroll through exam tracks to find your target exam (Army, Navy, MPSC, UPSC and more).",
+          "Scroll through exam tracks to find your target exam (Army, Navy, Police Bharti and more).",
           "Use the header navigation to jump to any section of the site.",
         ],
       },
@@ -58,7 +58,9 @@ const groups: FeatureGroup[] = [
         audience: "Everyone",
         description:
           "The case for choosing Baliraja: outcomes, teaching approach, and what makes the institute different.",
-        howTo: ["Compare the proof points, then head to Courses or Admissions."],
+        howTo: [
+          "Compare the proof points, then head to Courses or Admissions.",
+        ],
       },
       {
         title: "Courses",
@@ -114,6 +116,17 @@ const groups: FeatureGroup[] = [
         ],
       },
       {
+        title: "School",
+        url: "/school",
+        audience: "Parents & school students",
+        description:
+          "Baliraja's school division — Marathi and semi-English medium programs published from the CRM course editor, with an enquiry path into admissions.",
+        howTo: [
+          "Browse programs grouped by medium and open one for details.",
+          "Click “Enquire for admission” — the admissions form pre-selects the School program.",
+        ],
+      },
+      {
         title: "Student Life",
         url: "/student-life",
         audience: "Prospective students & parents",
@@ -127,7 +140,9 @@ const groups: FeatureGroup[] = [
         audience: "Everyone",
         description:
           "Phone numbers, address, map, and office hours for reaching the institute directly.",
-        howTo: ["Call or visit during office hours; use the map for directions."],
+        howTo: [
+          "Call or visit during office hours; use the map for directions.",
+        ],
       },
     ],
   },
@@ -170,6 +185,18 @@ const groups: FeatureGroup[] = [
           "Open the page to see everything currently addressed to you.",
           "You only see notices for your own enrollment; archived or expired notices disappear automatically.",
           "Click an attachment to download it.",
+        ],
+      },
+      {
+        title: "Test Results",
+        url: "/student/results",
+        audience: "Enrolled students",
+        description:
+          "Your written mock scores (with percentage and batch rank) and ground test metrics (running times, shot put) as recorded by the office.",
+        howTo: [
+          "Open the page after each test — results appear once staff save them.",
+          "Written tests show marks, percentage, and your rank in the batch.",
+          "Ground tests show each recorded metric with instructor remarks.",
         ],
       },
       {
@@ -257,7 +284,7 @@ const groups: FeatureGroup[] = [
         url: "/crm/courses",
         audience: "Content admins",
         description:
-          "Editor for the public course pages — Army, Navy, MPSC, UPSC and other tracks — including text, images, and SEO fields.",
+          "Editor for the public course pages — Army, Navy, Police Bharti and other tracks — including text, images, and SEO fields.",
         howTo: [
           "Pick a course to edit its public page content.",
           "Upload images through the editor; they are stored in cloud storage and served through the site.",
@@ -291,22 +318,33 @@ const groups: FeatureGroup[] = [
         url: "/crm/students",
         audience: "Office staff",
         description:
-          "The heart of the student portal: create student records, control portal access, assign courses and batches, publish notices, and raise fee invoices.",
+          "Searchable student table with per-student detail pages: full bharti profile (measurements, category, education, documents), enrollments, notices, test results, and fee invoices.",
         howTo: [
-          "Create a student with name, phone, and the email they will log in with — or convert an existing lead.",
-          "Mark the student active to allow portal login; inactive students cannot receive login codes.",
-          "Assign a course and batch so the student sees the right notices.",
-          "Publish notices/materials targeted at a course, a batch, or one student; attach files as needed.",
-          "Raise fee invoices with amount and due date — the student sees them on /student/fees and can pay online.",
+          "Search by name, phone, or email; filter by course, batch, status, or pending fees.",
+          "Open a student to edit their profile, tick off submitted documents, assign courses/batches, and raise invoices.",
+          "Convert enquiries from the Leads page — everything the admission form collected lands on the student automatically.",
+          "Email is optional; without one the student simply can't log in to the portal until it's added.",
           "Invoice status updates automatically after Razorpay confirms payment; do not mark invoices paid by hand for online payments.",
+        ],
+      },
+      {
+        title: "Tests & Results",
+        url: "/crm/tests",
+        audience: "Instructors & office staff",
+        description:
+          "Create written mocks and ground tests, then enter the whole batch's results on one roster page. Students see their own results in the portal.",
+        howTo: [
+          "Create a test — written (max marks) or ground (metrics like 1600m, Shot put).",
+          "Scope it to a course/batch so the roster lists the right students.",
+          "Open the test and enter marks or metrics for everyone in one save; empty rows are skipped.",
+          "Re-save any time to correct entries — results update in place.",
         ],
       },
       {
         title: "Admins",
         url: "/crm/admins",
         audience: "Owners",
-        description:
-          "Control which email addresses can log in to this CRM.",
+        description: "Control which email addresses can log in to this CRM.",
         howTo: [
           "Add a colleague's email to grant access; remove it to revoke.",
           "Keep this list short — every entry is a full-access admin.",

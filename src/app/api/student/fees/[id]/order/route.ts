@@ -89,7 +89,7 @@ export async function POST(
         reused: true,
         student: {
           name: dashboard.student.name,
-          email: dashboard.student.email,
+          email: dashboard.student.email ?? "",
           phone: dashboard.student.phone,
         },
       });
@@ -100,7 +100,7 @@ export async function POST(
       student: {
         id: dashboard.student.id,
         name: dashboard.student.name,
-        email: dashboard.student.email,
+        email: dashboard.student.email ?? "",
         phone: dashboard.student.phone,
       },
     });
@@ -121,7 +121,7 @@ export async function POST(
       reused: false,
       student: {
         name: dashboard.student.name,
-        email: dashboard.student.email,
+        email: dashboard.student.email ?? "",
         phone: dashboard.student.phone,
       },
     });

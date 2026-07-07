@@ -32,7 +32,7 @@ export default async function StudentFeesPage() {
           invoices={dashboard.invoices}
           student={{
             name: dashboard.student.name,
-            email: dashboard.student.email,
+            email: dashboard.student.email ?? "",
             phone: dashboard.student.phone,
           }}
         />

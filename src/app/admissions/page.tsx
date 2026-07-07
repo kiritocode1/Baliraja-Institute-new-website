@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { EnquiryForm } from "@/components/enquiry-form";
 import { AdmissionHeroVideoPlayer } from "@/components/admission-hero-video-player";
+import { EnquiryForm } from "@/components/enquiry-form";
 import {
   DiscoveryProcess,
   FaqBand,
@@ -10,8 +10,8 @@ import {
   StatBand,
   SupportGrid,
 } from "@/components/page-sections";
-import { createPageMetadata } from "@/lib/seo";
 import { getAssetUrl } from "@/lib/assets";
+import { createPageMetadata } from "@/lib/seo";
 import {
   admissionsDiscoverySteps,
   admissionsFaqs,
@@ -33,7 +33,7 @@ const requestTypes = [
 export const metadata = createPageMetadata({
   title: "Admissions",
   description:
-    "Enquire for admission to Baliraja Institute Career Academy, Gangapur. MPSC, UPSC, Banking, SSC, Police Bharti and Talathi batches.",
+    "Enquire for admission to Baliraja Institute Career Academy, Gangapur (Kolhapur). Army, Navy, Police Bharti, SSC and Railway batches.",
   path: "/admissions",
 });
 
@@ -64,6 +64,9 @@ export default async function AdmissionsPage({
   const trackNames = [
     ...featuredExams.map((exam) => exam.title),
     ...examTracks.map((exam) => exam.title),
+    "School",
+    "Sports",
+    "Summer Camp",
   ];
   const validTrack =
     track && trackNames.some((trackName) => trackName === track) ? track : "";

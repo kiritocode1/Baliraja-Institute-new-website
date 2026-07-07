@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addAdmin, setAdminActive } from "@/lib/crm/admins";
+import { addAdmin, isOwnerEmail, setAdminActive } from "@/lib/crm/admins";
 import { clearAdminSession, requireAdminSession } from "@/lib/crm/auth";
 import {
   type BlogPostInput,
@@ -17,22 +17,39 @@ import {
   saveCoursePage,
 } from "@/lib/crm/course-pages";
 import {
+  createGalleryImage,
+  deleteGalleryImage,
+  updateGalleryImage,
+} from "@/lib/crm/gallery";
+import {
   getLeadById,
+  parseConcessionStatusInput,
   parseLeadRequestType,
   parseLeadStatus,
+  type StudentCategory,
   updateLead,
 } from "@/lib/crm/leads";
+import { uploadCrmMediaFile } from "@/lib/crm/media-upload";
 import {
   createCourseNotice,
   createEnrollment,
   createFeeInvoice,
+  defaultDocuments,
   findCourseOption,
+  getStudentById,
   listCourseOptions,
   type NoticeStatus,
   type NoticeTargetScope,
+  type StudentInput,
   saveStudent,
   setStudentActive,
+  updateStudentDocuments,
 } from "@/lib/crm/students";
+import { createTest, getTestById, saveTestResults } from "@/lib/crm/tests";
+import {
+  type AdmissionFormInput,
+  categoryValues,
+} from "@/schemas/admission.schema";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -54,6 +71,7 @@ function revalidateCourseSurfaces() {
   revalidatePath("/");
   revalidatePath("/courses");
   revalidatePath("/courses/[slug]", "page");
+  revalidatePath("/school");
   revalidatePath("/sitemap.xml");
 }
 
@@ -110,6 +128,8 @@ function parseCoursePageInput(input: CoursePageInput): CoursePageInput {
     summary,
     bodyHtml,
     category,
+    division: String(input.division ?? "").trim() || null,
+    medium: String(input.medium ?? "").trim() || null,
     audience: String(input.audience ?? "").trim() || null,
     exams: String(input.exams ?? "").trim() || null,
     duration: String(input.duration ?? "").trim() || null,
@@ -164,6 +184,62 @@ function parseRupeesToPaise(value: string) {
   return Math.round(amount * 100);
 }
 
+function optionalNumber(formData: FormData, name: string) {
+  const raw = String(formData.get(name) ?? "").trim();
+
+  if (!raw) return null;
+
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function parseStudentCategory(value: string): StudentCategory | null {
+  return (categoryValues as readonly string[]).includes(value)
+    ? (value as StudentCategory)
+    : null;
+}
+
+/** Shared by the add-student and edit-profile forms. */
+function studentProfileFromForm(formData: FormData): Partial<StudentInput> {
+  const gender = String(formData.get("gender") ?? "").trim();
+  const education: NonNullable<AdmissionFormInput["education"]> = {};
+  const tenth = optionalNumber(formData, "educationTenth");
+  const twelfth = optionalNumber(formData, "educationTwelfth");
+  const twelfthStream = String(
+    formData.get("educationTwelfthStream") ?? "",
+  ).trim();
+  const graduationCourse = String(
+    formData.get("educationGraduationCourse") ?? "",
+  ).trim();
+  const graduation = optionalNumber(formData, "educationGraduation");
+
+  if (tenth !== null) education.tenth = { percentage: tenth };
+  if (twelfth !== null) {
+    education.twelfth = {
+      ...(twelfthStream ? { stream: twelfthStream } : {}),
+      percentage: twelfth,
+    };
+  }
+  if (graduationCourse) {
+    education.graduation = {
+      course: graduationCourse,
+      ...(graduation !== null ? { percentage: graduation } : {}),
+    };
+  }
+
+  return {
+    gender: gender === "male" || gender === "female" ? gender : null,
+    dateOfBirth: String(formData.get("dateOfBirth") ?? ""),
+    fullAddress: String(formData.get("fullAddress") ?? ""),
+    category: parseStudentCategory(String(formData.get("category") ?? "")),
+    maharashtraDomicile: formData.get("maharashtraDomicile") === "true",
+    heightCm: optionalNumber(formData, "heightCm"),
+    weightKg: optionalNumber(formData, "weightKg"),
+    chestCm: optionalNumber(formData, "chestCm"),
+    education: Object.keys(education).length > 0 ? education : null,
+  };
+}
+
 export async function logoutAction() {
   await clearAdminSession();
   redirect("/crm/login");
@@ -184,26 +260,54 @@ export async function updateLeadAction(formData: FormData) {
     throw new Error("Invalid lead update.");
   }
 
-  await updateLead(id, { status, requestType, assignedTo, notes });
+  // Concession fields only travel from forms that render them.
+  const hasConcession = formData.has("concessionStatus");
+  const concessionStatus = hasConcession
+    ? parseConcessionStatusInput(String(formData.get("concessionStatus") ?? ""))
+    : undefined;
+  const concessionNote = hasConcession
+    ? String(formData.get("concessionNote") ?? "").trim() || null
+    : undefined;
+
+  await updateLead(id, {
+    status,
+    requestType,
+    assignedTo,
+    notes,
+    concessionStatus,
+    concessionNote,
+  });
   revalidateCrmPaths("/crm/leads", "/crm/scholarships");
 }
 
+async function requireOwnerSession() {
+  const session = await requireAdminSession();
+
+  if (!(await isOwnerEmail(session.email))) {
+    throw new Error("Only owner admins can manage CRM access.");
+  }
+
+  return session;
+}
+
 export async function addAdminAction(formData: FormData) {
-  await requireAdminSession();
+  await requireOwnerSession();
 
   const email = normalizeEmail(String(formData.get("email") ?? ""));
   const name = String(formData.get("name") ?? "").trim() || null;
+  const role =
+    String(formData.get("role") ?? "") === "staff" ? "staff" : "admin";
 
   if (!EMAIL_RE.test(email)) {
     throw new Error("Invalid admin email.");
   }
 
-  await addAdmin({ email, name });
+  await addAdmin({ email, name, role });
   revalidateCrmPaths("/crm/admins");
 }
 
 export async function setAdminActiveAction(formData: FormData) {
-  const session = await requireAdminSession();
+  const session = await requireOwnerSession();
   const id = String(formData.get("id") ?? "").trim();
   const email = normalizeEmail(String(formData.get("email") ?? ""));
   const active = String(formData.get("active") ?? "") === "true";
@@ -280,21 +384,45 @@ export async function saveStudentAction(formData: FormData) {
     String(formData.get("guardianPhone") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
-  if (!name || !EMAIL_RE.test(email) || !phone) {
-    throw new Error("Student name, email, and phone are required.");
+  if (!name || !phone) {
+    throw new Error("Student name and phone are required.");
+  }
+
+  if (email && !EMAIL_RE.test(email)) {
+    throw new Error("Enter a valid email or leave it empty.");
   }
 
   await saveStudent(id, {
     name,
-    email,
+    email: email || null,
     phone,
     guardianName,
     guardianPhone,
     active: true,
     notes,
+    ...studentProfileFromForm(formData),
   });
   revalidateCrmPaths("/crm/students");
   revalidatePath("/student");
+}
+
+export async function updateStudentDocumentsAction(formData: FormData) {
+  await requireAdminSession();
+
+  const id = String(formData.get("id") ?? "").trim();
+  const student = id ? await getStudentById(id) : null;
+
+  if (!student) throw new Error("Student not found.");
+
+  const documents = (
+    student.documents.length > 0 ? student.documents : defaultDocuments()
+  ).map((doc) => ({
+    name: doc.name,
+    submitted: formData.get(`doc:${doc.name}`) === "on",
+  }));
+
+  await updateStudentDocuments(id, documents);
+  revalidateCrmPaths("/crm/students");
 }
 
 export async function setStudentActiveAction(formData: FormData) {
@@ -335,18 +463,52 @@ export async function convertLeadToStudentAction(formData: FormData) {
     String(formData.get("batchName") ?? "").trim() || "Admissions batch";
   const lead = await getLeadById(leadId);
 
-  if (!lead || !lead.email) {
-    throw new Error("Lead must have an email before student login can work.");
+  if (!lead) throw new Error("Lead not found.");
+
+  // Review-form values win; the lead's own data is the fallback.
+  const name = String(formData.get("name") ?? "").trim() || lead.name;
+  const email = normalizeEmail(
+    String(formData.get("email") ?? "").trim() || lead.email || "",
+  );
+  const phone = String(formData.get("phone") ?? "").trim() || lead.phone;
+  const guardianName =
+    String(formData.get("guardianName") ?? "").trim() ||
+    lead.guardianName ||
+    null;
+  const guardianPhone =
+    String(formData.get("guardianPhone") ?? "").trim() || lead.mobile2 || null;
+  const notes =
+    String(formData.get("notes") ?? "").trim() ||
+    lead.notes ||
+    lead.message ||
+    null;
+
+  if (email && !EMAIL_RE.test(email)) {
+    throw new Error("Enter a valid email or leave it empty.");
   }
 
   const student = await saveStudent(null, {
-    name: lead.name,
-    email: lead.email,
-    phone: lead.phone,
-    guardianName: lead.guardianName,
-    guardianPhone: lead.mobile2,
+    name,
+    email: email || null,
+    phone,
+    guardianName,
+    guardianPhone,
     active: true,
-    notes: lead.notes ?? lead.message,
+    notes,
+    // Everything the enquiry collected lands on the student record.
+    gender: lead.gender,
+    dateOfBirth: lead.dateOfBirth,
+    fullAddress: lead.fullAddress,
+    category: lead.category,
+    maharashtraDomicile: lead.maharashtraDomicile,
+    education: lead.education,
+    heightCm: lead.heightCm,
+    weightKg: lead.weightKg,
+    chestCm: lead.chestCm,
+    desiredPrograms: lead.desiredPrograms,
+    leadId: lead.id,
+    concessionStatus: lead.concessionStatus,
+    concessionNote: lead.concessionNote,
   });
 
   if (!student) throw new Error("Unable to create student.");
@@ -376,6 +538,121 @@ export async function convertLeadToStudentAction(formData: FormData) {
   });
   revalidateCrmPaths("/crm/leads", "/crm/scholarships", "/crm/students");
   revalidatePath("/student");
+  redirect(`/crm/students/${student.id}`);
+}
+
+function revalidateGallerySurfaces() {
+  revalidateCrmPaths("/crm/gallery");
+  revalidatePath("/");
+  revalidatePath("/gallery");
+}
+
+export async function uploadGalleryImageAction(formData: FormData) {
+  await requireAdminSession();
+
+  const file = formData.get("file");
+
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("Choose an image to upload.");
+  }
+
+  const uploaded = await uploadCrmMediaFile(file, "gallery");
+
+  await createGalleryImage({
+    url: uploaded.url,
+    caption: String(formData.get("caption") ?? ""),
+    alt: String(formData.get("alt") ?? ""),
+    album: String(formData.get("album") ?? "campus"),
+    sortOrder: optionalNumber(formData, "sortOrder"),
+  });
+  revalidateGallerySurfaces();
+}
+
+export async function updateGalleryImageAction(formData: FormData) {
+  await requireAdminSession();
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) throw new Error("Invalid gallery update.");
+
+  await updateGalleryImage(id, {
+    caption: String(formData.get("caption") ?? ""),
+    alt: String(formData.get("alt") ?? ""),
+    album: String(formData.get("album") ?? "campus"),
+    sortOrder: optionalNumber(formData, "sortOrder") ?? 100,
+    published: formData.get("published") === "true",
+  });
+  revalidateGallerySurfaces();
+}
+
+export async function deleteGalleryImageAction(formData: FormData) {
+  await requireAdminSession();
+
+  const id = String(formData.get("id") ?? "").trim();
+
+  if (!id) throw new Error("Invalid gallery delete.");
+
+  await deleteGalleryImage(id);
+  revalidateGallerySurfaces();
+}
+
+export async function createTestAction(formData: FormData) {
+  await requireAdminSession();
+
+  const kind =
+    String(formData.get("kind") ?? "") === "ground" ? "ground" : "written";
+  const test = await createTest({
+    title: String(formData.get("title") ?? ""),
+    kind,
+    courseKey: String(formData.get("courseKey") ?? "").trim() || null,
+    batchName: String(formData.get("batchName") ?? "").trim() || null,
+    testDate: String(formData.get("testDate") ?? "").trim() || null,
+    maxMarks: optionalNumber(formData, "maxMarks"),
+    metricNames: String(formData.get("metricNames") ?? "")
+      .split(",")
+      .map((name) => name.trim())
+      .filter(Boolean),
+    notes: String(formData.get("notes") ?? "").trim() || null,
+  });
+  revalidateCrmPaths("/crm/tests");
+  redirect(`/crm/tests/${test.id}`);
+}
+
+export async function saveTestResultsAction(formData: FormData) {
+  await requireAdminSession();
+
+  const testId = String(formData.get("testId") ?? "").trim();
+  const test = testId ? await getTestById(testId) : null;
+
+  if (!test) throw new Error("Test not found.");
+
+  const studentIds = formData.getAll("studentIds").map(String);
+  const rows = studentIds.map((studentId) => {
+    const marksRaw = String(formData.get(`marks:${studentId}`) ?? "").trim();
+    const marks = marksRaw ? Number(marksRaw) : null;
+    const metrics: Record<string, string> = {};
+
+    for (const name of test.metricNames) {
+      const value = String(
+        formData.get(`metric:${studentId}:${name}`) ?? "",
+      ).trim();
+      if (value) metrics[name] = value;
+    }
+
+    return {
+      studentId,
+      marks: marks !== null && Number.isFinite(marks) ? marks : null,
+      metrics,
+      remarks:
+        String(formData.get(`remarks:${studentId}`) ?? "").trim() || null,
+    };
+  });
+
+  await saveTestResults(testId, rows);
+  revalidateCrmPaths("/crm/tests");
+  revalidatePath(`/crm/tests/${testId}`);
+  revalidatePath("/student");
+  revalidatePath("/student/results");
 }
 
 export async function createCourseNoticeAction(formData: FormData) {
@@ -388,6 +665,19 @@ export async function createCourseNoticeAction(formData: FormData) {
     String(formData.get("targetScope") ?? ""),
   );
 
+  // Prefer an uploaded file; the raw URL field stays as a fallback.
+  const attachment = formData.get("attachment");
+  let attachmentUrl =
+    String(formData.get("attachmentUrl") ?? "").trim() || null;
+  let attachmentName =
+    String(formData.get("attachmentName") ?? "").trim() || null;
+
+  if (attachment instanceof File && attachment.size > 0) {
+    const uploaded = await uploadCrmMediaFile(attachment, "notices");
+    attachmentUrl = uploaded.url;
+    attachmentName = attachmentName ?? uploaded.filename;
+  }
+
   await createCourseNotice({
     title,
     bodyHtml,
@@ -396,8 +686,8 @@ export async function createCourseNoticeAction(formData: FormData) {
     courseKey: String(formData.get("courseKey") ?? "").trim() || null,
     batchName: String(formData.get("batchName") ?? "").trim() || null,
     studentId: String(formData.get("studentId") ?? "").trim() || null,
-    attachmentUrl: String(formData.get("attachmentUrl") ?? "").trim() || null,
-    attachmentName: String(formData.get("attachmentName") ?? "").trim() || null,
+    attachmentUrl,
+    attachmentName,
     expiresAt: String(formData.get("expiresAt") ?? "").trim() || null,
   });
   revalidateCrmPaths("/crm/students");

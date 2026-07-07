@@ -1,7 +1,11 @@
+import Link from "next/link";
 import { NextUpCta, PageHero } from "@/components/page-sections";
 import { Gallery } from "@/components/sections/gallery";
 import { getAssetUrl } from "@/lib/assets";
+import { galleryAlbums, listPublishedGalleryImages } from "@/lib/crm/gallery";
 import { createPageMetadata } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = createPageMetadata({
   title: "Campus Gallery",
@@ -11,11 +15,9 @@ export const metadata = createPageMetadata({
 });
 
 /**
- * Static gallery image list — all files are served from cloud storage (R2/S3).
- * To add a new photo: upload it to the bucket under /gallery/ then add its
- * filename to this array. No server filesystem access at runtime.
+ * Starter set shown until the CRM gallery has its first uploaded image.
  */
-const GALLERY_IMAGES: string[] = [
+const FALLBACK_IMAGES: string[] = [
   "924A0093.JPG",
   "924A0236.JPG",
   "924A0239.JPG",
@@ -41,7 +43,22 @@ const GALLERY_IMAGES: string[] = [
   "IMG_4984.JPG.jpeg",
 ].map((file) => getAssetUrl(`/gallery/${file}`));
 
-export default function GalleryPage() {
+export default async function GalleryPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const albumParam = Array.isArray(sp.album) ? sp.album[0] : sp.album;
+  const allImages = await listPublishedGalleryImages();
+  const activeAlbum = galleryAlbums.find((album) => album === albumParam);
+  const usedAlbums = galleryAlbums.filter((album) =>
+    allImages.some((image) => image.album === album),
+  );
+  const visible = activeAlbum
+    ? allImages.filter((image) => image.album === activeAlbum)
+    : allImages;
+
   return (
     <div className="bg-parchment">
       <PageHero
@@ -53,7 +70,49 @@ export default function GalleryPage() {
           { href: "/contact-us", label: "Visit the campus" },
         ]}
       >
-        <Gallery hideIntro images={GALLERY_IMAGES} />
+        {usedAlbums.length > 1 ? (
+          <nav
+            className="mt-10 flex flex-wrap gap-2"
+            aria-label="Gallery albums"
+          >
+            <Link
+              href="/gallery"
+              className={`border px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                !activeAlbum
+                  ? "border-oxblood bg-oxblood text-cream"
+                  : "border-line-strong text-ink hover:border-oxblood"
+              }`}
+            >
+              All
+            </Link>
+            {usedAlbums.map((album) => (
+              <Link
+                key={album}
+                href={`/gallery?album=${album}`}
+                className={`border px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                  activeAlbum === album
+                    ? "border-oxblood bg-oxblood text-cream"
+                    : "border-line-strong text-ink hover:border-oxblood"
+                }`}
+              >
+                {album.charAt(0).toUpperCase() + album.slice(1)}
+              </Link>
+            ))}
+          </nav>
+        ) : null}
+
+        <Gallery
+          hideIntro
+          images={
+            allImages.length > 0
+              ? visible.map((image) => ({
+                  src: image.url,
+                  alt: image.alt,
+                  caption: image.caption,
+                }))
+              : FALLBACK_IMAGES
+          }
+        />
       </PageHero>
 
       <NextUpCta
@@ -64,4 +123,3 @@ export default function GalleryPage() {
     </div>
   );
 }
-

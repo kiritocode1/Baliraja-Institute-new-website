@@ -12,7 +12,7 @@ export function WelcomeStatement() {
           <ScrollTextReveal
             parts={[
               {
-                text: "A career academy rooted in the soil of Marathwada, where first-generation aspirants are prepared for the services that serve the public.",
+                text: "A career academy rooted in the soil of Kolhapur, where first-generation aspirants are prepared for the services that serve the public.",
                 className: "text-cream",
                 ghostClassName: "text-cream-muted opacity-35",
               },

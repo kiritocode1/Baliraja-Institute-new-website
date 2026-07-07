@@ -1,3 +1,4 @@
+import { AboutHeroVideoPlayer } from "@/components/about-hero-video-player";
 import {
   FeatureBand,
   FounderMessage,
@@ -6,7 +7,6 @@ import {
   StatBand,
   SupportGrid,
 } from "@/components/page-sections";
-import { AboutHeroVideoPlayer } from "@/components/about-hero-video-player";
 import { createPageMetadata } from "@/lib/seo";
 import { pillars, proofStats, site, supportPoints } from "@/lib/site";
 
@@ -28,7 +28,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About Baliraja"
         title="The Baliraja difference"
-        body={`${site.longName} is built for serious aspirants from Gangapur, Marathwada and nearby rural communities who need structure, mentoring and a place to study with purpose.`}
+        body={`${site.longName} is built for serious aspirants from Gangapur, Kolhapur district and nearby rural communities who need structure, mentoring and a place to study with purpose.`}
         actions={[
           { href: "/admissions", label: "Start admission enquiry" },
           { href: "/student-life", label: "See student life" },

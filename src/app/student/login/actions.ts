@@ -106,7 +106,10 @@ export async function verifyStudentOtpAction(
     };
   }
 
-  await setStudentSession({ studentId: student.id, email: student.email });
+  await setStudentSession({
+    studentId: student.id,
+    email: student.email ?? email,
+  });
   redirect("/student");
 }
 

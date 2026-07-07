@@ -25,18 +25,19 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { getAssetUrl } from "@/lib/assets";
 import * as React from "react";
 import {
   createBlogPostAction,
   deleteBlogPostAction,
   updateBlogPostAction,
 } from "@/app/crm/actions";
-import type { CrmMediaStorage } from "@/lib/crm/config";
 import type {
   BlogPost,
   BlogPostInput,
   BlogPostStatus,
 } from "@/lib/crm/blog-posts";
+import type { CrmMediaStorage } from "@/lib/crm/config";
 
 type BlogEditorProps = {
   posts: BlogPost[];
@@ -110,7 +111,7 @@ function BlogPostRow({ post, onEdit }: { post: BlogPost; onEdit: () => void }) {
     <article className="grid gap-4 border-t border-line py-5 lg:grid-cols-[8rem_1fr_auto] lg:items-center">
       <div className="relative aspect-[4/3] overflow-hidden bg-parchment-deep">
         <Image
-          src={post.image}
+          src={getAssetUrl(post.image)}
           alt=""
           fill
           sizes="8rem"
@@ -595,7 +596,7 @@ function BlogComposer({
                   <div className="mt-3 aspect-video overflow-hidden border border-cream/15 bg-oxblood">
                     {/* biome-ignore lint/performance/noImgElement: The editor preview accepts temporary arbitrary image URLs before save-time normalization. */}
                     <img
-                      src={image}
+                      src={getAssetUrl(image)}
                       alt=""
                       className="h-full w-full object-cover"
                       loading="lazy"

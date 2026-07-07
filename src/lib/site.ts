@@ -15,7 +15,8 @@ export const site = {
   website: "balirajaacademy.in",
   websiteHref: "https://balirajaacademy.in",
   contact: {
-    address: "Gangapur, Dist. Chhatrapati Sambhajinagar, Maharashtra",
+    address:
+      "Gangapur, Near Adamapur (Balumama Temple), Tal. Bhudargad, Dist. Kolhapur, Maharashtra 416 209",
     phone: "+91 90979 74444",
     phoneHref: "tel:+919097974444",
     email: "balirajaca@gmail.com",
@@ -37,6 +38,7 @@ export const primaryNav: NavLink[] = [
   { label: "About", href: "/about" },
   { label: "Student Life", href: "/student-life" },
   { label: "Courses", href: "/courses" },
+  { label: "School", href: "/school" },
   { label: "Admissions", href: "/admissions" },
 ];
 
@@ -57,6 +59,7 @@ export const overlayNavGroups: NavGroup[] = [
     body: "Find the course path, student rhythm, and updates.",
     links: [
       { label: "All Courses", href: "/courses" },
+      { label: "School", href: "/school" },
       { label: "Student Life", href: "/student-life" },
       { label: "News & Notices", href: "/news-events" },
       { label: "Student Portal", href: "/student/login" },
@@ -97,41 +100,27 @@ const unsplash = (id: string) =>
 export const examTracks: ExamTrack[] = [
   {
     code: "01",
-    title: "MPSC",
-    blurb:
-      "Rajyaseva, PSI, STI, ASO and combined group services, with integrated prelims and mains coverage.",
-    image: "/home/exam-mpsc.webp",
-  },
-  {
-    code: "02",
-    title: "UPSC Civil Services",
-    blurb:
-      "Foundation to mains mentoring in Marathi and English mediums, optional subject guidance, and answer writing.",
-    image: "/home/exam-upsc.jpg",
-  },
-  {
-    code: "03",
     title: "Banking & Insurance",
     blurb:
       "IBPS, SBI, RBI and allied recruitment, built around quantitative aptitude, reasoning and daily speed drills.",
     image: unsplash("1598981457915-aea220950616"),
   },
   {
-    code: "04",
+    code: "02",
     title: "SSC & Railways",
     blurb:
       "CGL, CHSL, MTS and RRB tracks with sectional tests and a tier-wise practice calendar.",
     image: "/home/exam-railways.webp",
   },
   {
-    code: "05",
+    code: "03",
     title: "Police Bharti",
     blurb:
       "Written preparation paired with ground and physical-test guidance for constable and driver recruitment.",
     image: "/home/exam-police-bharati.webp",
   },
   {
-    code: "06",
+    code: "04",
     title: "Talathi & ZP",
     blurb:
       "Talathi, Gram Sevak, Zilla Parishad and Saralseva exams, with district-specific current affairs.",
@@ -163,9 +152,9 @@ export const pillars: Pillar[] = [
  *  figures with your verified numbers before launch. */
 export const whyPoints: string[] = [
   "A faculty drawn from serving and retired officers who have cleared these very exams.",
-  "A full-length test series modelled on the latest MPSC and UPSC patterns, evaluated by hand.",
+  "A full-length test series modelled on the latest police and defence bharti patterns, evaluated by hand.",
   "A quiet, long-hours study hall and reference library, open six days a week.",
-  "Hostel and mess guidance for students arriving from across Marathwada.",
+  "Hostel and mess guidance for students arriving from across western Maharashtra.",
 ];
 
 /* ------------------------------------------------------------------ *
@@ -358,7 +347,7 @@ export const updates: Update[] = [
   },
   {
     tag: "Test Series",
-    title: "UPSC prelims full-length series now open for registration",
+    title: "Police bharti written mock series now open for registration",
     date: "August 2026",
     image: getAssetUrl("/student-life/Explore-v-6.png"),
     href: "/admissions",
@@ -383,7 +372,7 @@ export const notices: Notice[] = [
   {
     date: "20 Jun 2026",
     tag: "Test Series",
-    title: "MPSC Rajyaseva prelims test-series schedule released",
+    title: "Police bharti written test-series schedule released",
   },
   {
     date: "18 Jun 2026",
@@ -418,7 +407,7 @@ export type BlogPost = {
 };
 export const blogPosts: BlogPost[] = [
   {
-    title: "Building a realistic MPSC timetable you will actually keep",
+    title: "Building a realistic bharti study timetable you will actually keep",
     excerpt:
       "A week-by-week method for covering the syllabus without burning out by the third month.",
     category: "Strategy",
@@ -656,7 +645,7 @@ export const admissionsFaqs: FaqItem[] = [
   {
     question: "Do I need to know my exact exam before enquiring?",
     answer:
-      "No. Share the broad direction, such as MPSC, defence, banking or police. A mentor can help narrow the track after understanding your level and timeline.",
+      "No. Share the broad direction, such as police, army, or another bharti route. A mentor can help narrow the track after understanding your level and timeline.",
   },
   {
     question: "Can parents visit before admission?",
@@ -689,7 +678,7 @@ export const studentLifeFaqs: FaqItem[] = [
   {
     question: "Is hostel or mess support provided?",
     answer:
-      "Baliraja guides outstation students toward practical hostel and mess options near the academy, especially for students coming from villages around Marathwada.",
+      "Baliraja guides outstation students toward practical hostel and mess options near the academy, especially for students coming from villages around Kolhapur district.",
   },
   {
     question: "How often do students get feedback?",
@@ -712,8 +701,8 @@ export type StudentVoice = {
 
 export const studentVoices: StudentVoice[] = [
   {
-    name: "MPSC foundation aspirant",
-    track: "Rajyaseva track",
+    name: "Police bharti aspirant",
+    track: "Constable track",
     quote:
       "The weekly test review showed me where I was losing marks, not just what I had studied.",
     image: getAssetUrl("/student-life/student-v-1.png"),

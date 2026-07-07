@@ -133,6 +133,31 @@ export async function ensureCrmSchema() {
   `;
 
   await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS chest_cm NUMERIC
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS category TEXT
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS maharashtra_domicile BOOLEAN
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS concession_status TEXT
+  `;
+
+  await db`
+    ALTER TABLE crm_leads
+    ADD COLUMN IF NOT EXISTS concession_note TEXT
+  `;
+
+  await db`
     CREATE TABLE IF NOT EXISTS crm_admin_otps (
       id TEXT PRIMARY KEY,
       email TEXT NOT NULL,
@@ -201,6 +226,130 @@ export async function ensureCrmSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `;
+
+  // Bharti profile columns + nullable email (phone-only students).
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS gender TEXT
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS date_of_birth TEXT
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS full_address TEXT
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS category TEXT
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS maharashtra_domicile BOOLEAN
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS education JSONB
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS height_cm NUMERIC
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS weight_kg NUMERIC
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS chest_cm NUMERIC
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS desired_programs JSONB
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS documents JSONB
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS lead_id TEXT
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS concession_status TEXT
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ADD COLUMN IF NOT EXISTS concession_note TEXT
+  `;
+  await db`
+    ALTER TABLE crm_students
+    ALTER COLUMN email DROP NOT NULL
+  `;
+  await db`
+    ALTER TABLE crm_students
+    DROP CONSTRAINT IF EXISTS crm_students_email_key
+  `;
+  await db`
+    CREATE UNIQUE INDEX IF NOT EXISTS crm_students_email_unique_idx
+    ON crm_students (email)
+    WHERE email IS NOT NULL
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_tests (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      kind TEXT NOT NULL DEFAULT 'written',
+      course_key TEXT,
+      batch_name TEXT,
+      test_date DATE,
+      max_marks NUMERIC,
+      metric_names JSONB,
+      notes TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_test_results (
+      id TEXT PRIMARY KEY,
+      test_id TEXT NOT NULL REFERENCES crm_tests(id) ON DELETE CASCADE,
+      student_id TEXT NOT NULL REFERENCES crm_students(id) ON DELETE CASCADE,
+      marks NUMERIC,
+      metrics JSONB,
+      remarks TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (test_id, student_id)
+    )
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS crm_gallery_images (
+      id TEXT PRIMARY KEY,
+      url TEXT NOT NULL,
+      caption TEXT NOT NULL,
+      alt TEXT NOT NULL,
+      album TEXT NOT NULL DEFAULT 'campus',
+      sort_order INTEGER NOT NULL DEFAULT 100,
+      published BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await db`
+    ALTER TABLE crm_course_pages
+    ADD COLUMN IF NOT EXISTS division TEXT NOT NULL DEFAULT 'bharti'
+  `;
+  await db`
+    ALTER TABLE crm_course_pages
+    ADD COLUMN IF NOT EXISTS medium TEXT
   `;
 
   await db`
@@ -396,6 +545,26 @@ export async function ensureCrmSchema() {
     CREATE UNIQUE INDEX IF NOT EXISTS crm_razorpay_events_payment_unique_idx
     ON crm_razorpay_events (event_type, razorpay_payment_id)
     WHERE event_id IS NULL AND razorpay_payment_id IS NOT NULL
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_tests_course_idx
+    ON crm_tests (course_key, test_date DESC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_test_results_student_idx
+    ON crm_test_results (student_id)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_gallery_images_published_idx
+    ON crm_gallery_images (published, album, sort_order ASC)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS crm_students_lead_idx
+    ON crm_students (lead_id)
   `;
 
   schemaReady = true;

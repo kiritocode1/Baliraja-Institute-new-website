@@ -1,33 +1,46 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import Image from "next/image";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { RevealText } from "@/components/reveal-text";
 import { getAssetUrl } from "@/lib/assets";
 import { galleryImages } from "@/lib/site";
+
+export type GalleryImageItem = {
+  src: string;
+  alt?: string;
+  caption?: string;
+};
 
 export function Gallery({
   hideIntro = false,
   images,
 }: {
   hideIntro?: boolean;
-  images?: string[];
+  images?: (string | GalleryImageItem)[];
 }) {
   const [activeVideoSrc, setActiveVideoSrc] = useState<string | null>(null);
 
   const displayItems = images
-    ? images.map((img, i) => ({
-        src: getAssetUrl(img),
-        alt: `Campus photo ${i + 1}`,
-        caption: `Gallery Photo ${i + 1}`,
-        type: "image" as const,
-        aspect: "horizontal" as const,
-      }))
+    ? images.map((img, i) => {
+        const item = typeof img === "string" ? { src: img } : img;
+
+        return {
+          src: getAssetUrl(item.src),
+          alt: item.alt || item.caption || `Campus photo ${i + 1}`,
+          caption: item.caption || `Gallery Photo ${i + 1}`,
+          type: "image" as const,
+          aspect: "horizontal" as const,
+        };
+      })
     : galleryImages;
 
   return (
-    <section id="gallery" className={hideIntro ? "mt-10" : "bg-parchment py-20 sm:py-28"}>
+    <section
+      id="gallery"
+      className={hideIntro ? "mt-10" : "bg-parchment py-20 sm:py-28"}
+    >
       <div className={hideIntro ? "" : "mx-auto max-w-[100rem] px-5 sm:px-8"}>
         {!hideIntro && (
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -51,7 +64,13 @@ export function Gallery({
           </div>
         )}
 
-        <div className={hideIntro ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-12" : "mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-12"}>
+        <div
+          className={
+            hideIntro
+              ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-12"
+              : "mt-10 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-12"
+          }
+        >
           {displayItems.map((img) => {
             const isVertical = img.aspect === "vertical";
             const colSpanClass = isVertical
@@ -62,9 +81,14 @@ export function Gallery({
 
             return (
               <figure
-                key={img.caption}
+                key={`${img.src}-${img.caption}`}
                 className={`group relative overflow-hidden bg-parchment-deep rounded-2xl ${colSpanClass}`}
-                style={{ contentVisibility: "auto", containIntrinsicSize: "auto 350px" } as React.CSSProperties}
+                style={
+                  {
+                    contentVisibility: "auto",
+                    containIntrinsicSize: "auto 350px",
+                  } as React.CSSProperties
+                }
               >
                 {img.type === "video" ? (
                   <GalleryVideoCard
@@ -113,7 +137,14 @@ interface GalleryVideoCardProps {
   onPause: () => void;
 }
 
-function GalleryVideoCard({ src, alt, caption, isActive, onPlay, onPause }: GalleryVideoCardProps) {
+function GalleryVideoCard({
+  src,
+  alt,
+  caption,
+  isActive,
+  onPlay,
+  onPause,
+}: GalleryVideoCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(false);
 

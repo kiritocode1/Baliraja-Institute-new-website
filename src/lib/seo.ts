@@ -4,7 +4,7 @@ import { site } from "@/lib/site";
 export const siteUrl = new URL(site.websiteHref);
 
 export const siteDescription =
-  "Competitive exam coaching in Gangapur for MPSC, UPSC, Defence, Banking, SSC, Police Bharti, Talathi and ZP aspirants.";
+  "Police, Army, Navy and defence bharti coaching in Gangapur, Tal. Bhudargad, Dist. Kolhapur — with schooling, sports, and summer camps on the same campus.";
 
 export const defaultOgImagePath = "/opengraph.png";
 export const defaultTwitterImagePath = "/twitter.png";

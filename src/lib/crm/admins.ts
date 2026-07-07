@@ -3,11 +3,14 @@ import { getBootstrapAdminEmails, normalizeEmail } from "@/lib/crm/config";
 import { ensureCrmSchema, getSql } from "@/lib/crm/db";
 import { readJsonFile, writeJsonFile } from "@/lib/crm/local-store";
 
+export type AdminRole = "admin" | "staff";
+
 export type CrmAdmin = {
   id: string;
   email: string;
   name: string | null;
-  role: "admin";
+  /** "admin" = owner (can manage the admin list); "staff" = everything else. */
+  role: AdminRole;
   active: boolean;
   source: string;
   createdAt: string;
@@ -21,7 +24,7 @@ function mapDbAdmin(row: Record<string, unknown>): CrmAdmin {
     id: String(row.id),
     email: String(row.email),
     name: row.name ? String(row.name) : null,
-    role: "admin",
+    role: String(row.role) === "staff" ? "staff" : "admin",
     active: Boolean(row.active),
     source: String(row.source ?? "manual"),
     createdAt: new Date(String(row.created_at)).toISOString(),
@@ -148,8 +151,13 @@ export async function listAdmins() {
   return readLocalAdmins();
 }
 
-export async function addAdmin(input: { email: string; name: string | null }) {
+export async function addAdmin(input: {
+  email: string;
+  name: string | null;
+  role?: AdminRole;
+}) {
   const email = normalizeEmail(input.email);
+  const role: AdminRole = input.role === "staff" ? "staff" : "admin";
   const now = new Date().toISOString();
   const ready = await ensureCrmSchema();
   const db = getSql();
@@ -170,7 +178,7 @@ export async function addAdmin(input: { email: string; name: string | null }) {
         ${crypto.randomUUID()},
         ${email},
         ${input.name},
-        'admin',
+        ${role},
         TRUE,
         'manual',
         ${now},
@@ -179,6 +187,7 @@ export async function addAdmin(input: { email: string; name: string | null }) {
       ON CONFLICT (email)
       DO UPDATE SET
         name = EXCLUDED.name,
+        role = EXCLUDED.role,
         active = TRUE,
         updated_at = EXCLUDED.updated_at
     `;
@@ -190,6 +199,7 @@ export async function addAdmin(input: { email: string; name: string | null }) {
 
   if (existing) {
     existing.name = input.name;
+    existing.role = role;
     existing.active = true;
     existing.updatedAt = now;
     await writeJsonFile(ADMINS_FILE, admins);
@@ -200,7 +210,7 @@ export async function addAdmin(input: { email: string; name: string | null }) {
     id: crypto.randomUUID(),
     email,
     name: input.name,
-    role: "admin",
+    role,
     active: true,
     source: "manual",
     createdAt: now,
@@ -228,4 +238,16 @@ export async function setAdminActive(id: string, active: boolean) {
     admin.id === id ? { ...admin, active, updatedAt: now } : admin,
   );
   await writeJsonFile(ADMINS_FILE, next);
+}
+
+export async function getAdminByEmail(email: string) {
+  const normalized = normalizeEmail(email);
+  return (
+    (await listAdmins()).find((admin) => admin.email === normalized) ?? null
+  );
+}
+
+export async function isOwnerEmail(email: string) {
+  const admin = await getAdminByEmail(email);
+  return Boolean(admin?.active && admin.role === "admin");
 }

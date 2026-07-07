@@ -9,6 +9,26 @@ export const coursePageStatuses = ["draft", "published", "archived"] as const;
 
 export type CoursePageStatus = (typeof coursePageStatuses)[number];
 
+export const courseDivisions = ["bharti", "school", "sports", "camp"] as const;
+
+export type CourseDivision = (typeof courseDivisions)[number];
+
+export const courseDivisionLabels: Record<CourseDivision, string> = {
+  bharti: "Bharti coaching",
+  school: "School",
+  sports: "Sports academy",
+  camp: "Summer camp",
+};
+
+export const courseMediums = ["marathi", "semi_english"] as const;
+
+export type CourseMedium = (typeof courseMediums)[number];
+
+export const courseMediumLabels: Record<CourseMedium, string> = {
+  marathi: "Marathi medium",
+  semi_english: "Semi-English medium",
+};
+
 export type CoursePage = {
   id: string;
   seedKey: string | null;
@@ -17,6 +37,8 @@ export type CoursePage = {
   summary: string;
   bodyHtml: string;
   category: string;
+  division: CourseDivision;
+  medium: CourseMedium | null;
   audience: string | null;
   exams: string | null;
   duration: string | null;
@@ -38,6 +60,8 @@ export type CoursePageInput = {
   summary: string;
   bodyHtml: string;
   category: string;
+  division?: string | null;
+  medium?: string | null;
   audience?: string | null;
   exams?: string | null;
   duration?: string | null;
@@ -55,6 +79,8 @@ export type CourseCard = {
   body: string;
   image: string;
   href: string;
+  division: CourseDivision;
+  medium: CourseMedium | null;
 };
 
 const COURSE_PAGES_FILE = "crm-course-pages.json";
@@ -68,6 +94,20 @@ function cleanText(value: unknown) {
 
 function isCoursePageStatus(value: string): value is CoursePageStatus {
   return coursePageStatuses.includes(value as CoursePageStatus);
+}
+
+function parseDivision(value: unknown): CourseDivision {
+  const normalized = String(value ?? "").trim();
+  return (courseDivisions as readonly string[]).includes(normalized)
+    ? (normalized as CourseDivision)
+    : "bharti";
+}
+
+function parseMedium(value: unknown): CourseMedium | null {
+  const normalized = String(value ?? "").trim();
+  return (courseMediums as readonly string[]).includes(normalized)
+    ? (normalized as CourseMedium)
+    : null;
 }
 
 function safeCoverImageUrl(value: string) {
@@ -116,6 +156,8 @@ function staticCoursePages(): CoursePage[] {
       audience: "defence aspirants",
     }),
     category: "Defence",
+    division: "bharti" as const,
+    medium: null,
     audience: "Defence aspirants",
     exams: course.exams,
     duration: "Foundation, crash, and interview-preparation support",
@@ -141,6 +183,8 @@ function staticCoursePages(): CoursePage[] {
       exams: track.title,
     }),
     category: "Exam track",
+    division: "bharti" as const,
+    medium: null,
     audience: `${track.title} aspirants`,
     exams: track.title,
     duration: "Foundation, test-series, and revision support",
@@ -169,6 +213,8 @@ function mapDbCoursePage(row: Record<string, unknown>): CoursePage {
     summary: String(row.summary),
     bodyHtml: String(row.body_html),
     category: String(row.category),
+    division: parseDivision(row.division),
+    medium: parseMedium(row.medium),
     audience: row.audience ? String(row.audience) : null,
     exams: row.exams ? String(row.exams) : null,
     duration: row.duration ? String(row.duration) : null,
@@ -200,6 +246,8 @@ async function listStoredCoursePages() {
         summary,
         body_html,
         category,
+        division,
+        medium,
         audience,
         exams,
         duration,
@@ -219,7 +267,13 @@ async function listStoredCoursePages() {
     return rows.map((row) => mapDbCoursePage(row));
   }
 
-  return readJsonFile<CoursePage[]>(COURSE_PAGES_FILE, []);
+  return (await readJsonFile<CoursePage[]>(COURSE_PAGES_FILE, [])).map(
+    (page) => ({
+      ...page,
+      division: parseDivision(page.division),
+      medium: parseMedium(page.medium),
+    }),
+  );
 }
 
 function mergeCoursePages(stored: CoursePage[]) {
@@ -278,6 +332,8 @@ function normalizeInput(
     summary: cleanText(input.summary),
     bodyHtml,
     category: cleanText(input.category) || "Course",
+    division: parseDivision(input.division),
+    medium: parseMedium(input.medium),
     audience: cleanText(input.audience) || null,
     exams: cleanText(input.exams) || null,
     duration: cleanText(input.duration) || null,
@@ -306,6 +362,8 @@ export async function listPublishedCourseCards(): Promise<CourseCard[]> {
       body: page.summary,
       image: page.image,
       href: `/courses/${page.slug}`,
+      division: page.division,
+      medium: page.medium,
     }));
 }
 
@@ -371,6 +429,8 @@ export async function saveCoursePage(
         summary,
         body_html,
         category,
+        division,
+        medium,
         audience,
         exams,
         duration,
@@ -392,6 +452,8 @@ export async function saveCoursePage(
         ${page.summary},
         ${page.bodyHtml},
         ${page.category},
+        ${page.division},
+        ${page.medium},
         ${page.audience},
         ${page.exams},
         ${page.duration},
@@ -413,6 +475,8 @@ export async function saveCoursePage(
         summary = EXCLUDED.summary,
         body_html = EXCLUDED.body_html,
         category = EXCLUDED.category,
+        division = EXCLUDED.division,
+        medium = EXCLUDED.medium,
         audience = EXCLUDED.audience,
         exams = EXCLUDED.exams,
         duration = EXCLUDED.duration,

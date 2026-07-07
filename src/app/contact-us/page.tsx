@@ -11,11 +11,15 @@ export const metadata = createPageMetadata({
   path: "/contact-us",
 });
 
+const MAP_QUERY = encodeURIComponent(
+  "Baliraja Institute Career Academy, Gangapur, Bhudargad, Kolhapur, Maharashtra 416209",
+);
+
 const contactCards = [
   {
     title: "Visit",
     body: site.contact.address,
-    href: "https://maps.google.com/?q=Baliraja%20Institute%20Career%20Academy%20Gangapur",
+    href: `https://maps.google.com/?q=${MAP_QUERY}`,
     label: "Open map",
     icon: MapPin,
   },
@@ -82,6 +86,17 @@ export default function ContactPage() {
           <p className="mt-8 text-[0.95rem] text-ink-soft">
             Office hours: {site.contact.hours}
           </p>
+
+          <div className="mt-12 overflow-hidden border border-line-strong">
+            <iframe
+              title="Baliraja Institute on Google Maps — Gangapur, Tal. Bhudargad, Dist. Kolhapur"
+              src={`https://www.google.com/maps?q=${MAP_QUERY}&output=embed`}
+              className="h-[26rem] w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          </div>
         </div>
       </section>
 

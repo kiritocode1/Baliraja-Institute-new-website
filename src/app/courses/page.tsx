@@ -16,7 +16,7 @@ import { featuredExams, proofStats } from "@/lib/site";
 export const metadata = createPageMetadata({
   title: "Courses",
   description:
-    "Explore Baliraja Institute exam tracks for MPSC, UPSC, Army, Navy, Banking, SSC, Police Bharti, Talathi and ZP preparation.",
+    "Explore Baliraja Institute tracks for Army, Navy, Air Force, Police Bharti, SSC, Railway and allied recruitment preparation.",
   path: "/courses",
 });
 
@@ -24,7 +24,7 @@ const courseReels = [
   {
     id: "course-1",
     src: "/courses/course-hero-v1.mp4",
-    title: "MPSC & UPSC Tracks",
+    title: "Bharti Exam Tracks",
   },
   {
     id: "course-2",
@@ -85,7 +85,7 @@ export default async function CoursesPage() {
       <PageHero
         eyebrow="Courses"
         title="Choose the right exam track"
-        body="Defence entries, civil services, banking, SSC, police and local government tracks are separated clearly so students can choose with confidence."
+        body="Defence entries, police bharti, banking, SSC, railway and local government tracks are separated clearly so students can choose with confidence."
         imageAlt="A Baliraja student reading exam preparation material"
         actions={[
           { href: "/admissions", label: "Ask for guidance" },
@@ -125,8 +125,35 @@ export default async function CoursesPage() {
         eyebrow="Exam tracks"
         title="Pick your preparation route"
         body="Each course now has a focused page with exam scope, batch guidance, and a clear admission path."
-        items={courseCards}
+        items={courseCards.filter((card) => card.division === "bharti")}
       />
+
+      {courseCards.some((card) => card.division === "school") ? (
+        <ImageCardGrid
+          eyebrow="School"
+          title="Baliraja schools"
+          body="Marathi and semi-English medium schooling on the same campus discipline that powers the academy."
+          items={courseCards.filter((card) => card.division === "school")}
+        />
+      ) : null}
+
+      {courseCards.some((card) => card.division === "sports") ? (
+        <ImageCardGrid
+          eyebrow="Sports academy"
+          title="Sports programs"
+          body="Ground training, coaching, and physical development programs open beyond bharti preparation."
+          items={courseCards.filter((card) => card.division === "sports")}
+        />
+      ) : null}
+
+      {courseCards.some((card) => card.division === "camp") ? (
+        <ImageCardGrid
+          eyebrow="Summer camps"
+          title="Camps & short programs"
+          body="Vacation camps and short residential programs for younger students."
+          items={courseCards.filter((card) => card.division === "camp")}
+        />
+      ) : null}
 
       <NextUpCta
         title="Admissions"

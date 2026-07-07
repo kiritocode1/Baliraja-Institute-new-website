@@ -7,6 +7,7 @@ import {
 } from "@/lib/crm/local-store";
 import {
   type AdmissionFormInput,
+  categoryValues,
   programValues,
   referralValues,
 } from "@/schemas/admission.schema";
@@ -31,6 +32,15 @@ export const leadRequestTypes = [
 
 export type LeadRequestType = (typeof leadRequestTypes)[number];
 
+export const concessionStatuses = [
+  "requested",
+  "approved",
+  "rejected",
+] as const;
+
+export type ConcessionStatus = (typeof concessionStatuses)[number];
+export type StudentCategory = (typeof categoryValues)[number];
+
 export type AdmissionLeadDetails = {
   gender: AdmissionFormInput["gender"] | null;
   guardianName: string | null;
@@ -41,6 +51,9 @@ export type AdmissionLeadDetails = {
   desiredPrograms: AdmissionFormInput["desiredPrograms"];
   weightKg: number | null;
   heightCm: number | null;
+  chestCm: number | null;
+  category: StudentCategory | null;
+  maharashtraDomicile: boolean | null;
   referralSources: AdmissionFormInput["referralSources"];
   otherReferralDetail: string | null;
   declarationAgreed: boolean;
@@ -57,6 +70,8 @@ export type Lead = AdmissionLeadDetails & {
   status: LeadStatus;
   assignedTo: string | null;
   notes: string | null;
+  concessionStatus: ConcessionStatus | null;
+  concessionNote: string | null;
   source: string;
   receivedAt: string;
   updatedAt: string;
@@ -145,6 +160,20 @@ function parseEducation(value: unknown): AdmissionLeadDetails["education"] {
   return parsed as AdmissionLeadDetails["education"];
 }
 
+function parseCategory(value: unknown): StudentCategory | null {
+  const normalized = String(value ?? "").trim();
+  return (categoryValues as readonly string[]).includes(normalized)
+    ? (normalized as StudentCategory)
+    : null;
+}
+
+function parseConcessionStatus(value: unknown): ConcessionStatus | null {
+  const normalized = String(value ?? "").trim();
+  return (concessionStatuses as readonly string[]).includes(normalized)
+    ? (normalized as ConcessionStatus)
+    : null;
+}
+
 function normalizeAdmissionDetails(
   input: Partial<AdmissionLeadDetails>,
 ): AdmissionLeadDetails {
@@ -158,6 +187,9 @@ function normalizeAdmissionDetails(
     desiredPrograms: input.desiredPrograms ?? [],
     weightKg: input.weightKg ?? null,
     heightCm: input.heightCm ?? null,
+    chestCm: input.chestCm ?? null,
+    category: input.category ?? null,
+    maharashtraDomicile: input.maharashtraDomicile ?? null,
     referralSources: input.referralSources ?? [],
     otherReferralDetail: input.otherReferralDetail ?? null,
     declarationAgreed: input.declarationAgreed ?? false,
@@ -191,9 +223,18 @@ function mapDbLead(row: Record<string, unknown>): Lead {
     desiredPrograms: parseProgramList(row.desired_programs),
     weightKg: maybeNumber(row.weight_kg),
     heightCm: maybeNumber(row.height_cm),
+    chestCm: maybeNumber(row.chest_cm),
+    category: parseCategory(row.category),
+    maharashtraDomicile:
+      row.maharashtra_domicile === null ||
+      row.maharashtra_domicile === undefined
+        ? null
+        : row.maharashtra_domicile === true,
     referralSources: parseReferralList(row.referral_sources),
     otherReferralDetail: maybeString(row.other_referral_detail),
     declarationAgreed: row.declaration_agreed === true,
+    concessionStatus: parseConcessionStatus(row.concession_status),
+    concessionNote: maybeString(row.concession_note),
   };
 }
 
@@ -204,6 +245,8 @@ function normalizeStoredLead(lead: Lead): Lead {
     ...details,
     requestType: normalizeLeadRequestType(lead.requestType),
     status: isLeadStatus(lead.status) ? lead.status : "new",
+    concessionStatus: parseConcessionStatus(lead.concessionStatus),
+    concessionNote: lead.concessionNote ?? null,
   };
 }
 
@@ -229,6 +272,8 @@ export async function createLead(input: CreateLeadInput) {
     status: "new",
     assignedTo: null,
     notes: null,
+    concessionStatus: input.requestType === "scholarship" ? "requested" : null,
+    concessionNote: null,
     source: input.source ?? "admissions_form",
     receivedAt: now,
     updatedAt: now,
@@ -249,6 +294,8 @@ export async function createLead(input: CreateLeadInput) {
         status,
         assigned_to,
         notes,
+        concession_status,
+        concession_note,
         source,
         received_at,
         updated_at,
@@ -261,6 +308,9 @@ export async function createLead(input: CreateLeadInput) {
         desired_programs,
         weight_kg,
         height_cm,
+        chest_cm,
+        category,
+        maharashtra_domicile,
         referral_sources,
         other_referral_detail,
         declaration_agreed
@@ -276,6 +326,8 @@ export async function createLead(input: CreateLeadInput) {
         ${lead.status},
         ${lead.assignedTo},
         ${lead.notes},
+        ${lead.concessionStatus},
+        ${lead.concessionNote},
         ${lead.source},
         ${lead.receivedAt},
         ${lead.updatedAt},
@@ -288,6 +340,9 @@ export async function createLead(input: CreateLeadInput) {
         ${JSON.stringify(lead.desiredPrograms)}::jsonb,
         ${lead.weightKg},
         ${lead.heightCm},
+        ${lead.chestCm},
+        ${lead.category},
+        ${lead.maharashtraDomicile},
         ${JSON.stringify(lead.referralSources)}::jsonb,
         ${lead.otherReferralDetail},
         ${lead.declarationAgreed}
@@ -333,9 +388,14 @@ export async function listLeads(limit = 100) {
         desired_programs,
         weight_kg,
         height_cm,
+        chest_cm,
+        category,
+        maharashtra_domicile,
         referral_sources,
         other_referral_detail,
-        declaration_agreed
+        declaration_agreed,
+        concession_status,
+        concession_note
       FROM crm_leads
       ORDER BY received_at DESC
       LIMIT ${limit}
@@ -359,11 +419,22 @@ export async function updateLead(
     requestType: LeadRequestType;
     assignedTo: string | null;
     notes: string | null;
+    concessionStatus?: ConcessionStatus | null;
+    concessionNote?: string | null;
   },
 ) {
   const now = new Date().toISOString();
   const ready = await ensureCrmSchema();
   const db = getSql();
+  const existing = await getLeadById(id);
+  const concessionStatus =
+    input.concessionStatus !== undefined
+      ? input.concessionStatus
+      : (existing?.concessionStatus ?? null);
+  const concessionNote =
+    input.concessionNote !== undefined
+      ? input.concessionNote
+      : (existing?.concessionNote ?? null);
 
   if (ready && db) {
     await db`
@@ -373,6 +444,8 @@ export async function updateLead(
         request_type = ${input.requestType},
         assigned_to = ${input.assignedTo},
         notes = ${input.notes},
+        concession_status = ${concessionStatus},
+        concession_note = ${concessionNote},
         updated_at = ${now}
       WHERE id = ${id}
     `;
@@ -381,9 +454,15 @@ export async function updateLead(
 
   const leads = await readJsonFile<Lead[]>(LEADS_FILE, []);
   const next = leads.map((lead) =>
-    lead.id === id ? { ...lead, ...input, updatedAt: now } : lead,
+    lead.id === id
+      ? { ...lead, ...input, concessionStatus, concessionNote, updatedAt: now }
+      : lead,
   );
   await writeJsonFile(LEADS_FILE, next);
+}
+
+export function parseConcessionStatusInput(value: string) {
+  return parseConcessionStatus(value);
 }
 
 export function getLeadStats(leads: Lead[]): LeadStats {

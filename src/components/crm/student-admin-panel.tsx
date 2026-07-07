@@ -1,10 +1,5 @@
-import {
-  createCourseNoticeAction,
-  createEnrollmentAction,
-  createFeeInvoiceAction,
-  saveStudentAction,
-  setStudentActiveAction,
-} from "@/app/crm/actions";
+import Link from "next/link";
+import { createCourseNoticeAction, saveStudentAction } from "@/app/crm/actions";
 import type {
   CourseNotice,
   CourseOption,
@@ -12,16 +7,29 @@ import type {
 } from "@/lib/crm/students";
 import { formatPaise } from "@/lib/crm/students";
 
+export type StudentListFilters = {
+  q?: string;
+  course?: string;
+  batch?: string;
+  status?: string;
+  fees?: string;
+};
+
 type StudentAdminPanelProps = {
   students: StudentSummary[];
   notices: CourseNotice[];
   courseOptions: CourseOption[];
+  filters: StudentListFilters;
 };
 
 const fieldClass =
   "w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink";
 const labelClass =
   "mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft";
+const buttonClass =
+  "bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright";
+const summaryClass =
+  "cursor-pointer font-display text-2xl text-oxblood [&::-webkit-details-marker]:hidden";
 
 function formatDate(value: string | null) {
   if (!value) return "No date";
@@ -38,185 +46,129 @@ function stripHtml(value: string) {
     .trim();
 }
 
-function StudentRow({
-  student,
-  courseOptions,
-}: {
-  student: StudentSummary;
-  courseOptions: CourseOption[];
-}) {
-  const pendingAmount = student.invoices
+function pendingAmount(student: StudentSummary) {
+  return student.invoices
     .filter(
       (invoice) =>
         invoice.status === "pending" || invoice.status === "processing",
     )
     .reduce((sum, invoice) => sum + invoice.amountPaise, 0);
+}
+
+function filterStudents(
+  students: StudentSummary[],
+  filters: StudentListFilters,
+) {
+  const q = (filters.q ?? "").trim().toLowerCase();
+
+  return students.filter((student) => {
+    if (
+      q &&
+      ![student.name, student.email, student.phone].some((value) =>
+        value?.toLowerCase().includes(q),
+      )
+    ) {
+      return false;
+    }
+    if (
+      filters.course &&
+      !student.enrollments.some((item) => item.courseKey === filters.course)
+    ) {
+      return false;
+    }
+    if (
+      filters.batch &&
+      !student.enrollments.some((item) => item.batchName === filters.batch)
+    ) {
+      return false;
+    }
+    if (filters.status === "active" && !student.active) return false;
+    if (filters.status === "inactive" && student.active) return false;
+    if (filters.fees === "pending" && pendingAmount(student) === 0) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function StudentTable({ students }: { students: StudentSummary[] }) {
+  if (students.length === 0) {
+    return (
+      <div className="border border-line bg-parchment-deep py-12 text-center">
+        <h3 className="font-display text-3xl text-oxblood">No students</h3>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
+          No records match the current search. Clear the filters, convert a
+          lead, or add a student below.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <article className="border-t border-line py-6">
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_1fr_1fr]">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h3 className="font-display text-2xl leading-tight text-oxblood">
-              {student.name}
-            </h3>
-            <span
-              className={`border px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em] ${
-                student.active
-                  ? "border-brass text-brass-deep"
-                  : "border-line-strong text-ink-soft"
-              }`}
-            >
-              {student.active ? "Active" : "Inactive"}
-            </span>
-          </div>
-          <div className="mt-3 flex flex-col gap-1 text-sm text-ink-soft">
-            <a
-              href={`mailto:${student.email}`}
-              className="w-fit hover:text-oxblood"
-            >
-              {student.email}
-            </a>
-            <a
-              href={`tel:${student.phone}`}
-              className="w-fit hover:text-oxblood"
-            >
-              {student.phone}
-            </a>
-            {student.guardianName ? (
-              <span>
-                Guardian: {student.guardianName}
-                {student.guardianPhone ? ` · ${student.guardianPhone}` : ""}
-              </span>
-            ) : null}
-          </div>
-          {student.notes ? (
-            <p className="mt-4 text-sm leading-relaxed text-ink-soft">
-              {student.notes}
-            </p>
-          ) : null}
-          <form action={setStudentActiveAction} className="mt-4">
-            <input type="hidden" name="id" value={student.id} />
-            <input
-              type="hidden"
-              name="active"
-              value={String(!student.active)}
-            />
-            <button
-              type="submit"
-              className="border border-line-strong px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
-            >
-              {student.active ? "Deactivate" : "Activate"}
-            </button>
-          </form>
-        </div>
+    <div className="overflow-x-auto border border-line">
+      <table className="w-full min-w-[52rem] text-left text-sm">
+        <thead>
+          <tr className="border-b border-line-strong bg-parchment-deep text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-ink-soft">
+            <th className="px-4 py-3">Student</th>
+            <th className="px-4 py-3">Phone</th>
+            <th className="px-4 py-3">Course</th>
+            <th className="px-4 py-3">Batch</th>
+            <th className="px-4 py-3">Status</th>
+            <th className="px-4 py-3 text-right">Pending fees</th>
+          </tr>
+        </thead>
+        <tbody>
+          {students.map((student) => {
+            const pending = pendingAmount(student);
 
-        <div>
-          <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-ink-soft">
-            Enrollments
-          </p>
-          <div className="mt-3 space-y-3">
-            {student.enrollments.length > 0 ? (
-              student.enrollments.map((enrollment) => (
-                <div key={enrollment.id} className="border border-line p-3">
-                  <p className="font-medium text-ink">
-                    {enrollment.courseTitle}
+            return (
+              <tr
+                key={student.id}
+                className="border-t border-line transition-colors hover:bg-parchment-deep"
+              >
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/crm/students/${student.id}`}
+                    className="font-semibold text-oxblood hover:underline"
+                  >
+                    {student.name}
+                  </Link>
+                  <p className="mt-0.5 text-xs text-ink-soft">
+                    {student.email}
                   </p>
-                  <p className="mt-1 text-sm text-ink-soft">
-                    {enrollment.batchName || "No batch"} · {enrollment.status}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-ink-soft">No course assigned.</p>
-            )}
-          </div>
-          <form action={createEnrollmentAction} className="mt-4 grid gap-3">
-            <input type="hidden" name="studentId" value={student.id} />
-            <select name="courseKey" required className={fieldClass}>
-              <option value="">Assign course</option>
-              {courseOptions.map((course) => (
-                <option key={course.key} value={course.key}>
-                  {course.title}
-                </option>
-              ))}
-            </select>
-            <input
-              name="batchName"
-              placeholder="Batch name"
-              className={fieldClass}
-            />
-            <button
-              type="submit"
-              className="w-fit bg-oxblood px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
-            >
-              Add enrollment
-            </button>
-          </form>
-        </div>
-
-        <div>
-          <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-ink-soft">
-            Fees
-          </p>
-          <p className="mt-3 font-display text-3xl text-oxblood">
-            {formatPaise(pendingAmount)}
-          </p>
-          <p className="mt-1 text-sm text-ink-soft">Pending amount</p>
-          <p className="mt-2 text-xs leading-relaxed text-ink-soft">
-            Processing means the browser callback passed and the final Razorpay
-            webhook is still pending.
-          </p>
-          <div className="mt-4 space-y-3">
-            {student.invoices.slice(0, 3).map((invoice) => (
-              <div key={invoice.id} className="border border-line p-3">
-                <p className="font-medium text-ink">{invoice.title}</p>
-                <p className="mt-1 text-sm text-ink-soft">
-                  {formatPaise(invoice.amountPaise)} · {invoice.status}
-                </p>
-              </div>
-            ))}
-          </div>
-          <form action={createFeeInvoiceAction} className="mt-4 grid gap-3">
-            <input type="hidden" name="studentId" value={student.id} />
-            <select name="enrollmentId" className={fieldClass}>
-              <option value="">No enrollment link</option>
-              {student.enrollments.map((enrollment) => (
-                <option key={enrollment.id} value={enrollment.id}>
-                  {enrollment.courseTitle}
-                </option>
-              ))}
-            </select>
-            <input
-              name="title"
-              required
-              placeholder="Fee title"
-              className={fieldClass}
-            />
-            <input
-              name="amountRupees"
-              required
-              inputMode="decimal"
-              placeholder="Amount in rupees"
-              className={fieldClass}
-            />
-            <input name="dueDate" type="date" className={fieldClass} />
-            <textarea
-              name="description"
-              rows={2}
-              placeholder="Fee note"
-              className={`${fieldClass} resize-none`}
-            />
-            <button
-              type="submit"
-              className="w-fit bg-oxblood px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
-            >
-              Create invoice
-            </button>
-          </form>
-        </div>
-      </div>
-    </article>
+                </td>
+                <td className="px-4 py-3 text-ink">{student.phone}</td>
+                <td className="px-4 py-3 text-ink-soft">
+                  {student.enrollments
+                    .map((item) => item.courseTitle)
+                    .join(", ") || "—"}
+                </td>
+                <td className="px-4 py-3 text-ink-soft">
+                  {student.enrollments
+                    .flatMap((item) => (item.batchName ? [item.batchName] : []))
+                    .join(", ") || "—"}
+                </td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`border px-2 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${
+                      student.active
+                        ? "border-brass text-brass-deep"
+                        : "border-line-strong text-ink-soft"
+                    }`}
+                  >
+                    {student.active ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-right font-medium text-ink">
+                  {pending > 0 ? formatPaise(pending) : "—"}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -224,18 +176,29 @@ export function StudentAdminPanel({
   students,
   notices,
   courseOptions,
+  filters,
 }: StudentAdminPanelProps) {
+  const filtered = filterStudents(students, filters);
   const activeStudents = students.filter((student) => student.active).length;
   const pendingFees = students.reduce(
-    (sum, student) =>
-      sum +
-      student.invoices
-        .filter(
-          (invoice) =>
-            invoice.status === "pending" || invoice.status === "processing",
-        )
-        .reduce((studentSum, invoice) => studentSum + invoice.amountPaise, 0),
+    (sum, student) => sum + pendingAmount(student),
     0,
+  );
+  const batchNames = [
+    ...new Set(
+      students.flatMap((student) =>
+        student.enrollments.flatMap((item) =>
+          item.batchName ? [item.batchName] : [],
+        ),
+      ),
+    ),
+  ].sort();
+  const hasFilters = Boolean(
+    (filters.q ?? "").trim() ||
+      filters.course ||
+      filters.batch ||
+      filters.status ||
+      filters.fees,
   );
 
   return (
@@ -246,11 +209,11 @@ export function StudentAdminPanel({
             Students
           </p>
           <h2 className="mt-3 font-display text-4xl leading-none text-oxblood">
-            Portal access and fees
+            Student records
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
-            Create student login records, assign course pages, publish targeted
-            notices, and issue one-time fee invoices for Razorpay payment.
+            Search and open a student to manage their profile, enrollments,
+            notices, and fee invoices. Convert enquiries from the Leads page.
           </p>
         </div>
       </div>
@@ -282,37 +245,89 @@ export function StudentAdminPanel({
         </div>
       </div>
 
-      <div className="mt-8 grid gap-8 xl:grid-cols-[1fr_28rem]">
-        <div>
-          <div className="border-b border-line pb-4">
-            <h3 className="font-display text-3xl text-oxblood">
-              Student records
-            </h3>
-          </div>
-          {students.length > 0 ? (
-            students.map((student) => (
-              <StudentRow
-                key={student.id}
-                student={student}
-                courseOptions={courseOptions}
-              />
-            ))
-          ) : (
-            <div className="py-12 text-center">
-              <h3 className="font-display text-3xl text-oxblood">
-                No students yet
-              </h3>
-              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
-                Convert a lead or create the first student record to enable
-                student portal login.
-              </p>
-            </div>
-          )}
+      <form
+        method="get"
+        action="/crm/students"
+        className="mt-8 grid gap-3 border border-line bg-parchment-deep p-4 sm:grid-cols-2 lg:grid-cols-6"
+      >
+        <input
+          name="q"
+          defaultValue={filters.q ?? ""}
+          placeholder="Search name, phone, email"
+          aria-label="Search students"
+          className={`${fieldClass} lg:col-span-2`}
+        />
+        <select
+          name="course"
+          defaultValue={filters.course ?? ""}
+          aria-label="Filter by course"
+          className={fieldClass}
+        >
+          <option value="">All courses</option>
+          {courseOptions.map((course) => (
+            <option key={course.key} value={course.key}>
+              {course.title}
+            </option>
+          ))}
+        </select>
+        <select
+          name="batch"
+          defaultValue={filters.batch ?? ""}
+          aria-label="Filter by batch"
+          className={fieldClass}
+        >
+          <option value="">All batches</option>
+          {batchNames.map((batch) => (
+            <option key={batch} value={batch}>
+              {batch}
+            </option>
+          ))}
+        </select>
+        <select
+          name="status"
+          defaultValue={filters.status ?? ""}
+          aria-label="Filter by status"
+          className={fieldClass}
+        >
+          <option value="">Any status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select
+          name="fees"
+          defaultValue={filters.fees ?? ""}
+          aria-label="Filter by fees"
+          className={fieldClass}
+        >
+          <option value="">Any fees</option>
+          <option value="pending">Has pending fees</option>
+        </select>
+        <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-6">
+          <button type="submit" className={buttonClass}>
+            Filter
+          </button>
+          {hasFilters ? (
+            <Link
+              href="/crm/students"
+              className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-ink-soft hover:text-oxblood"
+            >
+              Clear
+            </Link>
+          ) : null}
+          <p className="ml-auto text-sm text-ink-soft">
+            {filtered.length} of {students.length} students
+          </p>
         </div>
+      </form>
 
-        <aside className="space-y-8">
-          <form action={saveStudentAction} className="border border-line p-5">
-            <h3 className="font-display text-2xl text-oxblood">Add student</h3>
+      <div className="mt-4">
+        <StudentTable students={filtered} />
+      </div>
+
+      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+        <details className="border border-line p-5">
+          <summary className={summaryClass}>Add student</summary>
+          <form action={saveStudentAction}>
             <label htmlFor="student-name" className={`mt-5 ${labelClass}`}>
               Name
             </label>
@@ -369,21 +384,15 @@ export function StudentAdminPanel({
               rows={3}
               className={`${fieldClass} resize-none`}
             />
-            <button
-              type="submit"
-              className="mt-5 bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
-            >
+            <button type="submit" className={`mt-5 ${buttonClass}`}>
               Save student
             </button>
           </form>
+        </details>
 
-          <form
-            action={createCourseNoticeAction}
-            className="border border-line p-5"
-          >
-            <h3 className="font-display text-2xl text-oxblood">
-              Create notice
-            </h3>
+        <details className="border border-line p-5">
+          <summary className={summaryClass}>Create notice</summary>
+          <form action={createCourseNoticeAction}>
             <label htmlFor="notice-title" className={`mt-5 ${labelClass}`}>
               Title
             </label>
@@ -420,7 +429,17 @@ export function StudentAdminPanel({
             <label htmlFor="notice-batch" className={`mt-4 ${labelClass}`}>
               Batch name
             </label>
-            <input id="notice-batch" name="batchName" className={fieldClass} />
+            <input
+              id="notice-batch"
+              name="batchName"
+              list="batch-name-options"
+              className={fieldClass}
+            />
+            <datalist id="batch-name-options">
+              {batchNames.map((batch) => (
+                <option key={batch} value={batch} />
+              ))}
+            </datalist>
             <label htmlFor="notice-student" className={`mt-4 ${labelClass}`}>
               Student
             </label>
@@ -428,7 +447,7 @@ export function StudentAdminPanel({
               <option value="">No student target</option>
               {students.map((student) => (
                 <option key={student.id} value={student.id}>
-                  {student.name} · {student.email}
+                  {student.name} · {student.email ?? student.phone}
                 </option>
               ))}
             </select>
@@ -442,27 +461,26 @@ export function StudentAdminPanel({
               required
               className={`${fieldClass} resize-none`}
             />
-            <label
-              htmlFor="notice-attachment-url"
-              className={`mt-4 ${labelClass}`}
-            >
-              Attachment URL
+            <label htmlFor="notice-attachment" className={`mt-4 ${labelClass}`}>
+              Attachment (PDF or image)
             </label>
             <input
-              id="notice-attachment-url"
-              name="attachmentUrl"
-              placeholder="S3 URL"
-              className={fieldClass}
+              id="notice-attachment"
+              name="attachment"
+              type="file"
+              accept="image/*,.pdf,.doc,.docx,.ppt,.pptx"
+              className="w-full text-sm text-ink file:mr-3 file:border file:border-line-strong file:bg-parchment file:px-3 file:py-2 file:text-xs file:font-semibold file:uppercase file:tracking-[0.12em]"
             />
             <label
               htmlFor="notice-attachment-name"
-              className={`mt-4 ${labelClass}`}
+              className={`mt-3 ${labelClass}`}
             >
-              Attachment name
+              Attachment display name
             </label>
             <input
               id="notice-attachment-name"
               name="attachmentName"
+              placeholder="Defaults to the file name"
               className={fieldClass}
             />
             <label htmlFor="notice-expires" className={`mt-4 ${labelClass}`}>
@@ -481,43 +499,36 @@ export function StudentAdminPanel({
               <option value="published">Published</option>
               <option value="draft">Draft</option>
             </select>
-            <button
-              type="submit"
-              className="mt-5 bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
-            >
+            <button type="submit" className={`mt-5 ${buttonClass}`}>
               Save notice
             </button>
           </form>
+        </details>
+      </div>
 
-          <div className="border border-line p-5">
-            <h3 className="font-display text-2xl text-oxblood">
-              Recent notices
-            </h3>
-            <div className="mt-4 space-y-4">
-              {notices.slice(0, 6).map((notice) => (
-                <article key={notice.id} className="border-t border-line pt-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="border border-line-strong px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">
-                      {notice.status}
-                    </span>
-                    <span className="text-[0.68rem] uppercase tracking-[0.14em] text-ink-soft">
-                      {notice.targetScope}
-                    </span>
-                  </div>
-                  <h4 className="mt-2 font-semibold text-ink">
-                    {notice.title}
-                  </h4>
-                  <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-soft">
-                    {stripHtml(notice.bodyHtml)}
-                  </p>
-                  <p className="mt-2 text-xs uppercase tracking-[0.14em] text-ink-soft">
-                    {formatDate(notice.publishedAt ?? notice.updatedAt)}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </aside>
+      <div className="mt-8 border border-line p-5">
+        <h3 className="font-display text-2xl text-oxblood">Recent notices</h3>
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {notices.slice(0, 6).map((notice) => (
+            <article key={notice.id} className="border border-line p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="border border-line-strong px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">
+                  {notice.status}
+                </span>
+                <span className="text-[0.68rem] uppercase tracking-[0.14em] text-ink-soft">
+                  {notice.targetScope}
+                </span>
+              </div>
+              <h4 className="mt-2 font-semibold text-ink">{notice.title}</h4>
+              <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-soft">
+                {stripHtml(notice.bodyHtml)}
+              </p>
+              <p className="mt-2 text-xs uppercase tracking-[0.14em] text-ink-soft">
+                {formatDate(notice.publishedAt ?? notice.updatedAt)}
+              </p>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );

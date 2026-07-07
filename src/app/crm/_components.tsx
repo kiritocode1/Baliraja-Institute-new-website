@@ -2,6 +2,7 @@ import {
   BadgeIndianRupee,
   Bell,
   BookOpen,
+  ClipboardList,
   ExternalLink,
   FileText,
   GraduationCap,
@@ -17,17 +18,24 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   addAdminAction,
-  convertLeadToStudentAction,
+  deleteGalleryImageAction,
   logoutAction,
   setAdminActiveAction,
+  updateGalleryImageAction,
   updateLeadAction,
+  uploadGalleryImageAction,
 } from "@/app/crm/actions";
 import type { CrmAdmin } from "@/lib/crm/admins";
 import { listAdmins } from "@/lib/crm/admins";
 import { requireAdminSession } from "@/lib/crm/auth";
 import type { BlogPost } from "@/lib/crm/blog-posts";
-import { type CrmMediaStorage, getCrmEnvStatus } from "@/lib/crm/config";
+import {
+  type CrmMediaStorage,
+  getCrmEnvStatus,
+  normalizeEmail,
+} from "@/lib/crm/config";
 import type { CoursePage } from "@/lib/crm/course-pages";
+import { type CrmGalleryImage, galleryAlbums } from "@/lib/crm/gallery";
 import {
   getLeadRequestTypeLabel,
   getLeadStats,
@@ -36,13 +44,8 @@ import {
   leadRequestTypes,
   leadStatuses,
 } from "@/lib/crm/leads";
-import type {
-  CourseNotice,
-  CourseOption,
-  StudentSummary,
-} from "@/lib/crm/students";
+import type { CourseNotice, StudentSummary } from "@/lib/crm/students";
 import { formatPaise } from "@/lib/crm/students";
-import { getAssetUrl } from "@/lib/assets";
 import { galleryImages } from "@/lib/site";
 import {
   admissionProgramLabels,
@@ -75,7 +78,7 @@ export const crmSections = [
     key: "courses",
     href: "/crm/courses",
     title: "Courses",
-    body: "Edit public pages for Army, Navy, MPSC, UPSC and other tracks.",
+    body: "Edit public pages for Army, Navy, Police Bharti and other tracks.",
     Icon: GraduationCap,
   },
   {
@@ -98,6 +101,13 @@ export const crmSections = [
     title: "Students",
     body: "Manage portal login, notices, course access, and fee invoices.",
     Icon: Users,
+  },
+  {
+    key: "tests",
+    href: "/crm/tests",
+    title: "Tests",
+    body: "Record written mock and ground test results batch by batch.",
+    Icon: ClipboardList,
   },
   {
     key: "admins",
@@ -323,6 +333,14 @@ export function CrmDashboard({
 }) {
   const stats = getLeadStats(leads);
   const activeStudents = students.filter((student) => student.active).length;
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const enrolledThisMonth = leads.filter(
+    (lead) =>
+      lead.status === "enrolled" &&
+      new Date(lead.updatedAt).getTime() >= monthStart.getTime(),
+  ).length;
   const pendingFees = students.reduce(
     (sum, student) =>
       sum +
@@ -337,10 +355,11 @@ export function CrmDashboard({
 
   return (
     <>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         <Metric label="Total leads" value={stats.total} />
         <Metric label="New" value={stats.newCount} />
         <Metric label="Scholarships" value={stats.scholarshipCount} />
+        <Metric label="Enrolled this month" value={enrolledThisMonth} />
         <Metric label="Active students" value={activeStudents} />
         <Metric label="Pending fees" value={formatPaise(pendingFees)} />
       </div>
@@ -563,13 +582,16 @@ function AdmissionDetails({ lead }: { lead: Lead }) {
 
 function LeadRow({
   lead,
-  courseOptions,
+  studentId,
 }: {
   lead: Lead;
-  courseOptions: CourseOption[];
+  studentId: string | null;
 }) {
   return (
-    <article className="grid gap-5 border-t border-line py-6 xl:grid-cols-[minmax(14rem,1.1fr)_minmax(13rem,0.9fr)_minmax(24rem,1.4fr)]">
+    <article
+      id={`lead-${lead.id}`}
+      className="grid scroll-mt-24 gap-5 border-t border-line py-6 xl:grid-cols-[minmax(14rem,1.1fr)_minmax(13rem,0.9fr)_minmax(24rem,1.4fr)]"
+    >
       <div>
         <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-brass-deep">
           {formatDate(lead.receivedAt)}
@@ -696,67 +718,51 @@ function LeadRow({
 
       <AdmissionDetails lead={lead} />
 
-      {lead.email ? (
-        <form
-          action={convertLeadToStudentAction}
-          className="border border-line bg-parchment-deep p-4 xl:col-span-3"
-        >
-          <input type="hidden" name="leadId" value={lead.id} />
-          <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
-            <div>
-              <label
-                htmlFor={`lead-course-${lead.id}`}
-                className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
-              >
-                Course
-              </label>
-              <select
-                id={`lead-course-${lead.id}`}
-                name="courseKey"
-                className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
-              >
-                <option value="">Match from lead track</option>
-                {courseOptions.map((course) => (
-                  <option key={course.key} value={course.key}>
-                    {course.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor={`lead-batch-${lead.id}`}
-                className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
-              >
-                Batch
-              </label>
-              <input
-                id={`lead-batch-${lead.id}`}
-                name="batchName"
-                placeholder="June 2026 morning"
-                className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-fit bg-brass-deep px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood"
-            >
-              Create student
-            </button>
-          </div>
-        </form>
-      ) : null}
+      <div className="xl:col-span-3">
+        {studentId ? (
+          <Link
+            href={`/crm/students/${studentId}`}
+            className="inline-flex border border-line-strong px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
+          >
+            View student
+          </Link>
+        ) : (
+          <Link
+            href={`/crm/leads/${lead.id}/convert`}
+            className="inline-flex bg-brass-deep px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood"
+          >
+            Convert to student
+          </Link>
+        )}
+      </div>
     </article>
   );
 }
 
 export function LeadsPanel({
-  courseOptions,
   leads,
+  students,
+  statusFilter,
 }: {
-  courseOptions: CourseOption[];
   leads: Lead[];
+  students: StudentSummary[];
+  statusFilter?: string;
 }) {
+  const activeStatus = leadStatuses.find((status) => status === statusFilter);
+  const visibleLeads = activeStatus
+    ? leads.filter((lead) => lead.status === activeStatus)
+    : leads;
+  const studentIdByLead = new Map(
+    students.flatMap((student) =>
+      student.leadId ? [[student.leadId, student.id] as const] : [],
+    ),
+  );
+  const studentIdByEmail = new Map(
+    students.flatMap((student) =>
+      student.email ? [[student.email, student.id] as const] : [],
+    ),
+  );
+
   return (
     <section className="mt-8 bg-parchment px-5 py-7 sm:px-7">
       <div className="flex flex-col gap-6 border-b border-line pb-6 lg:flex-row lg:items-end lg:justify-between">
@@ -775,9 +781,52 @@ export function LeadsPanel({
         <Metric label="Total leads" value={leads.length} />
       </div>
 
-      {leads.length > 0 ? (
-        leads.map((lead) => (
-          <LeadRow key={lead.id} lead={lead} courseOptions={courseOptions} />
+      <nav
+        className="mt-6 flex flex-wrap gap-2"
+        aria-label="Filter leads by status"
+      >
+        <Link
+          href="/crm/leads"
+          className={`border px-3 py-1.5 text-[0.64rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
+            !activeStatus
+              ? "border-oxblood bg-oxblood text-cream"
+              : "border-line-strong text-ink hover:border-oxblood"
+          }`}
+        >
+          All ({leads.length})
+        </Link>
+        {leadStatuses.map((status) => {
+          const count = leads.filter((lead) => lead.status === status).length;
+
+          return (
+            <Link
+              key={status}
+              href={`/crm/leads?status=${status}`}
+              className={`border px-3 py-1.5 text-[0.64rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                activeStatus === status
+                  ? "border-oxblood bg-oxblood text-cream"
+                  : "border-line-strong text-ink hover:border-oxblood"
+              }`}
+            >
+              {getStatusLabel(status)} ({count})
+            </Link>
+          );
+        })}
+      </nav>
+
+      {visibleLeads.length > 0 ? (
+        visibleLeads.map((lead) => (
+          <LeadRow
+            key={lead.id}
+            lead={lead}
+            studentId={
+              studentIdByLead.get(lead.id) ??
+              (lead.email
+                ? studentIdByEmail.get(normalizeEmail(lead.email))
+                : null) ??
+              null
+            }
+          />
         ))
       ) : (
         <div className="py-16 text-center">
@@ -792,9 +841,20 @@ export function LeadsPanel({
   );
 }
 
-export function ScholarshipRequestsPanel({ leads }: { leads: Lead[] }) {
+export function ScholarshipRequestsPanel({
+  leads,
+  students,
+}: {
+  leads: Lead[];
+  students: StudentSummary[];
+}) {
   const scholarshipLeads = leads.filter(
     (lead) => lead.requestType === "scholarship",
+  );
+  const studentIdByLead = new Map(
+    students.flatMap((student) =>
+      student.leadId ? [[student.leadId, student.id] as const] : [],
+    ),
   );
 
   return (
@@ -855,12 +915,81 @@ export function ScholarshipRequestsPanel({ leads }: { leads: Lead[] }) {
                   {lead.message}
                 </p>
               ) : null}
-              <Link
-                href="/crm/leads"
-                className="mt-4 inline-flex border border-line-strong px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
+
+              <form
+                action={updateLeadAction}
+                className="mt-4 grid gap-3 border-t border-line pt-4"
               >
-                Open in leads
-              </Link>
+                <input type="hidden" name="id" value={lead.id} />
+                <input type="hidden" name="status" value={lead.status} />
+                <input
+                  type="hidden"
+                  name="requestType"
+                  value={lead.requestType}
+                />
+                <input
+                  type="hidden"
+                  name="assignedTo"
+                  value={lead.assignedTo ?? ""}
+                />
+                <input type="hidden" name="notes" value={lead.notes ?? ""} />
+                <div>
+                  <label
+                    htmlFor={`concession-status-${lead.id}`}
+                    className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
+                  >
+                    Concession decision
+                  </label>
+                  <select
+                    id={`concession-status-${lead.id}`}
+                    name="concessionStatus"
+                    defaultValue={lead.concessionStatus ?? "requested"}
+                    className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
+                  >
+                    <option value="requested">Requested</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+                <textarea
+                  name="concessionNote"
+                  rows={2}
+                  defaultValue={lead.concessionNote ?? ""}
+                  placeholder="e.g. 20% off tuition, farming family"
+                  aria-label="Concession note"
+                  className="w-full resize-none border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
+                />
+                <button
+                  type="submit"
+                  className="w-fit bg-oxblood px-4 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-oxblood-bright"
+                >
+                  Save decision
+                </button>
+              </form>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {studentIdByLead.get(lead.id) ? (
+                  <Link
+                    href={`/crm/students/${studentIdByLead.get(lead.id)}`}
+                    className="inline-flex border border-line-strong px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
+                  >
+                    View student
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/crm/leads/${lead.id}/convert`}
+                    className="inline-flex bg-brass-deep px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-oxblood"
+                  >
+                    Convert to student
+                  </Link>
+                )}
+                <Link
+                  href={`/crm/leads#lead-${lead.id}`}
+                  className="inline-flex border border-line-strong px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
+                >
+                  Open in leads
+                </Link>
+              </div>
             </article>
           ))
         ) : (
@@ -879,9 +1008,14 @@ export function ScholarshipRequestsPanel({ leads }: { leads: Lead[] }) {
   );
 }
 
+const galleryFieldClass =
+  "w-full border border-line-strong bg-parchment px-3 py-2 text-sm text-ink";
+
 export function GalleryAdminPanel({
+  images,
   mediaStorage,
 }: {
+  images: CrmGalleryImage[];
   mediaStorage: CrmMediaStorage;
 }) {
   return (
@@ -892,11 +1026,11 @@ export function GalleryAdminPanel({
             Gallery
           </p>
           <h2 className="mt-3 font-display text-4xl leading-none text-oxblood">
-            Campus media inventory
+            Public gallery manager
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
-            Track the current public gallery set and keep the upload workflow
-            visible for future campus, classroom, event, and library images.
+            Upload campus, school, sports, camp, and event photos. Published
+            images appear on the public gallery grouped by album.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -920,27 +1054,147 @@ export function GalleryAdminPanel({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {galleryImages.map((item) => (
-          <article
-            key={`${item.src}-${item.caption}`}
-            className="border border-line"
+      <form
+        action={uploadGalleryImageAction}
+        className="mt-6 grid gap-3 border border-line bg-parchment-deep p-4 sm:grid-cols-2 lg:grid-cols-5"
+      >
+        <div className="lg:col-span-1">
+          <label
+            htmlFor="gallery-file"
+            className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
           >
+            Image
+          </label>
+          <input
+            id="gallery-file"
+            name="file"
+            type="file"
+            accept="image/*"
+            required
+            className="w-full text-sm text-ink file:mr-3 file:border file:border-line-strong file:bg-parchment file:px-3 file:py-2 file:text-xs file:font-semibold file:uppercase file:tracking-[0.12em]"
+          />
+        </div>
+        <input
+          name="caption"
+          required
+          placeholder="Caption"
+          aria-label="Caption"
+          className={`${galleryFieldClass} self-end`}
+        />
+        <input
+          name="alt"
+          placeholder="Alt text (optional)"
+          aria-label="Alt text"
+          className={`${galleryFieldClass} self-end`}
+        />
+        <select
+          name="album"
+          aria-label="Album"
+          className={`${galleryFieldClass} self-end`}
+        >
+          {galleryAlbums.map((album) => (
+            <option key={album} value={album}>
+              {album.charAt(0).toUpperCase() + album.slice(1)}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="self-end bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
+        >
+          Upload
+        </button>
+      </form>
+
+      {images.length === 0 ? (
+        <p className="mt-6 border border-line bg-parchment-deep p-4 text-sm leading-relaxed text-ink-soft">
+          No uploaded images yet — the public gallery is still showing the
+          built-in starter set. It switches to your uploads as soon as the first
+          image lands here.
+        </p>
+      ) : null}
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {images.map((image) => (
+          <article key={image.id} className="border border-line">
             <div className="relative aspect-[4/3] overflow-hidden bg-parchment-deep">
               <Image
-                src={getAssetUrl(item.src)}
-                alt={item.alt}
+                src={image.url}
+                alt={image.alt}
                 fill
-                sizes="(max-width: 768px) 50vw, 25vw"
+                sizes="(max-width: 768px) 50vw, 33vw"
                 className="object-cover"
               />
+              {!image.published ? (
+                <span className="absolute left-2 top-2 bg-ink px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-cream">
+                  Hidden
+                </span>
+              ) : null}
             </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-ink">{item.caption}</h3>
-              <p className="mt-2 break-all text-xs leading-relaxed text-ink-soft">
-                {getAssetUrl(item.src)}
-              </p>
-            </div>
+            <form action={updateGalleryImageAction} className="grid gap-2 p-4">
+              <input type="hidden" name="id" value={image.id} />
+              <input
+                name="caption"
+                defaultValue={image.caption}
+                required
+                aria-label="Caption"
+                className={galleryFieldClass}
+              />
+              <input
+                name="alt"
+                defaultValue={image.alt}
+                aria-label="Alt text"
+                className={galleryFieldClass}
+              />
+              <div className="grid grid-cols-3 gap-2">
+                <select
+                  name="album"
+                  defaultValue={image.album}
+                  aria-label="Album"
+                  className={galleryFieldClass}
+                >
+                  {galleryAlbums.map((album) => (
+                    <option key={album} value={album}>
+                      {album.charAt(0).toUpperCase() + album.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  name="sortOrder"
+                  type="number"
+                  defaultValue={image.sortOrder}
+                  aria-label="Sort order"
+                  className={galleryFieldClass}
+                />
+                <select
+                  name="published"
+                  defaultValue={String(image.published)}
+                  aria-label="Visibility"
+                  className={galleryFieldClass}
+                >
+                  <option value="true">Published</option>
+                  <option value="false">Hidden</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="w-fit bg-oxblood px-4 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-cream transition-colors hover:bg-oxblood-bright"
+              >
+                Save
+              </button>
+            </form>
+            <form
+              action={deleteGalleryImageAction}
+              className="border-t border-line p-4"
+            >
+              <input type="hidden" name="id" value={image.id} />
+              <button
+                type="submit"
+                className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-destructive hover:underline"
+              >
+                Delete image
+              </button>
+            </form>
           </article>
         ))}
       </div>
@@ -970,6 +1224,15 @@ function AdminRow({
             }`}
           >
             {admin.active ? "Active" : "Inactive"}
+          </span>
+          <span
+            className={`border px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.14em] ${
+              admin.role === "admin"
+                ? "border-oxblood/40 text-oxblood"
+                : "border-line-strong text-ink-soft"
+            }`}
+          >
+            {admin.role === "admin" ? "Owner" : "Staff"}
           </span>
           <span className="text-[0.72rem] uppercase tracking-[0.14em] text-ink-soft">
             {admin.source}
@@ -1059,6 +1322,21 @@ export function AdminAccessPanel({
             placeholder="Office staff"
             className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
           />
+          <label
+            htmlFor="admin-role"
+            className="mt-4 mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-ink-soft"
+          >
+            Role
+          </label>
+          <select
+            id="admin-role"
+            name="role"
+            defaultValue="staff"
+            className="w-full border border-line-strong bg-parchment px-3 py-2.5 text-sm text-ink"
+          >
+            <option value="staff">Staff — everything except this page</option>
+            <option value="admin">Owner — can manage admins</option>
+          </select>
           <button
             type="submit"
             className="mt-5 bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"

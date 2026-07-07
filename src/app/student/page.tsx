@@ -1,8 +1,14 @@
-import { BookOpen, FileText, ReceiptIndianRupee } from "lucide-react";
+import {
+  BookOpen,
+  ClipboardList,
+  FileText,
+  ReceiptIndianRupee,
+} from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { StudentPortalShell } from "@/components/student/portal-shell";
 import { formatPaise, getStudentDashboard } from "@/lib/crm/students";
+import { listResultsForStudent } from "@/lib/crm/tests";
 import { requireStudentSession } from "@/lib/student/auth";
 
 export const dynamic = "force-dynamic";
@@ -52,10 +58,12 @@ export default async function StudentPortalPage() {
     (sum, invoice) => sum + invoice.amountPaise,
     0,
   );
+  const results = await listResultsForStudent(session.studentId);
+  const latestResult = results[0] ?? null;
 
   return (
     <StudentPortalShell student={dashboard.student} activePath="overview">
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Link
           href="/student/notices"
           className="group border border-line bg-parchment p-5 transition-colors hover:border-oxblood"
@@ -77,6 +85,29 @@ export default async function StudentPortalPage() {
             {dashboard.enrollments.length}
           </p>
         </div>
+        <Link
+          href="/student/results"
+          className="group border border-line bg-parchment p-5 transition-colors hover:border-oxblood"
+        >
+          <ClipboardList className="size-6 text-oxblood" aria-hidden="true" />
+          <p className="mt-4 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-ink-soft">
+            Latest result
+          </p>
+          <p className="mt-2 font-display text-2xl leading-tight text-oxblood">
+            {latestResult
+              ? latestResult.test.kind === "written"
+                ? `${latestResult.marks ?? "—"} / ${latestResult.test.maxMarks}`
+                : latestResult.test.title
+              : "—"}
+          </p>
+          {latestResult ? (
+            <p className="mt-1 text-xs text-ink-soft">
+              {latestResult.test.kind === "written"
+                ? latestResult.test.title
+                : "Ground test recorded"}
+            </p>
+          ) : null}
+        </Link>
         <Link
           href="/student/fees"
           className="group border border-line bg-parchment p-5 transition-colors hover:border-oxblood"

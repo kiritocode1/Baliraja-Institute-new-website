@@ -1,5 +1,8 @@
 import { isPublicMediaHostname } from "@/lib/assets";
-import { CRM_MEDIA_PROXY_PREFIX, extractCrmMediaKey } from "@/lib/crm/media-proxy";
+import {
+  CRM_MEDIA_PROXY_PREFIX,
+  extractCrmMediaKey,
+} from "@/lib/crm/media-proxy";
 
 export function getS3Bucket() {
   return process.env.AWS_S3_BUCKET || process.env.NEXT_PUBLIC_AWS_S3_BUCKET;

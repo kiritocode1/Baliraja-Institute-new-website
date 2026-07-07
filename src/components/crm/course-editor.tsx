@@ -26,6 +26,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { saveCoursePageAction } from "@/app/crm/actions";
+import { getAssetUrl } from "@/lib/assets";
 import type { CrmMediaStorage } from "@/lib/crm/config";
 import type {
   CoursePage,
@@ -105,7 +106,7 @@ function CoursePageRow({
     <article className="grid gap-4 border-t border-line py-5 lg:grid-cols-[8rem_1fr_auto] lg:items-center">
       <div className="relative aspect-[4/3] overflow-hidden bg-parchment-deep">
         <Image
-          src={page.image}
+          src={getAssetUrl(page.image)}
           alt=""
           fill
           sizes="8rem"
@@ -209,6 +210,8 @@ function CourseComposer({
   const [slugTouched, setSlugTouched] = React.useState(Boolean(page?.slug));
   const [summary, setSummary] = React.useState(page?.summary ?? "");
   const [category, setCategory] = React.useState(page?.category ?? "Course");
+  const [division, setDivision] = React.useState(page?.division ?? "bharti");
+  const [medium, setMedium] = React.useState(page?.medium ?? "");
   const [audience, setAudience] = React.useState(page?.audience ?? "");
   const [exams, setExams] = React.useState(page?.exams ?? "");
   const [duration, setDuration] = React.useState(page?.duration ?? "");
@@ -357,6 +360,8 @@ function CourseComposer({
       summary,
       bodyHtml: html,
       category,
+      division,
+      medium: division === "school" ? medium : "",
       audience,
       exams,
       duration,
@@ -508,6 +513,42 @@ function CourseComposer({
                 </label>
               </div>
 
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <label className="block">
+                  <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
+                    Division
+                  </span>
+                  <select
+                    value={division}
+                    onChange={(event) =>
+                      setDivision(event.target.value as CoursePage["division"])
+                    }
+                    className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  >
+                    <option value="bharti">Bharti coaching</option>
+                    <option value="school">School</option>
+                    <option value="sports">Sports academy</option>
+                    <option value="camp">Summer camp</option>
+                  </select>
+                </label>
+                {division === "school" ? (
+                  <label className="block">
+                    <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
+                      Medium
+                    </span>
+                    <select
+                      value={medium}
+                      onChange={(event) => setMedium(event.target.value)}
+                      className="w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                    >
+                      <option value="">Not set</option>
+                      <option value="marathi">Marathi medium</option>
+                      <option value="semi_english">Semi-English medium</option>
+                    </select>
+                  </label>
+                ) : null}
+              </div>
+
               <label className="block">
                 <span className="mb-2 block text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
                   Audience
@@ -586,7 +627,7 @@ function CourseComposer({
                   <div className="mt-3 aspect-video overflow-hidden border border-cream/15 bg-oxblood">
                     {/* biome-ignore lint/performance/noImgElement: The editor preview accepts temporary arbitrary image URLs before save-time normalization. */}
                     <img
-                      src={image}
+                      src={getAssetUrl(image)}
                       alt=""
                       className="h-full w-full object-cover"
                       loading="lazy"
@@ -834,9 +875,10 @@ export function CourseEditor({ pages, mediaStorage }: CourseEditorProps) {
             Special course pages
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">
-            Manage public pages for Army, Navy, MPSC, UPSC, Banking, SSC, Police
-            Bharti, Talathi and ZP. Published pages feed the course grid, course
-            detail routes, and the home-page course links.
+            Manage public pages for Army, Navy, Police Bharti, Banking, SSC,
+            Talathi and ZP — plus school, sports, and camp programs. Published
+            pages feed the course grid, course detail routes, and the home-page
+            course links.
           </p>
         </div>
         <button

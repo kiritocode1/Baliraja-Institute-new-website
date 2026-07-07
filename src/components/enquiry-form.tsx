@@ -6,6 +6,8 @@ import { useActionState, useId } from "react";
 import { type EnquiryState, submitEnquiry } from "@/app/admissions/actions";
 import {
   admissionProgramLabels,
+  categoryLabels,
+  categoryValues,
   programValues,
   referralSourceLabels,
   referralValues,
@@ -34,14 +36,17 @@ const steps = [
       "guardianName",
       "dateOfBirth",
       "fullAddress",
+      "category",
+      "maharashtraDomicile",
     ],
   },
   {
     title: "Education",
-    description: "Mobile numbers and the highest completed qualification.",
+    description: "Contact details and the highest completed qualification.",
     fields: [
       "mobile1",
       "mobile2",
+      "email",
       "education",
       "education.tenth.percentage",
       "education.twelfth.stream",
@@ -52,8 +57,8 @@ const steps = [
   },
   {
     title: "Program",
-    description: "Exam route and basic physical measurements.",
-    fields: ["desiredPrograms", "weightKg", "heightCm"],
+    description: "Program choice and physical measurements.",
+    fields: ["desiredPrograms", "weightKg", "heightCm", "chestCm"],
   },
   {
     title: "Referral",
@@ -108,6 +113,9 @@ function defaultProgramFromTrack(track: string) {
     return "railway";
   }
   if (normalized.includes("staff")) return "staff";
+  if (normalized.includes("school")) return "school";
+  if (normalized.includes("sport")) return "sports";
+  if (normalized.includes("camp")) return "summer_camp";
 
   return null;
 }
@@ -381,6 +389,38 @@ export function EnquiryForm({
               }`}
             />
           </FieldBlock>
+
+          <FieldBlock
+            id={id("category")}
+            label="Category"
+            error={errorFor(errors, "category")}
+          >
+            <select
+              id={id("category")}
+              name="category"
+              defaultValue=""
+              className={`${fieldBase} border-line-strong`}
+            >
+              <option value="">Select category</option>
+              {categoryValues.map((category) => (
+                <option key={category} value={category}>
+                  {categoryLabels[category]}
+                </option>
+              ))}
+            </select>
+          </FieldBlock>
+
+          <div className="flex items-end pb-1">
+            <label className="flex cursor-pointer items-center gap-3 text-sm font-medium text-ink">
+              <input
+                className="size-4 accent-oxblood"
+                name="maharashtraDomicile"
+                type="checkbox"
+                value="true"
+              />
+              Maharashtra domicile
+            </label>
+          </div>
         </section>
 
         <section data-step-panel="1" className="grid gap-6 sm:grid-cols-2">
@@ -420,6 +460,26 @@ export function EnquiryForm({
               placeholder="Optional"
               className={`${fieldBase} ${
                 fieldHasError(errors, "mobile2")
+                  ? "border-destructive"
+                  : "border-line-strong"
+              }`}
+            />
+          </FieldBlock>
+
+          <FieldBlock
+            id={id("email")}
+            label="Email"
+            error={errorFor(errors, "email")}
+            className="sm:col-span-2"
+          >
+            <input
+              id={id("email")}
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="Optional — used for the student portal after admission"
+              className={`${fieldBase} ${
+                fieldHasError(errors, "email")
                   ? "border-destructive"
                   : "border-line-strong"
               }`}
@@ -537,10 +597,14 @@ export function EnquiryForm({
             </ErrorText>
           </div>
 
+          <p className="-mb-3 text-sm leading-relaxed text-ink-soft sm:col-span-2">
+            Physical measurements are required for bharti programs; school,
+            sports, and summer-camp enquiries can leave them empty.
+          </p>
+
           <FieldBlock
             id={id("weightKg")}
             label="Weight (kg)"
-            required
             error={errorFor(errors, "weightKg")}
           >
             <input
@@ -562,7 +626,6 @@ export function EnquiryForm({
           <FieldBlock
             id={id("heightCm")}
             label="Height (cm)"
-            required
             error={errorFor(errors, "heightCm")}
           >
             <input
@@ -575,6 +638,27 @@ export function EnquiryForm({
               placeholder="Example: 172"
               className={`${fieldBase} ${
                 fieldHasError(errors, "heightCm")
+                  ? "border-destructive"
+                  : "border-line-strong"
+              }`}
+            />
+          </FieldBlock>
+
+          <FieldBlock
+            id={id("chestCm")}
+            label="Chest (cm)"
+            error={errorFor(errors, "chestCm")}
+          >
+            <input
+              id={id("chestCm")}
+              name="chestCm"
+              type="number"
+              min="1"
+              max="200"
+              step="0.1"
+              placeholder="Optional — measured for police PST"
+              className={`${fieldBase} ${
+                fieldHasError(errors, "chestCm")
                   ? "border-destructive"
                   : "border-line-strong"
               }`}

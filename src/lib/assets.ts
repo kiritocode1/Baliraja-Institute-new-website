@@ -1,6 +1,9 @@
 const bucket = process.env.NEXT_PUBLIC_AWS_S3_BUCKET || "baliraja";
 const region = process.env.NEXT_PUBLIC_YOUR_AWS_REGION || "ap-south-1";
 
+// Only folders that actually live in cloud storage. Root-level files
+// (img-*.jpg, hero.mp4, hero-poster.jpg, model.glb) exist in /public and
+// deploy with the app — the bucket copies are missing/private (403).
 const R2_MEDIA_PREFIXES = [
   "/home/",
   "/about/",
@@ -8,13 +11,6 @@ const R2_MEDIA_PREFIXES = [
   "/student-life/",
   "/admissions/",
   "/gallery/",
-  "/hero.mp4",
-  "/hero-poster.jpg",
-  "/model.glb",
-  "/img-books.jpg",
-  "/img-classroom.jpg",
-  "/img-reading.jpg",
-  "/img-study.jpg",
 ];
 
 export function getPublicMediaBaseUrl(): string {
