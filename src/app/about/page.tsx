@@ -61,7 +61,7 @@ export default function AboutPage() {
         eyebrow="Method"
         title="Preparation is treated as a routine, not a slogan."
         body="Every exam track is broken into classes, reading, revision and test practice. Mentors help students choose a realistic route through the syllabus instead of trying to chase every notification at once."
-        image="about/about-featured-2.JPG"
+        image="/about/about-featured-2.JPG"
         imageAlt="A student reading reference material for a competitive exam"
         action={{ href: "/news-events", label: "Read academy updates" }}
         reverse

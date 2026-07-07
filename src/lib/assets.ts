@@ -73,9 +73,15 @@ export function isPublicMediaHostname(hostname: string) {
 export function getAssetUrl(path: string): string {
   if (!path) return "";
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  if (R2_MEDIA_PREFIXES.some((prefix) => path.startsWith(prefix))) {
-    return `${getPublicMediaBaseUrl()}${path}`;
+
+  // Normalise bare paths like "about/foo.jpg" → "/about/foo.jpg" so that
+  // the prefix check below works regardless of whether the caller remembered
+  // the leading slash.
+  const normalised = path.startsWith("/") ? path : `/${path}`;
+
+  if (R2_MEDIA_PREFIXES.some((prefix) => normalised.startsWith(prefix))) {
+    return `${getPublicMediaBaseUrl()}${normalised}`;
   }
 
-  return path;
+  return normalised;
 }
