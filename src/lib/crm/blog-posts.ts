@@ -48,6 +48,7 @@ export type BlogCard = {
   readTime: string;
   image: string;
   href: string;
+  publishedAt: string | null;
 };
 
 const BLOG_POSTS_FILE = "crm-blog-posts.json";
@@ -316,7 +317,9 @@ export async function listPublishedBlogCards(
     });
 
   if (posts.length === 0) {
-    return staticBlogPosts.slice(0, limit).map((post) => ({ ...post }));
+    return staticBlogPosts
+      .slice(0, limit)
+      .map((post) => ({ ...post, publishedAt: null }));
   }
 
   return posts.slice(0, limit).map((post) => ({
@@ -326,6 +329,7 @@ export async function listPublishedBlogCards(
     readTime: post.readTime,
     image: resolveCrmMediaUrl(post.image),
     href: `/news-events/${post.slug}`,
+    publishedAt: post.publishedAt,
   }));
 }
 

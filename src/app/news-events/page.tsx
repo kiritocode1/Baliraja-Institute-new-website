@@ -9,7 +9,6 @@ import {
 import { PlayableReelGrid } from "@/components/playable-reel-grid";
 import { listPublishedBlogCards } from "@/lib/crm/blog-posts";
 import { createPageMetadata } from "@/lib/seo";
-import { notices, updates } from "@/lib/site";
 
 export const metadata = createPageMetadata({
   title: "News & Notices",
@@ -41,17 +40,18 @@ const storyReels = [
   },
 ];
 
-const updateCards = updates.map((update) => ({
-  eyebrow: update.tag,
-  title: update.title,
-  body: `${update.date}. Latest academy announcement for current and upcoming aspirants.`,
-  image: update.image,
-  href: update.href,
-}));
+function formatDate(value: string | null) {
+  if (!value) return "Recent";
+
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "medium",
+  }).format(new Date(value));
+}
 
 export default async function NewsEventsPage() {
-  const blogPosts = await listPublishedBlogCards();
-  const insightCards = blogPosts.map((post) => ({
+  // Everything on this page comes from the CRM blog editor.
+  const posts = await listPublishedBlogCards();
+  const latestCards = posts.slice(0, 6).map((post) => ({
     eyebrow: post.category,
     title: post.title,
     body: `${post.excerpt} ${post.readTime}.`,
@@ -64,7 +64,7 @@ export default async function NewsEventsPage() {
       <PageHero
         eyebrow="News & notices"
         title="Updates in one place"
-        body="Students need one destination for admissions notices, test-series updates, exam guidance and event announcements."
+        body="Students need one destination for admissions notices, test-series updates, exam guidance and event announcements. Everything below is published from the academy office."
         actions={[
           { href: "/admissions", label: "Ask about admission" },
           { href: "/courses", label: "Explore courses" },
@@ -76,33 +76,40 @@ export default async function NewsEventsPage() {
         eyebrow="Latest"
         title="Updates students should not miss"
         body="Admissions, test series, events and scholarship announcements are grouped here so students do not have to check separate notice and news pages."
-        items={updateCards}
+        items={latestCards}
       />
 
       <section className="bg-parchment py-24 sm:py-32">
         <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
           <SectionIntro
             eyebrow="Notice board"
-            title="Current notices"
-            body="Keep this list short and operational: dates, tags and clear titles that students can scan quickly."
+            title="All published notices"
+            body="Every announcement in one scannable list — newest first, straight from the academy office."
           />
           <div className="mt-10 border-y border-line">
-            {notices.map((notice) => (
-              <article
-                key={`${notice.date}-${notice.title}`}
-                className="grid gap-3 border-b border-line py-5 last:border-b-0 sm:grid-cols-[9rem_10rem_1fr]"
+            {posts.map((post) => (
+              <Link
+                key={post.href}
+                href={post.href}
+                className="grid gap-3 border-b border-line py-5 transition-colors last:border-b-0 hover:bg-parchment-deep sm:grid-cols-[9rem_10rem_1fr]"
               >
                 <p className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-brass-deep">
-                  {notice.date}
+                  {formatDate(post.publishedAt)}
                 </p>
                 <p className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">
-                  {notice.tag}
+                  {post.category}
                 </p>
                 <h2 className="font-display text-2xl font-normal leading-tight text-oxblood">
-                  {notice.title}
+                  {post.title}
                 </h2>
-              </article>
+              </Link>
             ))}
+            {posts.length === 0 ? (
+              <p className="py-10 text-sm leading-relaxed text-ink-soft">
+                No announcements published yet. New posts from the office appear
+                here immediately.
+              </p>
+            ) : null}
           </div>
           <Link
             href="/admissions"
@@ -113,13 +120,6 @@ export default async function NewsEventsPage() {
           </Link>
         </div>
       </section>
-
-      <ImageCardGrid
-        eyebrow="Insights"
-        title="Preparation stories"
-        body="Short article cards give the institute an active editorial layer for study methods, exam craft and mentoring notes."
-        items={insightCards}
-      />
 
       <NextUpCta
         title="Contact"

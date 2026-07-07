@@ -6,7 +6,24 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { RevealText } from "@/components/reveal-text";
 import { getAssetUrl } from "@/lib/assets";
-import { examTracks, featuredExams } from "@/lib/site";
+
+export type FeaturedTrack = {
+  key: string;
+  title: string;
+  blurb: string;
+  exams: string;
+  image: string;
+  alt: string;
+  href: string;
+};
+
+export type ExamTrackItem = {
+  code: string;
+  title: string;
+  blurb: string;
+  image: string;
+  href: string;
+};
 
 function TrackRow({
   variant,
@@ -29,21 +46,12 @@ function TrackRow({
   );
 }
 
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
 export function ExamTracks({
-  courseLinks = {},
+  featured,
+  tracks,
 }: {
-  courseLinks?: Record<string, string>;
+  featured: FeaturedTrack[];
+  tracks: ExamTrackItem[];
 }) {
   const listRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -63,7 +71,7 @@ export function ExamTracks({
     if (!rows.length || wrappers.length !== rows.length) return;
 
     // Warm the preview cache so the first hover is instant.
-    examTracks.forEach((t) => {
+    tracks.forEach((t) => {
       const im = new window.Image();
       im.src = getAssetUrl(t.image);
     });
@@ -92,7 +100,7 @@ export function ExamTracks({
 
     const addPreview = (index: number) => {
       const img = document.createElement("img");
-      img.src = getAssetUrl(examTracks[index].image);
+      img.src = getAssetUrl(tracks[index].image);
       img.alt = "";
       img.style.transform = "scale(0)";
       img.style.zIndex = String(Date.now());
@@ -253,7 +261,7 @@ export function ExamTracks({
       });
       gsap.killTweensOf(wrappers);
     };
-  }, []);
+  }, [tracks]);
 
   return (
     <section id="courses" className="bg-parchment-deep py-24 sm:py-32">
@@ -285,12 +293,8 @@ export function ExamTracks({
           Defence services · the entries asked for first
         </p>
         <div className="mt-5 grid gap-6 sm:grid-cols-2">
-          {featuredExams.map((f) => (
-            <Link
-              key={f.key}
-              href={courseLinks[`featured-${f.key}`] ?? `/courses/${f.key}`}
-              className="group flex flex-col"
-            >
+          {featured.map((f) => (
+            <Link key={f.key} href={f.href} className="group flex flex-col">
               <div className="relative aspect-[5/4] overflow-hidden">
                 <Image
                   src={getAssetUrl(f.image)}
@@ -342,13 +346,10 @@ export function ExamTracks({
           And every state and central service
         </p>
         <div ref={listRef} className="track-list">
-          {examTracks.map((t) => (
+          {tracks.map((t) => (
             <Link
               key={t.code}
-              href={
-                courseLinks[`track-${slugify(t.title)}`] ??
-                `/courses/${slugify(t.title)}`
-              }
+              href={t.href}
               className="track"
               aria-label={`${t.title}: ${t.blurb} View course.`}
             >
