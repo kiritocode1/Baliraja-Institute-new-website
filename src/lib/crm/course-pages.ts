@@ -199,7 +199,157 @@ function staticCoursePages(): CoursePage[] {
     updatedAt: now,
   }));
 
-  return [...featured, ...tracks];
+  const divisionBody = (input: { intro: string; points: string[] }) =>
+    sanitizeBlogHtml(`
+      <h2>About this program</h2>
+      <p>${input.intro}</p>
+      <ul>
+        ${input.points.map((point) => `<li>${point}</li>`).join("\n")}
+      </ul>
+      <h3>How admission works</h3>
+      <p>Send an enquiry or visit the campus — the office will explain seats, timings, and fees, and complete admission in person.</p>
+    `);
+  const baseOrder = featured.length + tracks.length;
+  const divisions: CoursePage[] = [
+    {
+      id: "static-school-marathi",
+      seedKey: "school-marathi",
+      title: "Baliraja School — Marathi Medium",
+      slug: "school-marathi-medium",
+      summary:
+        "Full schooling in Marathi medium on the Baliraja campus — disciplined classrooms, sports grounds, and the same mentoring culture that trains bharti aspirants.",
+      bodyHtml: divisionBody({
+        intro:
+          "Marathi-medium schooling with structured classes, daily study discipline, and access to the campus grounds and library.",
+        points: [
+          "State-board syllabus taught in Marathi medium",
+          "Sports and physical training on the academy grounds",
+          "Regular unit tests with parent updates",
+          "Hostel and mess guidance for outstation students",
+        ],
+      }),
+      category: "School",
+      division: "school",
+      medium: "marathi",
+      audience: "School students and parents",
+      exams: null,
+      duration: "Full academic year",
+      image: "/home/con-Guidance-for-students-planning-the-next-step.png",
+      imageAlt: "Students receiving guidance at Baliraja",
+      status: "published",
+      seoTitle: null,
+      seoDescription:
+        "Marathi-medium schooling at Baliraja Institute, Gangapur, Tal. Bhudargad, Dist. Kolhapur.",
+      displayOrder: baseOrder + 1,
+      publishedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "static-school-semi-english",
+      seedKey: "school-semi-english",
+      title: "Baliraja School — Semi-English Medium",
+      slug: "school-semi-english-medium",
+      summary:
+        "Semi-English medium schooling — Marathi-first teaching with mathematics and science in English, preparing students for higher education without losing their footing.",
+      bodyHtml: divisionBody({
+        intro:
+          "Semi-English schooling where mathematics and science are taught in English and other subjects in Marathi, easing the path to English-medium higher education.",
+        points: [
+          "State-board syllabus with maths and science in English",
+          "Language support so no student is left behind",
+          "Sports and physical training on the academy grounds",
+          "Regular unit tests with parent updates",
+        ],
+      }),
+      category: "School",
+      division: "school",
+      medium: "semi_english",
+      audience: "School students and parents",
+      exams: null,
+      duration: "Full academic year",
+      image: "/home/pre-courses.png",
+      imageAlt: "Classroom teaching at Baliraja",
+      status: "published",
+      seoTitle: null,
+      seoDescription:
+        "Semi-English medium schooling at Baliraja Institute, Gangapur, Tal. Bhudargad, Dist. Kolhapur.",
+      displayOrder: baseOrder + 2,
+      publishedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "static-sports-academy",
+      seedKey: "sports-academy",
+      title: "Sports Academy",
+      slug: "sports-academy",
+      summary:
+        "Ground training, coaching, and physical development — open to school students and bharti aspirants building toward physical eligibility standards.",
+      bodyHtml: divisionBody({
+        intro:
+          "Structured sports coaching on the academy grounds: running, field events, and strength work with measured progress over the season.",
+        points: [
+          "Morning and evening ground batches",
+          "Running, shot put, and field-event coaching",
+          "Physical measurements tracked over time",
+          "A natural bridge into bharti physical-test preparation",
+        ],
+      }),
+      category: "Sports",
+      division: "sports",
+      medium: null,
+      audience: "School students and young athletes",
+      exams: null,
+      duration: "Seasonal and year-round batches",
+      image: "/home/pre-student-life.png",
+      imageAlt: "Training on the Baliraja grounds",
+      status: "published",
+      seoTitle: null,
+      seoDescription:
+        "Sports academy at Baliraja Institute, Gangapur — ground training and physical development coaching.",
+      displayOrder: baseOrder + 3,
+      publishedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "static-summer-camp",
+      seedKey: "summer-camp",
+      title: "Summer Camp",
+      slug: "summer-camp",
+      summary:
+        "Vacation camps on the Baliraja campus — sports, discipline, and guided activity for younger students during school holidays.",
+      bodyHtml: divisionBody({
+        intro:
+          "A residential-style vacation camp mixing sports, physical activity, and disciplined daily routine on the academy campus.",
+        points: [
+          "Daily sports and ground activity",
+          "Yoga, drill, and discipline routines",
+          "Guided study hours and value education",
+          "Safe campus environment with mess arrangements",
+        ],
+      }),
+      category: "Camp",
+      division: "camp",
+      medium: null,
+      audience: "School students during vacations",
+      exams: null,
+      duration: "Summer vacation batches",
+      image: "/home/con-Keep-adding-real-moments.JPG",
+      imageAlt: "Camp activity at Baliraja",
+      status: "published",
+      seoTitle: null,
+      seoDescription:
+        "Summer camp at Baliraja Institute, Gangapur — sports, discipline, and activity during school vacations.",
+      displayOrder: baseOrder + 4,
+      publishedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
+
+  return [...featured, ...tracks, ...divisions];
 }
 
 function mapDbCoursePage(row: Record<string, unknown>): CoursePage {
