@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { AboutHeroVideoPlayer } from "@/components/about-hero-video-player";
 import {
   FeatureBand,
@@ -7,6 +8,7 @@ import {
   StatBand,
   SupportGrid,
 } from "@/components/page-sections";
+import { localize } from "@/lib/i18n-content";
 import { createPageMetadata } from "@/lib/seo";
 import { pillars, proofStats, site, supportPoints } from "@/lib/site";
 
@@ -17,66 +19,71 @@ export const metadata = createPageMetadata({
   path: "/about",
 });
 
-const pillarPoints = pillars.map((pillar) => ({
-  title: pillar.title,
-  body: pillar.body,
-}));
+export default async function AboutPage() {
+  const t = await getTranslations("About");
+  const locale = await getLocale();
+  const s = localize(site, locale);
+  const pillarPoints = localize(pillars, locale).map((pillar) => ({
+    title: pillar.title,
+    body: pillar.body,
+  }));
+  const stats = localize(proofStats, locale);
+  const support = localize(supportPoints, locale);
 
-export default function AboutPage() {
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="About Baliraja"
-        title="The Baliraja difference"
-        body={`${site.longName} is built for serious aspirants from Gangapur, Kolhapur district and nearby rural communities who need structure, mentoring and a place to study with purpose.`}
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody", { name: s.longName })}
         actions={[
-          { href: "/admissions", label: "Start admission enquiry" },
-          { href: "/student-life", label: "See student life" },
+          { href: "/admissions", label: t("heroEnquiry") },
+          { href: "/student-life", label: t("heroStudentLife") },
         ]}
       >
         <AboutHeroVideoPlayer />
       </PageHero>
 
       <FeatureBand
-        eyebrow="Welcome"
-        title="An academy shaped around the student who has to earn every attempt."
-        body="Baliraja keeps the day practical: clear lectures, current-affairs routines, reading hours, mock tests and review conversations. The aim is not to impress students with complexity. It is to help them prepare consistently until the exam date arrives."
+        eyebrow={t("welcomeEyebrow")}
+        title={t("welcomeTitle")}
+        body={t("welcomeBody")}
         image="/about/about-featured.png"
         imageAlt="A Baliraja Institute aspirant studying at a desk"
-        action={{ href: "/courses", label: "Explore exam tracks" }}
+        action={{ href: "/courses", label: t("welcomeAction") }}
       />
 
-      <FounderMessage quote="Baliraja exists for the student who is ready to work but needs the right room, the right guidance and the confidence that public service exams are not out of reach. Our duty is to keep preparation honest, disciplined and open to families who trust us with their child’s attempt." />
+      <FounderMessage quote={t("founderQuote")} />
 
-      <StatBand stats={proofStats} />
+      <StatBand stats={stats} />
 
       <SupportGrid
-        eyebrow="Promise"
-        title="To educate and to serve"
-        body="Baliraja’s promise is simple and direct: teach well, mentor closely and keep rural students in the room long enough to compete with confidence."
+        eyebrow={t("promiseEyebrow")}
+        title={t("promiseTitle")}
+        body={t("promiseBody")}
         points={pillarPoints}
       />
 
       <FeatureBand
-        eyebrow="Method"
-        title="Preparation is treated as a routine, not a slogan."
-        body="Every exam track is broken into classes, reading, revision and test practice. Mentors help students choose a realistic route through the syllabus instead of trying to chase every notification at once."
+        eyebrow={t("methodEyebrow")}
+        title={t("methodTitle")}
+        body={t("methodBody")}
         image="/about/about-featured-2.JPG"
         imageAlt="A student reading reference material for a competitive exam"
-        action={{ href: "/news-events", label: "Read academy updates" }}
+        action={{ href: "/news-events", label: t("methodAction") }}
         reverse
       />
 
       <SupportGrid
-        eyebrow="Student support"
-        title="The systems around the classroom matter."
-        body="Aspirants need more than lectures. They need study space, review discipline, current affairs and honest feedback on where they stand."
-        points={supportPoints}
+        eyebrow={t("supportEyebrow")}
+        title={t("supportTitle")}
+        body={t("supportBody")}
+        points={support}
       />
 
       <NextUpCta
-        title="Student Life"
-        body="See the everyday spaces, routines and support systems that make Baliraja more than a timetable."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/student-life"
       />
     </div>

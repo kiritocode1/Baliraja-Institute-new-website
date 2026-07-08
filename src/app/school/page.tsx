@@ -1,9 +1,6 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { ImageCardGrid, NextUpCta, PageHero } from "@/components/page-sections";
-import {
-  courseMediumLabels,
-  courseMediums,
-  listPublishedCourseCards,
-} from "@/lib/crm/course-pages";
+import { courseMediums, listPublishedCourseCards } from "@/lib/crm/course-pages";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata = createPageMetadata({
@@ -14,32 +11,34 @@ export const metadata = createPageMetadata({
 });
 
 export default async function SchoolPage() {
-  const cards = (await listPublishedCourseCards()).filter(
+  const t = await getTranslations("School");
+  const locale = await getLocale();
+  const cards = (await listPublishedCourseCards(locale)).filter(
     (card) => card.division === "school",
   );
   const withoutMedium = cards.filter((card) => !card.medium);
+  const mediumLabel = (medium: string) =>
+    medium === "marathi" ? t("mediumMarathi") : t("mediumSemiEnglish");
 
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="School"
-        title="Baliraja schools"
-        body="Alongside bharti coaching, Baliraja runs schooling in Marathi and semi-English medium — the same campus discipline, sports grounds, and mentoring applied from the school bench onward."
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody")}
         actions={[
-          { href: "/admissions?track=School", label: "Enquire for admission" },
-          { href: "/contact-us", label: "Visit the campus" },
+          { href: "/admissions?track=School", label: t("heroEnquire") },
+          { href: "/contact-us", label: t("heroVisit") },
         ]}
       />
 
       {cards.length === 0 ? (
         <section className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-8">
           <h2 className="font-display text-4xl text-oxblood">
-            School pages are being prepared
+            {t("emptyTitle")}
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
-            Standards and admission details will appear here soon. Meanwhile,
-            send an enquiry from the admissions page or call the office — the
-            team will walk you through mediums, standards, and fees.
+            {t("emptyBody")}
           </p>
         </section>
       ) : (
@@ -52,18 +51,18 @@ export default async function SchoolPage() {
             return (
               <ImageCardGrid
                 key={medium}
-                eyebrow={courseMediumLabels[medium]}
-                title={courseMediumLabels[medium]}
-                body="Open the standard you are interested in for syllabus, admission, and fee details."
+                eyebrow={mediumLabel(medium)}
+                title={mediumLabel(medium)}
+                body={t("mediumBody")}
                 items={mediumCards}
               />
             );
           })}
           {withoutMedium.length > 0 ? (
             <ImageCardGrid
-              eyebrow="School programs"
-              title="School programs"
-              body="Open a program for details and the admission path."
+              eyebrow={t("programsEyebrow")}
+              title={t("programsEyebrow")}
+              body={t("programsBody")}
               items={withoutMedium}
             />
           ) : null}
@@ -71,10 +70,10 @@ export default async function SchoolPage() {
       )}
 
       <NextUpCta
-        title="Admissions"
-        body="Tell us the student's standard and preferred medium — the office will call back with seat availability."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/admissions?track=School"
-        label="Start enquiry"
+        label={t("nextUpLabel")}
       />
     </div>
   );

@@ -1,6 +1,8 @@
 import { Mail, MapPin, Phone } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { NextUpCta, PageHero, SectionIntro } from "@/components/page-sections";
+import { localize } from "@/lib/i18n-content";
 import { createPageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -15,51 +17,54 @@ const MAP_QUERY = encodeURIComponent(
   "Baliraja Institute Career Academy, Gangapur, Bhudargad, Kolhapur, Maharashtra 416209",
 );
 
-const contactCards = [
-  {
-    title: "Visit",
-    body: site.contact.address,
-    href: `https://maps.google.com/?q=${MAP_QUERY}`,
-    label: "Open map",
-    icon: MapPin,
-  },
-  {
-    title: "Call",
-    body: site.contact.phone,
-    href: site.contact.phoneHref,
-    label: "Call office",
-    icon: Phone,
-  },
-  {
-    title: "Email",
-    body: site.contact.email,
-    href: site.contact.emailHref,
-    label: "Send email",
-    icon: Mail,
-  },
-];
+export default async function ContactPage() {
+  const t = await getTranslations("ContactUs");
+  const locale = await getLocale();
+  const s = localize(site, locale);
+  const contactCards = [
+    {
+      title: t("visitTitle"),
+      body: s.contact.address,
+      href: `https://maps.google.com/?q=${MAP_QUERY}`,
+      label: t("visitLabel"),
+      icon: MapPin,
+    },
+    {
+      title: t("callTitle"),
+      body: s.contact.phone,
+      href: s.contact.phoneHref,
+      label: t("callLabel"),
+      icon: Phone,
+    },
+    {
+      title: t("emailTitle"),
+      body: s.contact.email,
+      href: s.contact.emailHref,
+      label: t("emailLabel"),
+      icon: Mail,
+    },
+  ];
 
-export default function ContactPage() {
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="Contact"
-        title="Visit the campus"
-        body="Clear contact details matter before a student commits: address, phone, email and a simple path to admissions."
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody")}
         image="/student-life/aboutv-v3.mp4"
         imageAlt="Baliraja Institute background video"
         actions={[
-          { href: "/admissions", label: "Start admission enquiry" },
-          { href: "/courses", label: "Explore courses" },
+          { href: "/admissions", label: t("heroEnquiry") },
+          { href: "/courses", label: t("heroExplore") },
         ]}
       />
 
       <section className="bg-parchment-deep py-24 sm:py-32">
         <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
           <SectionIntro
-            eyebrow="Reach us"
-            title="Talk to the right person"
-            body="Use the route that matches your need: visit for counselling, call for batch timing, or email for documents and concession queries."
+            eyebrow={t("reachEyebrow")}
+            title={t("reachTitle")}
+            body={t("reachBody")}
           />
           <div className="mt-12 grid gap-4 lg:grid-cols-3">
             {contactCards.map((card) => {
@@ -84,7 +89,7 @@ export default function ContactPage() {
             })}
           </div>
           <p className="mt-8 text-[0.95rem] text-ink-soft">
-            Office hours: {site.contact.hours}
+            {t("officeHours", { hours: s.contact.hours })}
           </p>
 
           <div className="mt-12 overflow-hidden border border-line-strong">
@@ -101,10 +106,10 @@ export default function ContactPage() {
       </section>
 
       <NextUpCta
-        title="Admissions"
-        body="Ready to choose a batch? Send a short enquiry and let a mentor call you back."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/admissions"
-        label="Start enquiry"
+        label={t("nextUpLabel")}
       />
     </div>
   );

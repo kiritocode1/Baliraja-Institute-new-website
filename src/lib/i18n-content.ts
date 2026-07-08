@@ -26,7 +26,10 @@ export function localize<T>(value: T, locale: string): T {
       if (!key.endsWith("Mr")) continue;
       const base = key.slice(0, -2);
       const mr = src[key];
-      if (base in src && typeof mr === "string" && mr.trim() !== "") {
+      if (!(base in src)) continue;
+      if (typeof mr === "string" && mr.trim() !== "") {
+        out[base] = mr;
+      } else if (Array.isArray(mr) && mr.length > 0) {
         out[base] = mr;
       }
     }

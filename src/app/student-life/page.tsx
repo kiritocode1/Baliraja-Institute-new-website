@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   FaqBand,
   GuideCtaPanel,
@@ -8,7 +9,7 @@ import {
   VoiceGrid,
 } from "@/components/page-sections";
 import { PlayableReelGrid } from "@/components/playable-reel-grid";
-import { StudentLifeMarquee } from "@/components/sections/student-life-marquee";
+import { localize } from "@/lib/i18n-content";
 import { createPageMetadata } from "@/lib/seo";
 import {
   campusLifeItems,
@@ -25,49 +26,57 @@ export const metadata = createPageMetadata({
   path: "/student-life",
 });
 
-export default function StudentLifePage() {
+export default async function StudentLifePage() {
+  const t = await getTranslations("StudentLife");
+  const locale = await getLocale();
+  const campus = localize(campusLifeItems, locale);
+  const voices = localize(studentVoices, locale);
+  const support = localize(supportPoints, locale);
+  const faqs = localize(studentLifeFaqs, locale);
+  const guide = localize(preparationGuide, locale);
+
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="Student life"
-        title="Live the preparation day"
-        body="Aspirants and parents should be able to picture the day before admission: study rhythm, classroom energy, mentoring and the community that keeps students moving."
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody")}
         imageAlt="Competitive exam books and notes used by Baliraja Institute students"
         actions={[
-          { href: "/admissions", label: "Enquire for a batch" },
-          { href: "/courses", label: "Compare courses" },
+          { href: "/admissions", label: t("heroEnquire") },
+          { href: "/courses", label: t("heroCompare") },
         ]}
       />
       <PlayableReelGrid />
 
       <ImageCardGrid
-        eyebrow="Explore"
-        title="A full day of preparation"
-        body="Browse the spaces and routines students use every week: study hall, lectures, test practice, defence preparation and one-to-one mentoring."
-        items={campusLifeItems}
+        eyebrow={t("exploreEyebrow")}
+        title={t("exploreTitle")}
+        body={t("exploreBody")}
+        items={campus}
       />
 
-      <VoiceGrid voices={studentVoices} />
+      <VoiceGrid voices={voices} />
 
       <SupportGrid
-        eyebrow="Wellbeing and discipline"
-        title="Support that keeps preparation realistic"
-        body="The student-life route should answer a parent’s and student’s practical question: what will daily life feel like after admission?"
-        points={supportPoints}
+        eyebrow={t("wellbeingEyebrow")}
+        title={t("wellbeingTitle")}
+        body={t("wellbeingBody")}
+        points={support}
       />
 
       <FaqBand
-        eyebrow="Practical questions"
-        title="Life after admission"
-        body="Students and families usually need direct answers about study hours, stay arrangements, feedback and defence preparation before they commit."
-        items={studentLifeFaqs}
+        eyebrow={t("faqEyebrow")}
+        title={t("faqTitle")}
+        body={t("faqBody")}
+        items={faqs}
       />
 
-      <GuideCtaPanel guide={preparationGuide} />
+      <GuideCtaPanel guide={guide} />
 
       <NextUpCta
-        title="Courses"
-        body="Move from life on campus to the exam tracks, batch formats and preparation paths Baliraja offers."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/courses"
       />
     </div>

@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   FeatureBand,
   NextUpCta,
@@ -6,8 +7,9 @@ import {
   SupportGrid,
 } from "@/components/page-sections";
 import { PlayableReelGrid } from "@/components/playable-reel-grid";
+import { localize } from "@/lib/i18n-content";
 import { createPageMetadata } from "@/lib/seo";
-import { proofStats, supportPoints, whyPoints } from "@/lib/site";
+import { proofStats, supportPoints, whyPoints, whyPointsMr } from "@/lib/site";
 
 export const metadata = createPageMetadata({
   title: "Why Baliraja",
@@ -16,59 +18,59 @@ export const metadata = createPageMetadata({
   path: "/why-baliraja",
 });
 
-const whySupportPoints = whyPoints.map((point, index) => ({
-  title:
-    [
-      "Faculty who know the exams",
-      "Tests built around the real pattern",
-      "A serious study base",
-      "Practical stay guidance",
-    ][index] ?? "Baliraja support",
-  body: point,
-}));
+export default async function WhyBalirajaPage() {
+  const t = await getTranslations("WhyBaliraja");
+  const locale = await getLocale();
+  const stats = localize(proofStats, locale);
+  const support = localize(supportPoints, locale);
+  const points = locale === "mr" ? whyPointsMr : whyPoints;
+  const titles = [t("whyTitle1"), t("whyTitle2"), t("whyTitle3"), t("whyTitle4")];
+  const whySupportPoints = points.map((point, index) => ({
+    title: titles[index] ?? t("whyFallback"),
+    body: point,
+  }));
 
-export default function WhyBalirajaPage() {
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="Why Baliraja"
-        title="Why Baliraja"
-        body="This page answers the first parent and student question: what makes this academy worth visiting before choosing a batch?"
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody")}
         actions={[
-          { href: "/admissions", label: "Start admission enquiry" },
-          { href: "/courses", label: "Compare courses" },
+          { href: "/admissions", label: t("heroEnquiry") },
+          { href: "/courses", label: t("heroCompare") },
         ]}
       />
       <PlayableReelGrid />
 
-      <StatBand stats={proofStats} />
+      <StatBand stats={stats} />
 
       <FeatureBand
-        eyebrow="The difference"
-        title="A working academy, not just a course list."
-        body="Baliraja combines classes, study hall discipline, current affairs routines, mock tests and mentor review so students can see what to do every week."
+        eyebrow={t("diffEyebrow")}
+        title={t("diffTitle")}
+        body={t("diffBody")}
         image="/img-reading.jpg"
         imageAlt="A student reading competitive exam preparation material"
-        action={{ href: "/student-life", label: "See the daily rhythm" }}
+        action={{ href: "/student-life", label: t("diffAction") }}
       />
 
       <SupportGrid
-        eyebrow="Reasons to choose Baliraja"
-        title="What students should be able to trust"
-        body="These are the proof points families should find quickly before they compare courses or call the office."
+        eyebrow={t("reasonsEyebrow")}
+        title={t("reasonsTitle")}
+        body={t("reasonsBody")}
         points={whySupportPoints}
       />
 
       <SupportGrid
-        eyebrow="Student support"
-        title="Preparation needs a system around it"
-        body="Support beyond the classroom helps serious aspirants keep studying through the parts of preparation that are easiest to abandon."
-        points={supportPoints}
+        eyebrow={t("supportEyebrow")}
+        title={t("supportTitle")}
+        body={t("supportBody")}
+        points={support}
       />
 
       <NextUpCta
-        title="Admissions"
-        body="Ready to compare a route or ask about concessions? Start with an enquiry and let the office guide the next step."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/admissions"
       />
     </div>

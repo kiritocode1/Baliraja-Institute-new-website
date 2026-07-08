@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import {
   NextUpCta,
@@ -6,6 +7,7 @@ import {
   SectionIntro,
   StatBand,
 } from "@/components/page-sections";
+import { localize } from "@/lib/i18n-content";
 import { createPageMetadata } from "@/lib/seo";
 import { proofStats, scholarshipPrograms } from "@/lib/site";
 
@@ -16,36 +18,41 @@ export const metadata = createPageMetadata({
   path: "/scholarships",
 });
 
-export default function ScholarshipsPage() {
+export default async function ScholarshipsPage() {
+  const t = await getTranslations("Scholarships");
+  const locale = await getLocale();
+  const stats = localize(proofStats, locale);
+  const programs = localize(scholarshipPrograms, locale);
+
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="Scholarships"
-        title="Support for serious students"
-        body="Fee support should be easy to find before a family visits the office. Baliraja focuses on practical concessions for rural, farming, defence and repeat-attempt students."
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody")}
         image="/student-life/Explore-v-4.webp"
         imageAlt="Baliraja Institute study support and scholarships"
         actions={[
           {
             href: "/admissions?request=scholarship",
-            label: "Apply for consideration",
+            label: t("heroApply"),
           },
-          { href: "/contact-us", label: "Talk to the office" },
+          { href: "/contact-us", label: t("heroTalk") },
         ]}
       />
 
-      <StatBand stats={proofStats} />
+      <StatBand stats={stats} />
 
       <section className="bg-parchment-deep py-24 sm:py-32">
         <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
           <SectionIntro
-            eyebrow="Concession pathways"
-            title="Find the right support route"
-            body="These cards keep the page scannable. Exact eligibility, forms and concession amounts should be verified with the office before launch."
+            eyebrow={t("introEyebrow")}
+            title={t("introTitle")}
+            body={t("introBody")}
           />
 
           <div className="mt-12 grid gap-4 lg:grid-cols-4">
-            {scholarshipPrograms.map((program) => (
+            {programs.map((program) => (
               <article key={program.title} className="bg-parchment p-7">
                 <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-brass-deep">
                   {program.audience}
@@ -74,15 +81,15 @@ export default function ScholarshipsPage() {
             href="/admissions?request=scholarship"
             className="mt-10 inline-flex items-center gap-3 bg-oxblood px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-deep"
           >
-            Start with an enquiry
+            {t("startEnquiry")}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
       </section>
 
       <NextUpCta
-        title="News & Notices"
-        body="Check notices, test-series updates, defence camps and scholarship announcements before choosing a batch."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/news-events"
       />
     </div>

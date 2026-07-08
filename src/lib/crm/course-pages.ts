@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { sanitizeBlogHtml, slugifyBlogTitle } from "@/lib/crm/blog-posts";
 import { ensureCrmSchema, getSql } from "@/lib/crm/db";
 import { readJsonFile, writeJsonFile } from "@/lib/crm/local-store";
+import { localize } from "@/lib/i18n-content";
 import { isAllowedCrmMediaUrl } from "@/lib/crm/media-storage";
 import { examTracks, featuredExams } from "@/lib/site";
 
@@ -503,9 +504,12 @@ export async function listCoursePages() {
   return mergeCoursePages(stored);
 }
 
-export async function listPublishedCourseCards(): Promise<CourseCard[]> {
+export async function listPublishedCourseCards(
+  locale = "en",
+): Promise<CourseCard[]> {
   return (await listCoursePages())
     .filter((page) => page.status === "published")
+    .map((page) => localize(page, locale))
     .map((page) => ({
       eyebrow: page.category,
       title: page.title,

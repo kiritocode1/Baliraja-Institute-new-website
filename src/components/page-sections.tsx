@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -231,15 +232,16 @@ export function FounderMessage({
   name?: string;
   role?: string;
 }) {
+  const t = useTranslations("PageSections");
   return (
     <section className="bg-parchment-deep py-20 sm:py-28">
       <div className="mx-auto grid max-w-[104rem] gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:items-end">
         <div className="lg:col-span-4">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
-            Founder&apos;s message
+            {t("foundersMessage")}
           </p>
           <h2 className="mt-4 font-title text-[clamp(3.3rem,6vw,6.5rem)] font-normal leading-[0.86] tracking-normal text-oxblood">
-            Keep the door open for every serious student.
+            {t("foundersHeading")}
           </h2>
         </div>
 
@@ -319,6 +321,7 @@ export function ImageCardGrid({
 }
 
 function ImageCard({ item }: { item: CampusLifeItem }) {
+  const t = useTranslations("PageSections");
   return (
     <>
       <div className="relative aspect-[4/3] overflow-hidden bg-ink">
@@ -343,7 +346,7 @@ function ImageCard({ item }: { item: CampusLifeItem }) {
         </p>
         {item.href ? (
           <span className="mt-6 inline-flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-river-deep">
-            Read more
+            {t("readMore")}
             <ArrowRight
               className="size-3.5 transition-transform group-hover:translate-x-1"
               aria-hidden="true"
@@ -401,6 +404,7 @@ export function ExperienceExplorer({
   body: string;
   items: ExperiencePath[];
 }) {
+  const tp = useTranslations("PageSections");
   return (
     <section className="bg-parchment py-24 sm:py-32">
       <div className="mx-auto grid max-w-[100rem] gap-12 px-5 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
@@ -453,7 +457,7 @@ export function ExperienceExplorer({
                     {item.body}
                   </p>
                   <span className="mt-7 inline-flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-oxblood">
-                    Explore
+                    {tp("explore")}
                     <ArrowRight
                       className="size-3.5 transition-transform group-hover:translate-x-1"
                       aria-hidden="true"
@@ -612,15 +616,16 @@ export function FaqBand({
 }
 
 export function VoiceGrid({ voices }: { voices: StudentVoice[] }) {
+  const t = useTranslations("PageSections");
   return (
     <section className="bg-river-deep py-24 text-cream sm:py-32">
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="max-w-4xl">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-cream-muted">
-            Student voices
+            {t("studentVoices")}
           </p>
           <h2 className="mt-5 font-title text-[clamp(4rem,8vw,8rem)] font-normal leading-[0.84] tracking-normal">
-            Hear what focused aspirants value.
+            {t("studentVoicesHeading")}
           </h2>
         </div>
         <div className="mt-14 grid gap-px overflow-hidden bg-cream/18 sm:grid-cols-2 lg:grid-cols-4">
@@ -655,11 +660,11 @@ export function VoiceGrid({ voices }: { voices: StudentVoice[] }) {
 }
 
 export function NextUpCta({
-  eyebrow = "Next up",
+  eyebrow,
   title,
   body,
   href,
-  label = "Read more",
+  label,
 }: {
   eyebrow?: string;
   title: string;
@@ -667,12 +672,13 @@ export function NextUpCta({
   href: string;
   label?: string;
 }) {
+  const t = useTranslations("PageSections");
   return (
     <section className="overflow-hidden bg-paper text-ink">
       <Link href={href} className="group block">
         <div className="mx-auto max-w-[104rem] border-t border-line-strong px-5 py-14 sm:px-8 sm:py-20">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
-            {eyebrow}
+            {eyebrow ?? t("nextUp")}
           </p>
           <div className="mt-6 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -684,7 +690,7 @@ export function NextUpCta({
               </p>
             </div>
             <span className="inline-flex items-center gap-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em]">
-              {label}
+              {label ?? t("readMore")}
               <ArrowRight
                 className="size-4 transition-transform group-hover:translate-x-1"
                 aria-hidden="true"
