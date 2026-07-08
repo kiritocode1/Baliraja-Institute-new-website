@@ -1,15 +1,13 @@
 "use client";
 
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { useActionState, useId } from "react";
 import { type EnquiryState, submitEnquiry } from "@/app/admissions/actions";
 import {
-  admissionProgramLabels,
-  categoryLabels,
   categoryValues,
   programValues,
-  referralSourceLabels,
   referralValues,
 } from "@/schemas/admission.schema";
 
@@ -121,18 +119,18 @@ function defaultProgramFromTrack(track: string) {
 }
 
 function StepIntro({ index }: { index: number }) {
-  const step = steps[index];
+  const t = useTranslations("EnquiryForm");
 
   return (
     <div className="sm:col-span-2">
       <p className="text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-brass-deep">
-        Step {index + 1} of {steps.length}
+        {t("stepCounter", { current: index + 1, total: steps.length })}
       </p>
       <h2 className="mt-2 font-display text-3xl leading-none text-oxblood">
-        {step.title}
+        {t(`step${index + 1}Title`)}
       </h2>
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
-        {step.description}
+        {t(`step${index + 1}Desc`)}
       </p>
     </div>
   );
@@ -204,6 +202,7 @@ export function EnquiryForm({
   defaultTrack?: string;
   defaultRequestType?: string;
 }) {
+  const t = useTranslations("EnquiryForm");
   const [state, formAction, isPending] = useActionState<EnquiryState, FormData>(
     submitEnquiry,
     initialEnquiryState,
@@ -217,7 +216,7 @@ export function EnquiryForm({
     return (
       <div className="border border-line-strong bg-parchment-deep p-8 sm:p-10">
         <p className="font-display text-2xl leading-snug text-oxblood">
-          Admission form received.
+          {t("successTitle")}
         </p>
         <p className="mt-3 max-w-prose text-pretty leading-relaxed text-ink-soft">
           {state.message}
@@ -226,7 +225,7 @@ export function EnquiryForm({
           href="/admissions"
           className="mt-6 inline-flex text-[0.8rem] font-semibold uppercase tracking-[0.16em] text-oxblood link-hover link-hover--slide"
         >
-          Send another form
+          {t("sendAnother")}
         </a>
       </div>
     );
@@ -271,11 +270,11 @@ export function EnquiryForm({
               htmlFor={`admission-step-${index}`}
               data-step-trigger={index}
               className="cursor-pointer py-2"
-              aria-label={step.title}
+              aria-label={t(`step${index + 1}Title`)}
             >
               <span className="admission-step-bar block h-2 bg-line-strong transition-colors" />
               <span className="mt-2 hidden text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-ink-soft sm:block">
-                {step.title}
+                {t(`step${index + 1}Title`)}
               </span>
             </label>
           ))}
@@ -288,7 +287,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("fullName")}
-            label="Full name"
+            label={t("fullName")}
             required
             error={errorFor(errors, "fullName")}
             className="sm:col-span-2"
@@ -298,7 +297,7 @@ export function EnquiryForm({
               name="fullName"
               type="text"
               autoComplete="name"
-              placeholder="Student full name"
+              placeholder={t("fullNamePlaceholder")}
               aria-invalid={fieldHasError(errors, "fullName")}
               aria-describedby={
                 fieldHasError(errors, "fullName")
@@ -315,14 +314,19 @@ export function EnquiryForm({
 
           <div>
             <p className={labelClass}>
-              Gender <span className="text-destructive">*</span>
+              {t("gender")} <span className="text-destructive">*</span>
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <Choice name="gender" value="male" label="Male" type="radio" />
+              <Choice
+                name="gender"
+                value="male"
+                label={t("male")}
+                type="radio"
+              />
               <Choice
                 name="gender"
                 value="female"
-                label="Female"
+                label={t("female")}
                 type="radio"
               />
             </div>
@@ -333,7 +337,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("guardianName")}
-            label="Guardian / parent name"
+            label={t("guardianName")}
             required
             error={errorFor(errors, "guardianName")}
           >
@@ -341,7 +345,7 @@ export function EnquiryForm({
               id={id("guardianName")}
               name="guardianName"
               type="text"
-              placeholder="Parent or guardian name"
+              placeholder={t("guardianNamePlaceholder")}
               className={`${fieldBase} ${
                 fieldHasError(errors, "guardianName")
                   ? "border-destructive"
@@ -352,7 +356,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("dateOfBirth")}
-            label="Date of birth"
+            label={t("dateOfBirth")}
             required
             error={errorFor(errors, "dateOfBirth")}
           >
@@ -372,7 +376,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("fullAddress")}
-            label="Full address"
+            label={t("fullAddress")}
             required
             error={errorFor(errors, "fullAddress")}
             className="sm:col-span-2"
@@ -381,7 +385,7 @@ export function EnquiryForm({
               id={id("fullAddress")}
               name="fullAddress"
               rows={4}
-              placeholder="House, village/city, taluka, district"
+              placeholder={t("fullAddressPlaceholder")}
               className={`${fieldBase} resize-none ${
                 fieldHasError(errors, "fullAddress")
                   ? "border-destructive"
@@ -392,7 +396,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("category")}
-            label="Category"
+            label={t("category")}
             error={errorFor(errors, "category")}
           >
             <select
@@ -401,10 +405,10 @@ export function EnquiryForm({
               defaultValue=""
               className={`${fieldBase} border-line-strong`}
             >
-              <option value="">Select category</option>
+              <option value="">{t("selectCategory")}</option>
               {categoryValues.map((category) => (
                 <option key={category} value={category}>
-                  {categoryLabels[category]}
+                  {t(`categoryOption.${category}`)}
                 </option>
               ))}
             </select>
@@ -418,7 +422,7 @@ export function EnquiryForm({
                 type="checkbox"
                 value="true"
               />
-              Maharashtra domicile
+              {t("maharashtraDomicile")}
             </label>
           </div>
         </section>
@@ -428,7 +432,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("mobile1")}
-            label="Primary mobile"
+            label={t("mobile1")}
             required
             error={errorFor(errors, "mobile1")}
           >
@@ -438,7 +442,7 @@ export function EnquiryForm({
               type="tel"
               inputMode="numeric"
               autoComplete="tel"
-              placeholder="10-digit mobile number"
+              placeholder={t("mobile1Placeholder")}
               className={`${fieldBase} ${
                 fieldHasError(errors, "mobile1")
                   ? "border-destructive"
@@ -449,7 +453,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("mobile2")}
-            label="Alternate mobile"
+            label={t("mobile2")}
             error={errorFor(errors, "mobile2")}
           >
             <input
@@ -457,7 +461,7 @@ export function EnquiryForm({
               name="mobile2"
               type="tel"
               inputMode="numeric"
-              placeholder="Optional"
+              placeholder={t("optional")}
               className={`${fieldBase} ${
                 fieldHasError(errors, "mobile2")
                   ? "border-destructive"
@@ -468,7 +472,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("email")}
-            label="Email"
+            label={t("email")}
             error={errorFor(errors, "email")}
             className="sm:col-span-2"
           >
@@ -477,7 +481,7 @@ export function EnquiryForm({
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="Optional — used for the student portal after admission"
+              placeholder={t("emailPlaceholder")}
               className={`${fieldBase} ${
                 fieldHasError(errors, "email")
                   ? "border-destructive"
@@ -488,18 +492,20 @@ export function EnquiryForm({
 
           <div className="sm:col-span-2">
             <p className={labelClass}>
-              Education <span className="text-destructive">*</span>
+              {t("education")} <span className="text-destructive">*</span>
             </p>
             <div className="grid gap-4 lg:grid-cols-3">
               <div className="border border-line bg-parchment-deep p-4">
-                <p className="text-sm font-semibold text-oxblood">10th</p>
+                <p className="text-sm font-semibold text-oxblood">
+                  {t("tenth")}
+                </p>
                 <input
                   name="education.tenth.percentage"
                   type="number"
                   min="0"
                   max="100"
                   step="0.01"
-                  placeholder="Percentage"
+                  placeholder={t("percentage")}
                   className={`mt-3 ${fieldBase} ${
                     fieldHasError(errors, "education.tenth.percentage")
                       ? "border-destructive"
@@ -512,11 +518,13 @@ export function EnquiryForm({
               </div>
 
               <div className="border border-line bg-parchment-deep p-4">
-                <p className="text-sm font-semibold text-oxblood">12th</p>
+                <p className="text-sm font-semibold text-oxblood">
+                  {t("twelfth")}
+                </p>
                 <input
                   name="education.twelfth.stream"
                   type="text"
-                  placeholder="Stream"
+                  placeholder={t("stream")}
                   className={`mt-3 ${fieldBase} border-line-strong`}
                 />
                 <input
@@ -525,7 +533,7 @@ export function EnquiryForm({
                   min="0"
                   max="100"
                   step="0.01"
-                  placeholder="Percentage"
+                  placeholder={t("percentage")}
                   className={`mt-3 ${fieldBase} ${
                     fieldHasError(errors, "education.twelfth.percentage")
                       ? "border-destructive"
@@ -538,11 +546,13 @@ export function EnquiryForm({
               </div>
 
               <div className="border border-line bg-parchment-deep p-4">
-                <p className="text-sm font-semibold text-oxblood">Graduation</p>
+                <p className="text-sm font-semibold text-oxblood">
+                  {t("graduation")}
+                </p>
                 <input
                   name="education.graduation.course"
                   type="text"
-                  placeholder="Course"
+                  placeholder={t("course")}
                   className={`mt-3 ${fieldBase} ${
                     fieldHasError(errors, "education.graduation.course")
                       ? "border-destructive"
@@ -555,7 +565,7 @@ export function EnquiryForm({
                   min="0"
                   max="100"
                   step="0.01"
-                  placeholder="Percentage"
+                  placeholder={t("percentage")}
                   className={`mt-3 ${fieldBase} ${
                     fieldHasError(errors, "education.graduation.percentage")
                       ? "border-destructive"
@@ -579,7 +589,7 @@ export function EnquiryForm({
 
           <div className="sm:col-span-2">
             <p className={labelClass}>
-              Desired programs <span className="text-destructive">*</span>
+              {t("desiredPrograms")} <span className="text-destructive">*</span>
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {programValues.map((program) => (
@@ -588,7 +598,7 @@ export function EnquiryForm({
                   checked={defaultProgram === program}
                   name="desiredPrograms"
                   value={program}
-                  label={admissionProgramLabels[program]}
+                  label={t(`program.${program}`)}
                 />
               ))}
             </div>
@@ -598,13 +608,12 @@ export function EnquiryForm({
           </div>
 
           <p className="-mb-3 text-sm leading-relaxed text-ink-soft sm:col-span-2">
-            Physical measurements are required for bharti programs; school,
-            sports, and summer-camp enquiries can leave them empty.
+            {t("physicalNote")}
           </p>
 
           <FieldBlock
             id={id("weightKg")}
-            label="Weight (kg)"
+            label={t("weightKg")}
             error={errorFor(errors, "weightKg")}
           >
             <input
@@ -614,7 +623,7 @@ export function EnquiryForm({
               min="1"
               max="200"
               step="0.1"
-              placeholder="Example: 62"
+              placeholder={t("weightPlaceholder")}
               className={`${fieldBase} ${
                 fieldHasError(errors, "weightKg")
                   ? "border-destructive"
@@ -625,7 +634,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("heightCm")}
-            label="Height (cm)"
+            label={t("heightCm")}
             error={errorFor(errors, "heightCm")}
           >
             <input
@@ -635,7 +644,7 @@ export function EnquiryForm({
               min="1"
               max="250"
               step="0.1"
-              placeholder="Example: 172"
+              placeholder={t("heightPlaceholder")}
               className={`${fieldBase} ${
                 fieldHasError(errors, "heightCm")
                   ? "border-destructive"
@@ -646,7 +655,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("chestCm")}
-            label="Chest (cm)"
+            label={t("chestCm")}
             error={errorFor(errors, "chestCm")}
           >
             <input
@@ -656,7 +665,7 @@ export function EnquiryForm({
               min="1"
               max="200"
               step="0.1"
-              placeholder="Optional — measured for police PST"
+              placeholder={t("chestPlaceholder")}
               className={`${fieldBase} ${
                 fieldHasError(errors, "chestCm")
                   ? "border-destructive"
@@ -671,7 +680,7 @@ export function EnquiryForm({
 
           <div className="sm:col-span-2">
             <p className={labelClass}>
-              How did you hear about us?{" "}
+              {t("referralQuestion")}{" "}
               <span className="text-destructive">*</span>
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -680,7 +689,7 @@ export function EnquiryForm({
                   key={source}
                   name="referralSources"
                   value={source}
-                  label={referralSourceLabels[source]}
+                  label={t(`referral.${source}`)}
                 />
               ))}
             </div>
@@ -691,7 +700,7 @@ export function EnquiryForm({
 
           <FieldBlock
             id={id("otherReferralDetail")}
-            label="Other referral detail"
+            label={t("otherReferralDetail")}
             error={errorFor(errors, "otherReferralDetail")}
             className="sm:col-span-2"
           >
@@ -699,7 +708,7 @@ export function EnquiryForm({
               id={id("otherReferralDetail")}
               name="otherReferralDetail"
               rows={3}
-              placeholder="Name, place, post, or any detail we should know"
+              placeholder={t("otherReferralPlaceholder")}
               className={`${fieldBase} resize-none border-line-strong`}
             />
           </FieldBlock>
@@ -712,10 +721,7 @@ export function EnquiryForm({
                 type="checkbox"
                 value="true"
               />
-              <span>
-                I confirm that the information given above is true and I agree
-                to be contacted by Baliraja Institute for admission counselling.
-              </span>
+              <span>{t("declaration")}</span>
             </label>
             <ErrorText id={id("declaration-err")}>
               {errorFor(errors, "declarationAgreed")}
@@ -727,41 +733,41 @@ export function EnquiryForm({
       <div className="border-t border-line bg-parchment-deep p-5 sm:p-6">
         <div data-step-nav="0" className="justify-end">
           <label htmlFor="admission-step-1" className={primaryButtonClass}>
-            Continue
+            {t("continue")}
             <ChevronRight className="size-4" aria-hidden="true" />
           </label>
         </div>
         <div data-step-nav="1" className="justify-between">
           <label htmlFor="admission-step-0" className={navButtonClass}>
             <ChevronLeft className="size-4" aria-hidden="true" />
-            Back
+            {t("back")}
           </label>
           <label htmlFor="admission-step-2" className={primaryButtonClass}>
-            Continue
+            {t("continue")}
             <ChevronRight className="size-4" aria-hidden="true" />
           </label>
         </div>
         <div data-step-nav="2" className="justify-between">
           <label htmlFor="admission-step-1" className={navButtonClass}>
             <ChevronLeft className="size-4" aria-hidden="true" />
-            Back
+            {t("back")}
           </label>
           <label htmlFor="admission-step-3" className={primaryButtonClass}>
-            Continue
+            {t("continue")}
             <ChevronRight className="size-4" aria-hidden="true" />
           </label>
         </div>
         <div data-step-nav="3" className="justify-between">
           <label htmlFor="admission-step-2" className={navButtonClass}>
             <ChevronLeft className="size-4" aria-hidden="true" />
-            Back
+            {t("back")}
           </label>
           <button
             type="submit"
             disabled={isPending}
             className={primaryButtonClass}
           >
-            {isPending ? "Submitting" : "Submit admission form"}
+            {isPending ? t("submitting") : t("submit")}
             {!isPending ? (
               <Check className="size-4" aria-hidden="true" />
             ) : null}

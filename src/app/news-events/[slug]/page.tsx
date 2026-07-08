@@ -1,11 +1,12 @@
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getAssetUrl } from "@/lib/assets";
 import { getBlogPostBySlug, sanitizeBlogHtml } from "@/lib/crm/blog-posts";
 import { absoluteUrl } from "@/lib/seo";
-import { getAssetUrl } from "@/lib/assets";
 import { site } from "@/lib/site";
 
 type PageProps = {
@@ -13,14 +14,6 @@ type PageProps = {
 };
 
 export const dynamic = "force-dynamic";
-
-function formatDate(value: string | null) {
-  if (!value) return null;
-
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "long",
-  }).format(new Date(value));
-}
 
 export async function generateMetadata({
   params,
@@ -61,11 +54,17 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = await getBlogPostBySlug(slug);
+  const locale = await getLocale();
+  const t = await getTranslations("NewsDetail");
+  const post = await getBlogPostBySlug(slug, true, locale);
 
   if (!post) notFound();
 
-  const publishedDate = formatDate(post.publishedAt);
+  const publishedDate = post.publishedAt
+    ? new Intl.DateTimeFormat(locale === "mr" ? "mr-IN" : "en-IN", {
+        dateStyle: "long",
+      }).format(new Date(post.publishedAt))
+    : null;
   const url = `${site.websiteHref}/news-events/${post.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -114,7 +113,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             className="mb-10 inline-flex w-fit items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream-muted transition-colors hover:text-brass"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-            News & notices
+            {t("back")}
           </Link>
           <div className="flex flex-wrap items-center gap-3">
             <span className="bg-brass px-3 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-oxblood-deep">
@@ -137,7 +136,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           </p>
           {post.author ? (
             <p className="mt-6 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-brass">
-              By {post.author}
+              {t("by", { author: post.author })}
             </p>
           ) : null}
         </div>

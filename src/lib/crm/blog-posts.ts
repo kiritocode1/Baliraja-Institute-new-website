@@ -337,7 +337,11 @@ export async function listPublishedBlogCards(
   }));
 }
 
-export async function getBlogPostBySlug(slug: string, publishedOnly = true) {
+export async function getBlogPostBySlug(
+  slug: string,
+  publishedOnly = true,
+  locale = "en",
+) {
   const normalized = slugifyBlogTitle(slug);
   const posts = await listExistingBlogPosts();
   const post = posts.find((item) => item.slug === normalized) ?? null;
@@ -345,10 +349,13 @@ export async function getBlogPostBySlug(slug: string, publishedOnly = true) {
   if (!post) return null;
   if (publishedOnly && post.status !== "published") return null;
 
-  return {
-    ...post,
-    image: resolveCrmMediaUrl(post.image),
-  };
+  return localize(
+    {
+      ...post,
+      image: resolveCrmMediaUrl(post.image),
+    },
+    locale,
+  );
 }
 
 export async function createBlogPost(input: BlogPostInput) {
