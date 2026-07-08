@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { FeePaymentPanel } from "@/components/student/fee-payment-panel";
 import { StudentPortalShell } from "@/components/student/portal-shell";
 import { getStudentDashboard } from "@/lib/crm/students";
@@ -12,15 +13,14 @@ export const metadata: Metadata = {
 };
 
 export default async function StudentFeesPage() {
+  const t = await getTranslations("Student");
   const session = await requireStudentSession();
   const dashboard = await getStudentDashboard(session.studentId);
 
   if (!dashboard) {
     return (
       <section className="bg-parchment-deep px-5 py-20 text-center sm:px-8">
-        <h1 className="font-display text-5xl text-oxblood">
-          Student access inactive
-        </h1>
+        <h1 className="font-display text-5xl text-oxblood">{t("inactive")}</h1>
       </section>
     );
   }

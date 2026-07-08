@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -52,14 +53,6 @@ type FeePaymentPanelProps = {
   };
 };
 
-function formatDate(value: string | null) {
-  if (!value) return "No date";
-
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-  }).format(new Date(value));
-}
-
 function formatPaise(amountPaise: number) {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -92,6 +85,14 @@ function loadRazorpayScript() {
 }
 
 export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
+  const t = useTranslations("Student");
+  const locale = useLocale();
+  const fmtDate = (value: string | null) =>
+    value
+      ? new Intl.DateTimeFormat(locale === "mr" ? "mr-IN" : "en-IN", {
+          dateStyle: "medium",
+        }).format(new Date(value))
+      : t("noDate");
   const router = useRouter();
   const [busyInvoiceId, setBusyInvoiceId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -213,11 +214,11 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
 
       <section className="bg-parchment px-5 py-7 sm:px-7">
         <div className="border-b border-line pb-5">
-          <h2 className="font-display text-4xl text-oxblood">Pending fees</h2>
+          <h2 className="font-display text-4xl text-oxblood">
+            {t("pendingFees")}
+          </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">
-            If a payment is awaiting confirmation, do not pay it again. The
-            receipt appears only after Razorpay sends the signed captured
-            webhook.
+            {t("pendingFeesNote")}
           </p>
         </div>
         <div className="divide-y divide-line">
@@ -232,7 +233,7 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
                     {invoice.title}
                   </h3>
                   <span className="border border-line-strong px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">
-                    {invoice.status}
+                    {t(`status.${invoice.status}`)}
                   </span>
                 </div>
                 {invoice.description ? (
@@ -241,8 +242,10 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
                   </p>
                 ) : null}
                 <p className="mt-3 text-sm text-ink-soft">
-                  Due {formatDate(invoice.dueDate)} · Receipt{" "}
-                  {invoice.receiptNumber}
+                  {t("dueReceipt", {
+                    due: fmtDate(invoice.dueDate),
+                    receipt: invoice.receiptNumber,
+                  })}
                 </p>
               </div>
               <div className="flex flex-col items-start gap-3 lg:items-end">
@@ -259,17 +262,17 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
                   className="bg-oxblood px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {busyInvoiceId === invoice.id
-                    ? "Opening..."
+                    ? t("opening")
                     : invoice.status === "processing"
-                      ? "Awaiting confirmation"
-                      : "Pay now"}
+                      ? t("awaitingConfirmation")
+                      : t("payNow")}
                 </button>
               </div>
             </article>
           ))}
           {payableInvoices.length === 0 ? (
             <p className="py-8 text-sm leading-relaxed text-ink-soft">
-              No pending fee invoices for {student.name}.
+              {t("noPendingFor", { name: student.name })}
             </p>
           ) : null}
         </div>
@@ -277,7 +280,9 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
 
       <section className="bg-parchment px-5 py-7 sm:px-7">
         <div className="border-b border-line pb-5">
-          <h2 className="font-display text-4xl text-oxblood">Paid receipts</h2>
+          <h2 className="font-display text-4xl text-oxblood">
+            {t("paidReceipts")}
+          </h2>
         </div>
         <div className="divide-y divide-line">
           {paidInvoices.map((invoice) => (
@@ -290,22 +295,23 @@ export function FeePaymentPanel({ invoices, student }: FeePaymentPanelProps) {
                   {invoice.title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                  Paid {formatDate(invoice.paidAt)} · Receipt{" "}
-                  {invoice.receiptNumber}
+                  {t("paidReceipt", {
+                    date: fmtDate(invoice.paidAt),
+                    receipt: invoice.receiptNumber,
+                  })}
                 </p>
               </div>
               <Link
                 href={`/student/receipts/${invoice.id}`}
                 className="w-fit border border-line-strong px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
               >
-                View receipt
+                {t("viewReceipt")}
               </Link>
             </article>
           ))}
           {paidInvoices.length === 0 ? (
             <p className="py-8 text-sm leading-relaxed text-ink-soft">
-              Paid fee receipts will appear here after Razorpay confirms
-              captured payment.
+              {t("noPaidReceipts")}
             </p>
           ) : null}
         </div>

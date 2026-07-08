@@ -1,5 +1,6 @@
 import { Download } from "lucide-react";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { StudentPortalShell } from "@/components/student/portal-shell";
 import { getStudentDashboard } from "@/lib/crm/students";
 import { requireStudentSession } from "@/lib/student/auth";
@@ -11,24 +12,22 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-function formatDate(value: string | null) {
-  if (!value) return "No date";
-
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-  }).format(new Date(value));
-}
-
 export default async function StudentNoticesPage() {
+  const t = await getTranslations("Student");
+  const locale = await getLocale();
+  const formatDate = (value: string | null) =>
+    value
+      ? new Intl.DateTimeFormat(locale === "mr" ? "mr-IN" : "en-IN", {
+          dateStyle: "medium",
+        }).format(new Date(value))
+      : t("noDate");
   const session = await requireStudentSession();
   const dashboard = await getStudentDashboard(session.studentId);
 
   if (!dashboard) {
     return (
       <section className="bg-parchment-deep px-5 py-20 text-center sm:px-8">
-        <h1 className="font-display text-5xl text-oxblood">
-          Student access inactive
-        </h1>
+        <h1 className="font-display text-5xl text-oxblood">{t("inactive")}</h1>
       </section>
     );
   }
@@ -38,10 +37,10 @@ export default async function StudentNoticesPage() {
       <section className="mt-8 bg-parchment px-5 py-7 sm:px-7">
         <div className="border-b border-line pb-5">
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-brass-deep">
-            Course notices
+            {t("courseNotices")}
           </p>
           <h2 className="mt-3 font-display text-4xl text-oxblood">
-            Assigned updates and materials
+            {t("assignedUpdates")}
           </h2>
         </div>
         <div className="divide-y divide-line">
@@ -71,7 +70,7 @@ export default async function StudentNoticesPage() {
                   className="mt-5 inline-flex items-center gap-2 bg-oxblood px-4 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
                 >
                   <Download className="size-4" aria-hidden="true" />
-                  {notice.attachmentName || "Download attachment"}
+                  {notice.attachmentName || t("downloadAttachment")}
                 </a>
               ) : null}
             </article>
@@ -79,11 +78,10 @@ export default async function StudentNoticesPage() {
           {dashboard.notices.length === 0 ? (
             <div className="py-16 text-center">
               <h3 className="font-display text-3xl text-oxblood">
-                No notices yet
+                {t("noNoticesYet")}
               </h3>
               <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-soft">
-                Notices will appear here when the office publishes them for your
-                course, batch, or student record.
+                {t("noNoticesYetBody")}
               </p>
             </div>
           ) : null}

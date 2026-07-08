@@ -5,6 +5,7 @@ import {
   ReceiptIndianRupee,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { StudentPortalShell } from "@/components/student/portal-shell";
 import { formatPaise, getStudentDashboard } from "@/lib/crm/students";
@@ -18,14 +19,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-function formatDate(value: string | null) {
-  if (!value) return "No date";
-
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-  }).format(new Date(value));
-}
-
 function stripHtml(value: string) {
   return value
     .replace(/<[^>]+>/g, " ")
@@ -34,17 +27,23 @@ function stripHtml(value: string) {
 }
 
 export default async function StudentPortalPage() {
+  const t = await getTranslations("Student");
+  const locale = await getLocale();
+  const formatDate = (value: string | null) =>
+    value
+      ? new Intl.DateTimeFormat(locale === "mr" ? "mr-IN" : "en-IN", {
+          dateStyle: "medium",
+        }).format(new Date(value))
+      : t("noDate");
   const session = await requireStudentSession();
   const dashboard = await getStudentDashboard(session.studentId);
 
   if (!dashboard) {
     return (
       <section className="bg-parchment-deep px-5 py-20 text-center sm:px-8">
-        <h1 className="font-display text-5xl text-oxblood">
-          Student access inactive
-        </h1>
+        <h1 className="font-display text-5xl text-oxblood">{t("inactive")}</h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
-          Contact the office if your admission record should be active.
+          {t("inactiveBody")}
         </p>
       </section>
     );
@@ -70,7 +69,7 @@ export default async function StudentPortalPage() {
         >
           <FileText className="size-6 text-oxblood" aria-hidden="true" />
           <p className="mt-4 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-ink-soft">
-            Visible notices
+            {t("visibleNotices")}
           </p>
           <p className="mt-2 font-display text-4xl text-oxblood">
             {dashboard.notices.length}
@@ -79,7 +78,7 @@ export default async function StudentPortalPage() {
         <div className="border border-line bg-parchment p-5">
           <BookOpen className="size-6 text-oxblood" aria-hidden="true" />
           <p className="mt-4 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-ink-soft">
-            Active courses
+            {t("activeCourses")}
           </p>
           <p className="mt-2 font-display text-4xl text-oxblood">
             {dashboard.enrollments.length}
@@ -91,7 +90,7 @@ export default async function StudentPortalPage() {
         >
           <ClipboardList className="size-6 text-oxblood" aria-hidden="true" />
           <p className="mt-4 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-ink-soft">
-            Latest result
+            {t("latestResult")}
           </p>
           <p className="mt-2 font-display text-2xl leading-tight text-oxblood">
             {latestResult
@@ -104,7 +103,7 @@ export default async function StudentPortalPage() {
             <p className="mt-1 text-xs text-ink-soft">
               {latestResult.test.kind === "written"
                 ? latestResult.test.title
-                : "Ground test recorded"}
+                : t("groundTestRecorded")}
             </p>
           ) : null}
         </Link>
@@ -117,7 +116,7 @@ export default async function StudentPortalPage() {
             aria-hidden="true"
           />
           <p className="mt-4 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-ink-soft">
-            Pending fees
+            {t("pendingFees")}
           </p>
           <p className="mt-2 font-display text-4xl text-oxblood">
             {formatPaise(pendingAmount)}
@@ -129,7 +128,7 @@ export default async function StudentPortalPage() {
         <section className="bg-parchment px-5 py-7 sm:px-7">
           <div className="border-b border-line pb-5">
             <h2 className="font-display text-4xl text-oxblood">
-              Latest notices
+              {t("latestNotices")}
             </h2>
           </div>
           <div className="divide-y divide-line">
@@ -148,7 +147,7 @@ export default async function StudentPortalPage() {
             ))}
             {dashboard.notices.length === 0 ? (
               <p className="py-8 text-sm leading-relaxed text-ink-soft">
-                No active notices are assigned to your course or batch yet.
+                {t("noNoticesAssigned")}
               </p>
             ) : null}
           </div>
@@ -156,7 +155,9 @@ export default async function StudentPortalPage() {
 
         <aside className="space-y-6">
           <section className="bg-parchment p-5">
-            <h2 className="font-display text-3xl text-oxblood">Courses</h2>
+            <h2 className="font-display text-3xl text-oxblood">
+              {t("courses")}
+            </h2>
             <div className="mt-4 space-y-3">
               {dashboard.enrollments.map((enrollment) => (
                 <div key={enrollment.id} className="border border-line p-3">
@@ -164,33 +165,35 @@ export default async function StudentPortalPage() {
                     {enrollment.courseTitle}
                   </p>
                   <p className="mt-1 text-sm text-ink-soft">
-                    {enrollment.batchName || "No batch"}
+                    {enrollment.batchName || t("noBatch")}
                   </p>
                 </div>
               ))}
               {dashboard.enrollments.length === 0 ? (
                 <p className="text-sm leading-relaxed text-ink-soft">
-                  No active course enrollment is assigned yet.
+                  {t("noEnrollment")}
                 </p>
               ) : null}
             </div>
           </section>
 
           <section className="bg-parchment p-5">
-            <h2 className="font-display text-3xl text-oxblood">Fees</h2>
+            <h2 className="font-display text-3xl text-oxblood">
+              {t("feesHeading")}
+            </h2>
             <div className="mt-4 space-y-3">
               {pendingInvoices.slice(0, 3).map((invoice) => (
                 <div key={invoice.id} className="border border-line p-3">
                   <p className="font-medium text-ink">{invoice.title}</p>
                   <p className="mt-1 text-sm text-ink-soft">
-                    {formatPaise(invoice.amountPaise)} · due{" "}
+                    {formatPaise(invoice.amountPaise)} · {t("due")}{" "}
                     {formatDate(invoice.dueDate)}
                   </p>
                 </div>
               ))}
               {pendingInvoices.length === 0 ? (
                 <p className="text-sm leading-relaxed text-ink-soft">
-                  No pending fee invoices.
+                  {t("noPendingInvoices")}
                 </p>
               ) : null}
             </div>

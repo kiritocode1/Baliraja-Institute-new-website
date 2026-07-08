@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { logoutStudentAction } from "@/app/student/actions";
@@ -10,10 +11,10 @@ type StudentPortalShellProps = {
 };
 
 const navItems = [
-  { href: "/student", label: "Overview", key: "overview" },
-  { href: "/student/notices", label: "Notices", key: "notices" },
-  { href: "/student/results", label: "Results", key: "results" },
-  { href: "/student/fees", label: "Fees", key: "fees" },
+  { href: "/student", labelKey: "navOverview", key: "overview" },
+  { href: "/student/notices", labelKey: "navNotices", key: "notices" },
+  { href: "/student/results", labelKey: "navResults", key: "results" },
+  { href: "/student/fees", labelKey: "navFees", key: "fees" },
 ] as const;
 
 export function StudentPortalShell({
@@ -21,6 +22,7 @@ export function StudentPortalShell({
   activePath,
   children,
 }: StudentPortalShellProps) {
+  const t = useTranslations("Student");
   return (
     <section className="bg-parchment-deep px-5 py-8 sm:px-8 sm:py-12">
       <div className="mx-auto max-w-[92rem]">
@@ -28,7 +30,7 @@ export function StudentPortalShell({
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-brass-deep">
-                Student portal
+                {t("portal")}
               </p>
               <h1 className="mt-3 font-display text-5xl leading-none text-oxblood sm:text-6xl">
                 {student.name}
@@ -42,7 +44,7 @@ export function StudentPortalShell({
                 type="submit"
                 className="border border-line-strong px-5 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-ink transition-colors hover:border-oxblood hover:text-oxblood"
               >
-                Sign out
+                {t("signOut")}
               </button>
             </form>
           </div>
@@ -60,7 +62,7 @@ export function StudentPortalShell({
                     : "border-line-strong text-ink hover:border-oxblood hover:text-oxblood"
                 }`}
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             ))}
           </nav>

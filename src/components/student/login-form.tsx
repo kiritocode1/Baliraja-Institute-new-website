@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import {
   type RequestStudentOtpState,
@@ -15,6 +16,7 @@ const fieldClass =
   "w-full border border-line-strong bg-parchment px-4 py-3 text-ink outline-none transition-colors placeholder:text-ink-soft/60 focus:border-brass-deep";
 
 export function StudentLoginForm() {
+  const t = useTranslations("Student");
   const [requestState, requestAction, requesting] = useActionState(
     requestStudentOtp,
     initialRequestState,
@@ -35,7 +37,7 @@ export function StudentLoginForm() {
             htmlFor="student-email"
             className="mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink"
           >
-            Student email
+            {t("emailLabel")}
           </label>
           <input
             id="student-email"
@@ -65,10 +67,10 @@ export function StudentLoginForm() {
           className="inline-flex items-center justify-center bg-oxblood px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright disabled:cursor-not-allowed disabled:opacity-70"
         >
           {requesting
-            ? "Sending code..."
+            ? t("sending")
             : codeReady
-              ? "Resend code"
-              : "Send login code"}
+              ? t("resend")
+              : t("sendCode")}
         </button>
       </form>
 
@@ -79,7 +81,7 @@ export function StudentLoginForm() {
             htmlFor="student-otp"
             className="mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink"
           >
-            6-digit code
+            {t("codeLabel")}
           </label>
           <input
             id="student-otp"
@@ -101,7 +103,7 @@ export function StudentLoginForm() {
             disabled={verifying}
             className="mt-5 inline-flex w-full items-center justify-center bg-brass-deep px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {verifying ? "Checking..." : "Open student portal"}
+            {verifying ? t("checking") : t("openPortal")}
           </button>
         </form>
       ) : null}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { StudentPortalShell } from "@/components/student/portal-shell";
 import { getStudentDashboard } from "@/lib/crm/students";
 import { listResultsForStudent, listTestResults } from "@/lib/crm/tests";
@@ -11,24 +12,22 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-function formatDate(value: string | null) {
-  if (!value) return "No date";
-
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-  }).format(new Date(value));
-}
-
 export default async function StudentResultsPage() {
+  const t = await getTranslations("Student");
+  const locale = await getLocale();
+  const formatDate = (value: string | null) =>
+    value
+      ? new Intl.DateTimeFormat(locale === "mr" ? "mr-IN" : "en-IN", {
+          dateStyle: "medium",
+        }).format(new Date(value))
+      : t("noDate");
   const session = await requireStudentSession();
   const dashboard = await getStudentDashboard(session.studentId);
 
   if (!dashboard) {
     return (
       <section className="bg-parchment-deep px-5 py-20 text-center sm:px-8">
-        <h1 className="font-display text-5xl text-oxblood">
-          Student access inactive
-        </h1>
+        <h1 className="font-display text-5xl text-oxblood">{t("inactive")}</h1>
       </section>
     );
   }
@@ -53,10 +52,10 @@ export default async function StudentResultsPage() {
       <section className="mt-8 bg-parchment px-5 py-7 sm:px-7">
         <div className="border-b border-line pb-5">
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-brass-deep">
-            Test results
+            {t("testResults")}
           </p>
           <h2 className="mt-3 font-display text-4xl text-oxblood">
-            Your written mocks and ground tests
+            {t("resultsHeading")}
           </h2>
         </div>
 
@@ -89,7 +88,7 @@ export default async function StudentResultsPage() {
                     {percentage !== null ? ` (${percentage}%)` : ""}
                     {rank ? (
                       <span className="ml-3 border border-brass px-2 py-0.5 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-brass-deep">
-                        Rank {rank.rank} of {rank.of}
+                        {t("rank", { rank: rank.rank, of: rank.of })}
                       </span>
                     ) : null}
                   </p>
@@ -115,8 +114,7 @@ export default async function StudentResultsPage() {
           })}
           {results.length === 0 ? (
             <p className="py-10 text-sm leading-relaxed text-ink-soft">
-              No test results yet. Results appear here after the office records
-              your written mock or ground test performance.
+              {t("noResults")}
             </p>
           ) : null}
         </div>
