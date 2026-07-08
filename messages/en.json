@@ -1,4 +1,16 @@
 {
+  "Crm": {
+    "kicker": "Baliraja CRM",
+    "loginTitle": "Admin access by email code.",
+    "loginBody": "Enter an email from the configured admin list. The CRM sends a one-time login code through the institute Gmail account.",
+    "adminEmail": "Admin email",
+    "sending": "Sending code...",
+    "resend": "Resend code",
+    "sendCode": "Send login code",
+    "codeLabel": "6-digit code",
+    "checking": "Checking...",
+    "openCrm": "Open CRM"
+  },
   "Student": {
     "portal": "Student portal",
     "signOut": "Sign out",

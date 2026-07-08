@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import {
   type RequestOtpState,
@@ -15,6 +16,7 @@ const fieldClass =
   "w-full border border-line-strong bg-parchment px-4 py-3 text-ink outline-none transition-colors placeholder:text-ink-soft/60 focus:border-brass-deep";
 
 export function CrmLoginForm() {
+  const t = useTranslations("Crm");
   const [requestState, requestAction, requesting] = useActionState(
     requestOtp,
     initialRequestState,
@@ -35,7 +37,7 @@ export function CrmLoginForm() {
             htmlFor="crm-email"
             className="mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink"
           >
-            Admin email
+            {t("adminEmail")}
           </label>
           <input
             id="crm-email"
@@ -65,10 +67,10 @@ export function CrmLoginForm() {
           className="inline-flex items-center justify-center bg-oxblood px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright disabled:cursor-not-allowed disabled:opacity-70"
         >
           {requesting
-            ? "Sending code..."
+            ? t("sending")
             : codeReady
-              ? "Resend code"
-              : "Send login code"}
+              ? t("resend")
+              : t("sendCode")}
         </button>
       </form>
 
@@ -79,7 +81,7 @@ export function CrmLoginForm() {
             htmlFor="crm-otp"
             className="mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink"
           >
-            6-digit code
+            {t("codeLabel")}
           </label>
           <input
             id="crm-otp"
@@ -101,7 +103,7 @@ export function CrmLoginForm() {
             disabled={verifying}
             className="mt-5 inline-flex w-full items-center justify-center bg-brass-deep px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {verifying ? "Checking..." : "Open CRM"}
+            {verifying ? t("checking") : t("openCrm")}
           </button>
         </form>
       )}
