@@ -174,7 +174,7 @@ export const VerticalCutReveal = forwardRef<
                 // descenders and Devanagari below-base matras aren't cut. No
                 // negative margin — the extra room must also space the next
                 // wrapped line down, or line N's descenders collide with N+1.
-                "inline-flex max-w-full overflow-hidden break-words pb-[0.28em] [overflow-wrap:anywhere]",
+                "inline-flex max-w-full overflow-hidden break-words pb-[0.42em] [overflow-wrap:anywhere]",
                 wordLevelClassName,
               )}
               key={`${wordObj.characters.join("")}-${wordIndex}`}
