@@ -1,10 +1,12 @@
 "use client";
 
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { RevealText } from "@/components/reveal-text";
 import { getAssetUrl } from "@/lib/assets";
+import { localize } from "@/lib/i18n-content";
 import { galleryImages } from "@/lib/site";
 
 export type GalleryImageItem = {
@@ -20,6 +22,8 @@ export function Gallery({
   hideIntro?: boolean;
   images?: (string | GalleryImageItem)[];
 }) {
+  const t = useTranslations("Gallery");
+  const locale = useLocale();
   const [activeVideoSrc, setActiveVideoSrc] = useState<string | null>(null);
 
   const displayItems = images
@@ -28,13 +32,13 @@ export function Gallery({
 
         return {
           src: getAssetUrl(item.src),
-          alt: item.alt || item.caption || `Campus photo ${i + 1}`,
-          caption: item.caption || `Gallery Photo ${i + 1}`,
+          alt: item.alt || item.caption || t("photoFallback", { n: i + 1 }),
+          caption: item.caption || t("captionFallback", { n: i + 1 }),
           type: "image" as const,
           aspect: "horizontal" as const,
         };
       })
-    : galleryImages;
+    : localize(galleryImages, locale);
 
   return (
     <section
@@ -46,11 +50,11 @@ export function Gallery({
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
-                Inside the academy
+                {t("insideAcademy")}
               </p>
               <h2 className="mt-4 font-display text-[clamp(2.2rem,5vw,4rem)] font-light leading-[1.02] tracking-[-0.02em] text-oxblood">
                 <RevealText
-                  text="Campus life"
+                  text={t("campusLife")}
                   splitBy="words"
                   stagger={0.06}
                   distance={26}
@@ -58,8 +62,7 @@ export function Gallery({
               </h2>
             </div>
             <p className="max-w-sm text-pretty text-[0.98rem] leading-relaxed text-ink-soft">
-              Long hours, full benches and a reading hall that rarely empties. A
-              look at the ordinary days that build extraordinary results.
+              {t("intro")}
             </p>
           </div>
         )}
@@ -145,6 +148,8 @@ function GalleryVideoCard({
   onPlay,
   onPause,
 }: GalleryVideoCardProps) {
+  const t = useTranslations("Gallery");
+  const tc = useTranslations("Common");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(false);
 
@@ -197,7 +202,7 @@ function GalleryVideoCard({
             <Play className="ml-0.5 h-6 w-6 fill-current" />
           </div>
           <span className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-cream drop-shadow">
-            Play Video
+            {t("playVideo")}
           </span>
         </div>
       )}
@@ -217,7 +222,7 @@ function GalleryVideoCard({
             type="button"
             onClick={toggleMute}
             className="absolute top-3 right-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/45 text-cream backdrop-blur-sm transition-transform hover:scale-105"
-            aria-label={isMuted ? "Unmute" : "Mute"}
+            aria-label={isMuted ? tc("unmute") : tc("mute")}
           >
             {isMuted ? (
               <VolumeX className="h-3.5 w-3.5" />
@@ -231,7 +236,7 @@ function GalleryVideoCard({
       {/* Caption at bottom */}
       <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-none transition-all duration-300">
         <p className="text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-brass-bright">
-          Campus Life
+          {t("campusLifeLabel")}
         </p>
         <p className="mt-0.5 font-display text-xs text-cream drop-shadow-sm">
           {caption}

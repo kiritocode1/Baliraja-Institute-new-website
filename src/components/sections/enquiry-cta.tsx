@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { useRef, useState } from "react";
 import { RevealText } from "@/components/reveal-text";
 import { getAssetUrl } from "@/lib/assets";
 
 function PlayableCtaVideo() {
+  const t = useTranslations("EnquiryCta");
+  const tc = useTranslations("Common");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -51,7 +54,7 @@ function PlayableCtaVideo() {
             <Play className="ml-1 h-8 w-8 fill-current" />
           </div>
           <span className="mt-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-cream drop-shadow">
-            Play Guide
+            {t("playGuide")}
           </span>
         </div>
       )}
@@ -62,7 +65,7 @@ function PlayableCtaVideo() {
             type="button"
             onClick={toggleMute}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-cream backdrop-blur-sm transition-transform hover:scale-105"
-            aria-label={isMuted ? "Unmute" : "Mute"}
+            aria-label={isMuted ? tc("unmute") : tc("mute")}
           >
             {isMuted ? (
               <VolumeX className="h-4 w-4" />
@@ -77,6 +80,7 @@ function PlayableCtaVideo() {
 }
 
 export function EnquiryCta() {
+  const t = useTranslations("EnquiryCta");
   return (
     <section className="bg-parchment py-24 sm:py-36">
       <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
@@ -84,7 +88,7 @@ export function EnquiryCta() {
           <div className="flex flex-col items-start gap-10 lg:col-span-7">
             <h2 className="max-w-[16ch] font-display text-[clamp(2.4rem,7vw,6rem)] font-light leading-[0.98] tracking-[-0.025em] text-oxblood">
               <RevealText
-                text="Begin your preparation."
+                text={t("title")}
                 splitBy="words"
                 stagger={0.07}
                 distance={30}
@@ -92,15 +96,13 @@ export function EnquiryCta() {
               />
             </h2>
             <p className="max-w-xl text-pretty text-lg leading-relaxed text-ink-soft">
-              Admissions for the next batch are open. Send an enquiry and our team
-              will call you back to discuss the right track, schedule and fee
-              structure for your goal.
+              {t("body")}
             </p>
             <Link
               href="/admissions"
               className="inline-flex items-center gap-3 bg-oxblood px-8 py-4 text-[0.8rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-bright"
             >
-              Enquire for admission
+              {t("cta")}
               <span aria-hidden="true">→</span>
             </Link>
           </div>

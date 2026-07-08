@@ -12,38 +12,48 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatedPathText } from "@/components/animated-path-text";
 import { getAssetUrl } from "@/lib/assets";
+import { localize } from "@/lib/i18n-content";
 import { academyContextItems } from "@/lib/site";
 
 const routeCards = [
   {
     eyebrow: "01",
     title: "Courses",
+    titleMr: "अभ्यासक्रम",
     body: "Civil services, defence, banking, SSC, police, Talathi and ZP tracks.",
+    bodyMr: "नागरी सेवा, संरक्षण, बँकिंग, एसएससी, पोलीस, तलाठी व झेडपी मार्ग.",
     href: "/courses",
     image: "/home/pre-courses.png",
   },
   {
     eyebrow: "02",
     title: "Student Life",
+    titleMr: "विद्यार्थी जीवन",
     body: "Study hall, classroom rhythm, mocks, mentoring and daily discipline.",
+    bodyMr: "अभ्यासिका, वर्गातील दिनचर्या, मॉक्स, मार्गदर्शन व रोजची शिस्त.",
     href: "/student-life",
     image: "/home/pre-student-life.png",
   },
   {
     eyebrow: "03",
     title: "Admissions",
+    titleMr: "प्रवेश",
     body: "A short enquiry, a mentor call, and a batch recommendation.",
+    bodyMr: "एक छोटी चौकशी, एक मार्गदर्शक कॉल, आणि बॅचची शिफारस.",
     href: "/admissions",
     image: "/home/pre-admission.jpeg",
   },
   {
     eyebrow: "04",
     title: "Scholarships",
+    titleMr: "शिष्यवृत्ती",
     body: "Practical fee support for serious students and farming families.",
+    bodyMr: "गंभीर विद्यार्थी व शेतकरी कुटुंबांसाठी व्यावहारिक फी सहाय्य.",
     href: "/scholarships",
     image: "/home/pre-scholarship.png",
   },
@@ -52,41 +62,48 @@ const routeCards = [
 const principles = [
   {
     title: "Choose one route",
+    titleMr: "एकच मार्ग निवडा",
     body: "Start with the exam in front of you. A focused attempt beats scattered preparation.",
+    bodyMr: "समोरच्या परीक्षेपासून सुरुवात करा. विखुरलेल्या तयारीपेक्षा केंद्रित प्रयत्न श्रेष्ठ.",
     icon: GraduationCap,
   },
   {
     title: "Keep a daily table",
+    titleMr: "रोजचे वेळापत्रक ठेवा",
     body: "Class, reading, revision and mock practice need a visible rhythm, not vague motivation.",
+    bodyMr: "वर्ग, वाचन, उजळणी व मॉक सराव यांना स्पष्ट दिनचर्या हवी, अस्पष्ट प्रेरणा नव्हे.",
     icon: NotebookPen,
   },
   {
     title: "Test before comfort",
+    titleMr: "आरामाआधी चाचणी",
     body: "Mock pressure shows speed, gaps and presentation while there is still time to correct.",
+    bodyMr: "सुधारण्यास वेळ असतानाच मॉकचा दबाव वेग, त्रुटी व मांडणी दाखवतो.",
     icon: BookOpenCheck,
   },
   {
     title: "Ask early",
+    titleMr: "लवकर विचारा",
     body: "Fees, medium, hostel, family visits and batch timing should be settled before joining.",
+    bodyMr: "फी, माध्यम, वसतिगृह, कौटुंबिक भेटी व बॅच वेळ हे सामील होण्यापूर्वी ठरवावे.",
     icon: MessageCircleQuestion,
   },
 ];
 
 export function AcademyEditorial() {
+  const t = useTranslations("Home");
   return (
     <section className="bg-paper py-20 sm:py-28">
       <div className="mx-auto grid max-w-[104rem] gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:items-end lg:gap-12">
         <div className="lg:col-span-5">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
-            Our story
+            {t("ourStory")}
           </p>
           <h2 className="mt-5 max-w-[10ch] font-title text-[clamp(3.35rem,8vw,8.8rem)] font-normal leading-[0.84] tracking-normal text-ink">
-            A room for the attempt.
+            {t("roomTitle")}
           </h2>
           <p className="mt-7 max-w-xl text-pretty text-[1.06rem] leading-relaxed text-ink-soft">
-            Baliraja should feel less like a brochure and more like a working
-            academy: a place where students arrive with one exam, sit at one
-            table, and know what the next week asks from them.
+            {t("roomBody")}
           </p>
         </div>
 
@@ -128,6 +145,9 @@ export function AcademyEditorial() {
 }
 
 export function HomeRouteLauncher() {
+  const t = useTranslations("Home");
+  const locale = useLocale();
+  const cards = localize(routeCards, locale);
   return (
     <section className="relative overflow-hidden bg-stone py-28 text-ink sm:py-36 lg:py-44">
       <div className="pointer-events-none absolute left-1/2 top-10 hidden h-52 w-[56rem] max-w-[92vw] -translate-x-1/2 text-river/35 sm:block lg:top-14 lg:h-64 lg:w-[66rem]">
@@ -143,19 +163,18 @@ export function HomeRouteLauncher() {
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="mx-auto max-w-6xl text-center">
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.36em] text-river sm:text-[0.84rem]">
-            Explore
+            {t("explore")}
           </p>
           <h2 className="mt-7 font-title text-[clamp(4.35rem,10vw,11.75rem)] font-normal leading-[0.8] tracking-normal">
-            Discover your preparation path
+            {t("discoverTitle")}
           </h2>
           <p className="mx-auto mt-8 max-w-3xl text-pretty text-[1.08rem] leading-relaxed text-ink-soft sm:text-xl">
-            The site should answer one question quickly: where should this
-            student go next?
+            {t("discoverBody")}
           </p>
         </div>
 
         <div className="mt-16 grid gap-px overflow-hidden bg-paper md:grid-cols-2 lg:mt-20 lg:grid-cols-4">
-          {routeCards.map((card) => (
+          {cards.map((card) => (
             <Link
               className="group relative min-h-[21rem] overflow-hidden bg-ink text-cream outline-none sm:min-h-[27rem] lg:min-h-[34rem]"
               href={card.href}
@@ -189,26 +208,28 @@ export function HomeRouteLauncher() {
 }
 
 export function PreparationPrinciples() {
+  const t = useTranslations("Home");
+  const locale = useLocale();
+  const items = localize(principles, locale);
   return (
     <section className="bg-paper py-20 sm:py-28">
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
           <div>
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
-              Your best foot forward
+              {t("bestFoot")}
             </p>
             <h2 className="mt-5 max-w-[9ch] font-title text-[clamp(3.35rem,8vw,8rem)] font-normal leading-[0.84] tracking-normal text-ink">
-              Preparation tips
+              {t("tipsTitle")}
             </h2>
           </div>
           <p className="max-w-2xl text-pretty text-[1.06rem] leading-relaxed text-ink-soft lg:pt-10">
-            A parent or student should leave every section with a useful next
-            action. These four principles keep the experience practical.
+            {t("tipsBody")}
           </p>
         </div>
 
         <div className="mt-12 grid gap-8 md:grid-cols-2 lg:mt-14 lg:grid-cols-4">
-          {principles.map((item) => {
+          {items.map((item) => {
             const Icon = item.icon;
 
             return (
@@ -234,27 +255,29 @@ export function PreparationPrinciples() {
 }
 
 export function AcademyContext() {
+  const t = useTranslations("Home");
+  const tc = useTranslations("Common");
+  const locale = useLocale();
+  const items = localize(academyContextItems, locale);
   return (
     <section className="bg-paper py-20 sm:py-28">
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-end">
           <div>
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
-              Campus context
+              {t("campusContext")}
             </p>
             <h2 className="mt-5 max-w-[10ch] font-title text-[clamp(3.35rem,8vw,8rem)] font-normal leading-[0.84] tracking-normal text-ink">
-              More than a timetable.
+              {t("moreThanTitle")}
             </h2>
           </div>
           <p className="max-w-2xl text-pretty text-[1rem] leading-relaxed text-ink-soft sm:text-[1.06rem] lg:pb-3">
-            This area is built for the content that usually grows after launch:
-            university guidance, campus photographs, visit information, library
-            details and everyday student routines.
+            {t("moreThanBody")}
           </p>
         </div>
 
         <div className="mt-12 grid gap-px overflow-hidden bg-line md:grid-cols-2 xl:grid-cols-4">
-          {academyContextItems.map((item) => {
+          {items.map((item) => {
             const content = (
               <>
                 <div className="relative aspect-[16/10] overflow-hidden bg-stone sm:aspect-[5/4] md:aspect-[4/3] xl:aspect-[5/4]">
@@ -280,7 +303,7 @@ export function AcademyContext() {
                   </div>
                   {item.href ? (
                     <span className="mt-8 inline-flex items-center gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-ink">
-                      Open
+                      {tc("open")}
                       <ArrowRight className="size-4" aria-hidden="true" />
                     </span>
                   ) : null}
@@ -309,44 +332,52 @@ export function AcademyContext() {
 }
 
 export function HomeStories() {
+  const t = useTranslations("Home");
+  const locale = useLocale();
   const [activeStoryId, setActiveStoryId] = useState<string | null>(null);
 
-  const STORIES = [
-    {
-      id: "story-1",
-      src: "/home/story-v1.mov",
-      title: "Journey 1",
-    },
-    {
-      id: "story-2",
-      src: "/home/story-v2.MOV",
-      title: "Journey 2",
-    },
-    {
-      id: "story-3",
-      src: "/home/story-v3.mp4",
-      title: "Journey 3",
-    },
-    {
-      id: "story-4",
-      src: "/student-life/about-v1.mp4",
-      title: "Journey 4",
-    },
-  ];
+  const STORIES = localize(
+    [
+      {
+        id: "story-1",
+        src: "/home/story-v1.mov",
+        title: "Journey 1",
+        titleMr: "प्रवास १",
+      },
+      {
+        id: "story-2",
+        src: "/home/story-v2.MOV",
+        title: "Journey 2",
+        titleMr: "प्रवास २",
+      },
+      {
+        id: "story-3",
+        src: "/home/story-v3.mp4",
+        title: "Journey 3",
+        titleMr: "प्रवास ३",
+      },
+      {
+        id: "story-4",
+        src: "/student-life/about-v1.mp4",
+        title: "Journey 4",
+        titleMr: "प्रवास ४",
+      },
+    ],
+    locale,
+  );
 
   return (
     <section className="bg-stone py-20 sm:py-28">
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
-            STUDENT CORNER
+            {t("studentCorner")}
           </p>
           <h2 className="mt-5 font-title text-[clamp(3.35rem,8vw,8.6rem)] font-normal leading-[0.84] tracking-normal text-ink">
-            Academy stories
+            {t("storiesTitle")}
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-pretty text-[1rem] leading-relaxed text-ink-soft">
-            Listen to our students' preparation journeys and academy experiences
-            in their own words.
+            {t("storiesBody")}
           </p>
         </div>
 
@@ -372,7 +403,7 @@ export function HomeStories() {
             href="/news-events"
             className="inline-flex items-center gap-3 text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-ink"
           >
-            View all updates
+            {t("viewAllUpdates")}
             <span className="grid size-9 place-items-center rounded-full border border-ink/35 transition-colors hover:bg-ink hover:text-cream">
               <ArrowRight className="size-4" aria-hidden="true" />
             </span>
@@ -392,6 +423,8 @@ interface StoryCardProps {
 }
 
 function StoryCard({ src, title, isActive, onPlay, onPause }: StoryCardProps) {
+  const t = useTranslations("Home");
+  const tc = useTranslations("Common");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(false);
 
@@ -447,7 +480,7 @@ function StoryCard({ src, title, isActive, onPlay, onPause }: StoryCardProps) {
             <Play className="ml-1 h-8 w-8 fill-current" />
           </div>
           <span className="mt-4 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-cream drop-shadow-md">
-            Click to Play
+            {t("clickToPlay")}
           </span>
         </div>
       )}
@@ -467,7 +500,7 @@ function StoryCard({ src, title, isActive, onPlay, onPause }: StoryCardProps) {
             type="button"
             onClick={toggleMute}
             className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-cream backdrop-blur-sm transition-transform hover:scale-105"
-            aria-label={isMuted ? "Unmute" : "Mute"}
+            aria-label={isMuted ? tc("unmute") : tc("mute")}
           >
             {isMuted ? (
               <VolumeX className="h-4 w-4" />
@@ -481,7 +514,7 @@ function StoryCard({ src, title, isActive, onPlay, onPause }: StoryCardProps) {
       {/* Title label at bottom */}
       <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
         <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-brass-bright">
-          Story
+          {t("story")}
         </p>
         <p className="mt-1 font-display text-sm font-medium text-cream drop-shadow-sm">
           {title}

@@ -1,8 +1,13 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { VerticalCutReveal } from "@/components/vertical-cut-reveal";
 import { getAssetUrl } from "@/lib/assets";
+import { localize } from "@/lib/i18n-content";
 import { site } from "@/lib/site";
 
-export function Hero() {
+export async function Hero() {
+  const t = await getTranslations("Hero");
+  const locale = await getLocale();
+  const s = localize(site, locale);
   return (
     <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-river-deep text-cream">
       <video
@@ -30,8 +35,7 @@ export function Hero() {
 
       <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[116rem] flex-col justify-end px-5 pb-[clamp(1.75rem,4vw,3.75rem)] pt-32 sm:px-8">
         <p className="max-w-[35rem] text-pretty text-[0.92rem] leading-relaxed text-cream/88 sm:text-[1rem]">
-          {site.longName} is a career academy in {site.place}, preparing
-          students for public service, defence, banking, police and state exams.
+          {t("intro", { name: s.longName, place: s.place })}
         </p>
 
         <div className="mt-5 h-px w-full bg-cream/32" aria-hidden="true" />
@@ -42,7 +46,7 @@ export function Hero() {
             staggerDuration={0.06}
             transition={{ damping: 28, stiffness: 160, type: "spring" }}
           >
-            Discover Your Path
+            {t("title")}
           </VerticalCutReveal>
         </h1>
       </div>

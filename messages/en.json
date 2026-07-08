@@ -5,7 +5,10 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "language": "Language",
-    "siteMenu": "Site menu"
+    "siteMenu": "Site menu",
+    "open": "Open",
+    "mute": "Mute",
+    "unmute": "Unmute"
   },
   "Header": {
     "brandKicker": "Baliraja Institute",
@@ -39,5 +42,53 @@
       "adminPortal": "Admin Portal",
       "contact": "Contact"
     }
+  },
+  "Hero": {
+    "intro": "{name} is a career academy in {place}, preparing students for public service, defence, banking, police and state exams.",
+    "title": "Discover Your Path"
+  },
+  "Home": {
+    "ourStory": "Our story",
+    "roomTitle": "A room for the attempt.",
+    "roomBody": "Baliraja should feel less like a brochure and more like a working academy: a place where students arrive with one exam, sit at one table, and know what the next week asks from them.",
+    "explore": "Explore",
+    "discoverTitle": "Discover your preparation path",
+    "discoverBody": "The site should answer one question quickly: where should this student go next?",
+    "bestFoot": "Your best foot forward",
+    "tipsTitle": "Preparation tips",
+    "tipsBody": "A parent or student should leave every section with a useful next action. These four principles keep the experience practical.",
+    "campusContext": "Campus context",
+    "moreThanTitle": "More than a timetable.",
+    "moreThanBody": "This area is built for the content that usually grows after launch: university guidance, campus photographs, visit information, library details and everyday student routines.",
+    "studentCorner": "STUDENT CORNER",
+    "storiesTitle": "Academy stories",
+    "storiesBody": "Listen to our students' preparation journeys and academy experiences in their own words.",
+    "viewAllUpdates": "View all updates",
+    "story": "Story",
+    "clickToPlay": "Click to Play"
+  },
+  "Gallery": {
+    "insideAcademy": "Inside the academy",
+    "campusLife": "Campus life",
+    "intro": "Long hours, full benches and a reading hall that rarely empties. A look at the ordinary days that build extraordinary results.",
+    "playVideo": "Play Video",
+    "campusLifeLabel": "Campus Life",
+    "photoFallback": "Campus photo {n}",
+    "captionFallback": "Gallery Photo {n}"
+  },
+  "ExamTracks": {
+    "prepareFor": "What we prepare you for",
+    "title": "Exam Tracks",
+    "intro": "One academy, six disciplined routes into the services. Hover a track to preview it; choose one to view the full course page.",
+    "defenceServices": "Defence services · the entries asked for first",
+    "defence": "Defence",
+    "everyService": "And every state and central service",
+    "viewCourse": "View {title} course"
+  },
+  "EnquiryCta": {
+    "title": "Begin your preparation.",
+    "body": "Admissions for the next batch are open. Send an enquiry and our team will call you back to discuss the right track, schedule and fee structure for your goal.",
+    "cta": "Enquire for admission",
+    "playGuide": "Play Guide"
   }
 }

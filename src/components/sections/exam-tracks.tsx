@@ -1,6 +1,7 @@
 "use client";
 
 import { gsap } from "gsap";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
@@ -53,6 +54,7 @@ export function ExamTracks({
   featured: FeaturedTrack[];
   tracks: ExamTrackItem[];
 }) {
+  const t = useTranslations("ExamTracks");
   const listRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -269,11 +271,11 @@ export function ExamTracks({
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
-              What we prepare you for
+              {t("prepareFor")}
             </p>
             <h2 className="mt-4 font-display text-[clamp(2.2rem,5vw,4rem)] font-light leading-[1.02] tracking-[-0.02em] text-oxblood">
               <RevealText
-                text="Exam Tracks"
+                text={t("title")}
                 splitBy="characters"
                 stagger={0.03}
                 distance={26}
@@ -281,8 +283,7 @@ export function ExamTracks({
             </h2>
           </div>
           <p className="max-w-sm text-pretty text-[0.98rem] leading-relaxed text-ink-soft">
-            One academy, six disciplined routes into the services. Hover a track
-            to preview it; choose one to view the full course page.
+            {t("intro")}
           </p>
         </div>
       </div>
@@ -290,7 +291,7 @@ export function ExamTracks({
       {/* Featured defence tracks — Army & Navy lead the list */}
       <div className="mx-auto mt-12 max-w-[100rem] px-5 sm:px-8">
         <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
-          Defence services · the entries asked for first
+          {t("defenceServices")}
         </p>
         <div className="mt-5 grid gap-6 sm:grid-cols-2">
           {featured.map((f) => (
@@ -311,7 +312,7 @@ export function ExamTracks({
                   }}
                 />
                 <span className="absolute left-4 top-4 bg-brass px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-oxblood-deep">
-                  Defence
+                  {t("defence")}
                 </span>
                 <h3 className="absolute bottom-4 left-5 font-display text-[clamp(2.6rem,6vw,4.5rem)] font-light leading-none text-cream">
                   {f.title}
@@ -326,7 +327,7 @@ export function ExamTracks({
                 </p>
                 <span className="mt-auto inline-flex items-center gap-2 pt-2 text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-oxblood">
                   <span className="link-hover link-hover--slide">
-                    View {f.title} course
+                    {t("viewCourse", { title: f.title })}
                   </span>
                   <span
                     aria-hidden="true"
@@ -343,7 +344,7 @@ export function ExamTracks({
 
       <div className="mx-auto mt-16 max-w-[100rem] px-5 sm:px-8">
         <p className="mb-5 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-brass-deep">
-          And every state and central service
+          {t("everyService")}
         </p>
         <div ref={listRef} className="track-list">
           {tracks.map((t) => (

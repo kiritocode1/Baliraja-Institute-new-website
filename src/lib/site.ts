@@ -245,8 +245,11 @@ export const admissionSteps: AdmissionStep[] = [
  * more real photographs, parent-facing notes, or nearby-university context. */
 export type AcademyContextItem = {
   eyebrow: string;
+  eyebrowMr?: string;
   title: string;
+  titleMr?: string;
   body: string;
+  bodyMr?: string;
   image: string;
   alt: string;
   href?: string;
@@ -255,32 +258,44 @@ export type AcademyContextItem = {
 export const academyContextItems: AcademyContextItem[] = [
   {
     eyebrow: "Academy",
+    eyebrowMr: "अकॅडमी",
     title: "A working place for serious attempts",
+    titleMr: "गंभीर प्रयत्नांसाठी एक कार्यशील जागा",
     body: "Baliraja is presented as a real study environment: classrooms, reading hours, mentor conversations and a practical admission path.",
+    bodyMr: "बलिराजा एक खरे अभ्यास वातावरण म्हणून सादर केले आहे: वर्ग, वाचनाचे तास, मार्गदर्शक संवाद आणि व्यावहारिक प्रवेश मार्ग.",
     image: "/home/con-A-working-place-for-serious-attempts.jpg",
     alt: "Baliraja Institute classroom prepared for a competitive exam lecture",
     href: "/about",
   },
   {
     eyebrow: "University route",
+    eyebrowMr: "विद्यापीठ मार्ग",
     title: "Guidance for students planning the next step",
+    titleMr: "पुढील पाऊल नियोजित करणाऱ्या विद्यार्थ्यांसाठी मार्गदर्शन",
     body: "Students and families can add university, eligibility, documents and career-path information here as those pages grow.",
+    bodyMr: "ही पाने वाढतील तसतशी विद्यार्थी व कुटुंबे विद्यापीठ, पात्रता, कागदपत्रे आणि करिअर-मार्गाची माहिती येथे जोडू शकतात.",
     image: "/home/con-Guidance-for-students-planning-the-next-step.png",
     alt: "Students walking toward an institutional campus building",
     href: "/student-life",
   },
   {
     eyebrow: "Study base",
+    eyebrowMr: "अभ्यास आधार",
     title: "Reading, revision and reference material",
+    titleMr: "वाचन, उजळणी व संदर्भ साहित्य",
     body: "Use this block for reading-hall details, library photographs, book lists, newspaper practice and daily study routines.",
+    bodyMr: "या भागाचा उपयोग वाचनालय तपशील, ग्रंथालय छायाचित्रे, पुस्तक याद्या, वृत्तपत्र सराव आणि रोजच्या अभ्यास दिनचर्येसाठी करा.",
     image: "/img-books.jpg",
     alt: "Reference books and notes for Baliraja Institute students",
     href: "/student-life",
   },
   {
     eyebrow: "Gallery",
+    eyebrowMr: "गॅलरी",
     title: "Keep adding real moments",
+    titleMr: "खरे क्षण जोडत राहा",
     body: "The gallery below is data-driven. Drop in new campus, classroom, event, library or university-visit images and update the array.",
+    bodyMr: "खालील गॅलरी डेटा-आधारित आहे. नवीन कॅम्पस, वर्ग, कार्यक्रम, ग्रंथालय किंवा विद्यापीठ-भेटीच्या प्रतिमा टाका आणि अ‍ॅरे अद्ययावत करा.",
     image: "/home/con-Keep-adding-real-moments.JPG",
     alt: "A student writing notes during exam preparation",
     href: "/gallery",
@@ -293,6 +308,7 @@ export type GalleryImage = {
   src: string;
   alt: string;
   caption: string;
+  captionMr?: string;
   type?: "image" | "video";
   aspect?: "vertical" | "horizontal";
 };
@@ -301,6 +317,7 @@ export const galleryImages: GalleryImage[] = [
     src: "/home/camp-v1.mov",
     alt: "Baliraja campus video 1",
     caption: "Campus rhythm",
+    captionMr: "कॅम्पसची लय",
     type: "video",
     aspect: "vertical",
   },
@@ -308,6 +325,7 @@ export const galleryImages: GalleryImage[] = [
     src: "/home/camp-v2.mov",
     alt: "Baliraja campus video 2",
     caption: "Active library",
+    captionMr: "सक्रिय वाचनालय",
     type: "video",
     aspect: "vertical",
   },
@@ -315,6 +333,7 @@ export const galleryImages: GalleryImage[] = [
     src: "/home/camp-v3.mp4",
     alt: "Baliraja campus video 3",
     caption: "Classroom debate",
+    captionMr: "वर्गातील चर्चा",
     type: "video",
     aspect: "vertical",
   },
@@ -322,6 +341,7 @@ export const galleryImages: GalleryImage[] = [
     src: "/home/camp-v4.mp4",
     alt: "Baliraja campus video 4",
     caption: "Mentor review",
+    captionMr: "मार्गदर्शक आढावा",
     type: "video",
     aspect: "vertical",
   },
