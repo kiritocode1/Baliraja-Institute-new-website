@@ -270,7 +270,7 @@ export const KineticTextReveal = forwardRef<
                 // negative margin — the extra room must also space the next
                 // wrapped line down, or line N's descenders collide with line
                 // N+1. (pb-1 alone was far too small for large display type.)
-                "inline-block max-w-full overflow-hidden break-words align-baseline pb-[0.42em] [overflow-wrap:anywhere]",
+                "inline-block max-w-full overflow-hidden break-words align-baseline pt-[0.3em] pb-[0.42em] [overflow-wrap:anywhere]",
                 maskClassName,
               )}
               aria-hidden="true"
