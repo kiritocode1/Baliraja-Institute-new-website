@@ -1,15 +1,19 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
+import { useLocale } from "next-intl";
 import Script from "next/script";
 import { useEffect, useMemo, useState } from "react";
+import { LOCALE_COOKIE } from "@/i18n/config";
 import languages from "@/i18n/languages.json";
 import { cn } from "@/lib/utils";
 
 const maxAge = 60 * 60 * 24 * 365;
 const fallbackLanguage = languages[0];
+// en + mr are real next-intl locales; the rest fall back to Google Translate.
+const nativeCodes = new Set(["en", "mr"]);
 const translateCodes = languages
-  .filter((language) => language.code !== "en")
+  .filter((language) => !nativeCodes.has(language.code))
   .map((language) => language.code)
   .join(",");
 
@@ -36,7 +40,13 @@ function readCookie(name: string) {
   return value ? decodeURIComponent(value) : "";
 }
 
-function writeCookie(code: string) {
+function writeLocaleCookie(code: string) {
+  // biome-ignore lint/suspicious/noDocumentCookie: next-intl reads this locale cookie on the server.
+  document.cookie = `${LOCALE_COOKIE}=${code}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+}
+
+function writeGoogTrans(code: string) {
+  // Google Translate always works off the English base DOM.
   const value = code === "en" ? "" : `/en/${code}`;
   const expiry = code === "en" ? "Max-Age=0" : `Max-Age=${maxAge}`;
   // biome-ignore lint/suspicious/noDocumentCookie: Google Translate reads this legacy cookie name.
@@ -50,16 +60,17 @@ function writeCookie(code: string) {
   }
 }
 
-function currentLanguage() {
-  if (typeof document === "undefined") return "en";
+function activeGoogleCode() {
+  if (typeof document === "undefined") return "";
   const match = readCookie("googtrans").match(/\/en\/([a-z-]+)/i);
-  const code = match?.[1] ?? "en";
+  const code = match?.[1] ?? "";
 
-  return languages.some((language) => language.code === code) ? code : "en";
+  return languages.some((language) => language.code === code) ? code : "";
 }
 
 export function LanguageSwitcher({ light = false }: { light?: boolean }) {
-  const [selected, setSelected] = useState("en");
+  const locale = useLocale();
+  const [selected, setSelected] = useState(locale);
   const activeLanguage = useMemo(
     () =>
       languages.find((language) => language.code === selected) ??
@@ -68,15 +79,28 @@ export function LanguageSwitcher({ light = false }: { light?: boolean }) {
   );
 
   useEffect(() => {
-    setSelected(currentLanguage());
-  }, []);
+    // A live Google Translate selection wins over the next-intl locale.
+    const google = activeGoogleCode();
+    setSelected(google || locale);
+  }, [locale]);
 
   function changeLanguage(code: string) {
     setSelected(code);
-    writeCookie(code);
+
+    if (nativeCodes.has(code)) {
+      // Real EN/MR render: set the next-intl cookie, drop any Google overlay.
+      writeLocaleCookie(code);
+      writeGoogTrans("en");
+      window.location.reload();
+      return;
+    }
+
+    // Google Translate languages run off the English base DOM.
+    writeLocaleCookie("en");
+    writeGoogTrans(code);
 
     const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
-    if (select && code !== "en") {
+    if (select) {
       select.value = code;
       select.dispatchEvent(new Event("change"));
       return;

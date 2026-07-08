@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { Hanken_Grotesk, Spectral } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -182,12 +184,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${display.variable} ${body.variable} ${zarathustra.variable} h-full`}
     >
       <body className="min-h-full bg-parchment text-ink">
@@ -198,15 +202,17 @@ export default function RootLayout({
             __html: JSON.stringify(organizationJsonLd),
           }}
         />
-        <ClientMotionRoot>
-          <SiteHeader />
-          <main id="top" className="relative z-20 bg-parchment">
-            {children}
-          </main>
-          <MaterialSpotlight />
-          <SiteFooter />
-          <AccessibilitySettingsPanel />
-        </ClientMotionRoot>
+        <NextIntlClientProvider>
+          <ClientMotionRoot>
+            <SiteHeader />
+            <main id="top" className="relative z-20 bg-parchment">
+              {children}
+            </main>
+            <MaterialSpotlight />
+            <SiteFooter />
+            <AccessibilitySettingsPanel />
+          </ClientMotionRoot>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

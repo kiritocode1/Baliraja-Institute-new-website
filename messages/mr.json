@@ -1,0 +1,43 @@
+{
+  "Common": {
+    "menu": "मेनू",
+    "close": "बंद करा",
+    "openMenu": "मेनू उघडा",
+    "closeMenu": "मेनू बंद करा",
+    "language": "भाषा",
+    "siteMenu": "साइट मेनू"
+  },
+  "Header": {
+    "brandKicker": "बलिराजा इन्स्टिट्यूट",
+    "admissionsCtaTitle": "प्रवेशाने सुरुवात करा",
+    "admissionsCtaBody": "साइटवरून अधिक स्पष्ट मार्ग: आधी अकॅडमी समजून घ्या, मग अभ्यासक्रमांची तुलना करा, आणि नंतर कार्यालयाशी बोला.",
+    "follow": "फॉलो करा"
+  },
+  "Footer": {
+    "estd": "स्थापना",
+    "connect": "संपर्कात राहा",
+    "visit": "भेट द्या",
+    "rightsReserved": "सर्व हक्क राखीव.",
+    "col": {
+      "academy": "अकॅडमी",
+      "examTracks": "परीक्षा मार्ग",
+      "admissions": "प्रवेश",
+      "stories": "कथा"
+    },
+    "link": {
+      "about": "आमच्याबद्दल",
+      "studentLife": "विद्यार्थी जीवन",
+      "whyBaliraja": "बलिराजा का",
+      "facultyMentors": "शिक्षक व मार्गदर्शक",
+      "allCourses": "सर्व अभ्यासक्रम",
+      "enquireApply": "चौकशी व अर्ज करा",
+      "scholarships": "शिष्यवृत्ती",
+      "testSeries": "टेस्ट सिरीज",
+      "visitCampus": "कॅम्पसला भेट द्या",
+      "newsNotices": "बातम्या आणि सूचना",
+      "campusGallery": "कॅम्पस गॅलरी",
+      "adminPortal": "प्रशासक पोर्टल",
+      "contact": "संपर्क"
+    }
+  }
+}

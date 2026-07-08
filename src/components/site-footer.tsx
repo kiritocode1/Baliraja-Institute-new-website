@@ -1,6 +1,8 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { BrandLogo } from "@/components/brand-logo";
 import { SlideUnderlineLink } from "@/components/links";
 import { listCoursePages } from "@/lib/crm/course-pages";
+import { localize } from "@/lib/i18n-content";
 import { site, socials } from "@/lib/site";
 
 type FooterColumn = {
@@ -8,7 +10,9 @@ type FooterColumn = {
   links: { label: string; href: string }[];
 };
 
-async function buildColumns(): Promise<FooterColumn[]> {
+type FooterT = Awaited<ReturnType<typeof getTranslations<"Footer">>>;
+
+async function buildColumns(t: FooterT): Promise<FooterColumn[]> {
   // Exam-track links come from published bharti course pages in the CRM.
   const courseLinks = (await listCoursePages())
     .filter((page) => page.status === "published" && page.division === "bharti")
@@ -17,41 +21,44 @@ async function buildColumns(): Promise<FooterColumn[]> {
 
   return [
     {
-      heading: "Academy",
+      heading: t("col.academy"),
       links: [
-        { label: "About", href: "/about" },
-        { label: "Student Life", href: "/student-life" },
-        { label: "Why Baliraja", href: "/why-baliraja" },
-        { label: "Faculty & Mentors", href: "/about" },
+        { label: t("link.about"), href: "/about" },
+        { label: t("link.studentLife"), href: "/student-life" },
+        { label: t("link.whyBaliraja"), href: "/why-baliraja" },
+        { label: t("link.facultyMentors"), href: "/about" },
       ],
     },
     {
-      heading: "Exam Tracks",
-      links: [{ label: "All Courses", href: "/courses" }, ...courseLinks],
+      heading: t("col.examTracks"),
+      links: [{ label: t("link.allCourses"), href: "/courses" }, ...courseLinks],
     },
     {
-      heading: "Admissions",
+      heading: t("col.admissions"),
       links: [
-        { label: "Enquire & Apply", href: "/admissions" },
-        { label: "Scholarships", href: "/scholarships" },
-        { label: "Test Series", href: "/news-events" },
-        { label: "Visit the Campus", href: "/contact-us" },
+        { label: t("link.enquireApply"), href: "/admissions" },
+        { label: t("link.scholarships"), href: "/scholarships" },
+        { label: t("link.testSeries"), href: "/news-events" },
+        { label: t("link.visitCampus"), href: "/contact-us" },
       ],
     },
     {
-      heading: "Stories",
+      heading: t("col.stories"),
       links: [
-        { label: "News & Notices", href: "/news-events" },
-        { label: "Campus Gallery", href: "/gallery" },
-        { label: "Admin Portal", href: "/crm" },
-        { label: "Contact", href: "/contact-us" },
+        { label: t("link.newsNotices"), href: "/news-events" },
+        { label: t("link.campusGallery"), href: "/gallery" },
+        { label: t("link.adminPortal"), href: "/crm" },
+        { label: t("link.contact"), href: "/contact-us" },
       ],
     },
   ];
 }
 
 export async function SiteFooter() {
-  const columns = await buildColumns();
+  const locale = await getLocale();
+  const t = await getTranslations("Footer");
+  const s = localize(site, locale);
+  const columns = await buildColumns(t);
 
   return (
     <footer
@@ -64,16 +71,14 @@ export async function SiteFooter() {
           <div className="flex items-center gap-5">
             <BrandLogo className="w-36 shrink-0 sm:w-44" />
             <div>
-              <p className="font-display text-xl leading-none">
-                {site.longName}
-              </p>
+              <p className="font-display text-xl leading-none">{s.longName}</p>
               <p className="mt-1.5 text-xs uppercase tracking-[0.22em] text-cream-muted">
-                {site.place} · Estd. {site.established}
+                {s.place} · {t("estd")} {site.established}
               </p>
             </div>
           </div>
           <p className="max-w-sm font-display text-2xl italic leading-snug text-cream/90">
-            {site.motto}.
+            {s.motto}.
           </p>
         </div>
 
@@ -100,9 +105,9 @@ export async function SiteFooter() {
             </nav>
           ))}
 
-          <nav aria-label="Connect" className="flex flex-col gap-4">
+          <nav aria-label={t("connect")} className="flex flex-col gap-4">
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cream-muted">
-              Connect
+              {t("connect")}
             </p>
             <ul className="flex flex-col gap-2.5 text-[0.95rem]">
               {socials.map((l) => (
@@ -117,10 +122,10 @@ export async function SiteFooter() {
 
           <address className="col-span-2 flex flex-col gap-4 not-italic sm:col-span-3 lg:col-span-1">
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cream-muted">
-              Visit
+              {t("visit")}
             </p>
             <p className="text-[0.95rem] leading-relaxed text-cream/85">
-              {site.contact.address}
+              {s.contact.address}
             </p>
             <div className="flex flex-col gap-1.5 text-[0.95rem]">
               <a
@@ -143,10 +148,10 @@ export async function SiteFooter() {
         {/* Legal */}
         <div className="flex flex-col gap-3 border-t border-cream/15 py-7 text-xs text-cream-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {site.longName}, {site.place}. All
-            rights reserved.
+            © {new Date().getFullYear()} {s.longName}, {s.place}.{" "}
+            {t("rightsReserved")}
           </p>
-          <p className="uppercase tracking-[0.2em]">{site.motto}</p>
+          <p className="uppercase tracking-[0.2em]">{s.motto}</p>
         </div>
       </div>
     </footer>

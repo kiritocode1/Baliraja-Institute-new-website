@@ -8,9 +8,13 @@ import { getAssetUrl } from "@/lib/assets";
 
 export const site = {
   name: "Baliraja Institute",
+  nameMr: "बलिराजा इन्स्टिट्यूट",
   longName: "Baliraja Institute Career Academy",
+  longNameMr: "बलिराजा इन्स्टिट्यूट करिअर अकॅडमी",
   place: "Gangapur",
+  placeMr: "गंगापूर",
   motto: "To Educate and To Serve",
+  mottoMr: "शिक्षण आणि सेवा",
   established: "2009",
   website: "balirajaacademy.in",
   websiteHref: "https://balirajaacademy.in",
@@ -25,54 +29,62 @@ export const site = {
   },
 } as const;
 
-export type NavLink = { label: string; href: string };
+export type NavLink = { label: string; labelMr?: string; href: string };
 export type NavGroup = {
   heading: string;
+  headingMr?: string;
   body: string;
+  bodyMr?: string;
   links: NavLink[];
 };
 
 /** Top-bar primary links (desktop, inline). */
 export const primaryNav: NavLink[] = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "Student Life", href: "/student-life" },
-  { label: "Courses", href: "/courses" },
-  { label: "School", href: "/school" },
-  { label: "Admissions", href: "/admissions" },
+  { label: "Home", labelMr: "मुख्यपृष्ठ", href: "/" },
+  { label: "About", labelMr: "आमच्याबद्दल", href: "/about" },
+  { label: "Student Life", labelMr: "विद्यार्थी जीवन", href: "/student-life" },
+  { label: "Courses", labelMr: "अभ्यासक्रम", href: "/courses" },
+  { label: "School", labelMr: "शाळा", href: "/school" },
+  { label: "Admissions", labelMr: "प्रवेश", href: "/admissions" },
 ];
 
 /** Overlay menu groups: fewer choices first, detailed paths second. */
 export const overlayNavGroups: NavGroup[] = [
   {
     heading: "Academy",
+    headingMr: "अकॅडमी",
     body: "Know the people, place, and promise.",
+    bodyMr: "आमची माणसे, ठिकाण आणि वचन जाणून घ्या.",
     links: [
-      { label: "Home", href: "/" },
-      { label: "About Baliraja", href: "/about" },
-      { label: "Why Baliraja", href: "/why-baliraja" },
-      { label: "Campus Gallery", href: "/gallery" },
+      { label: "Home", labelMr: "मुख्यपृष्ठ", href: "/" },
+      { label: "About Baliraja", labelMr: "बलिराजाबद्दल", href: "/about" },
+      { label: "Why Baliraja", labelMr: "बलिराजा का", href: "/why-baliraja" },
+      { label: "Campus Gallery", labelMr: "कॅम्पस गॅलरी", href: "/gallery" },
     ],
   },
   {
     heading: "Learning",
+    headingMr: "शिक्षण",
     body: "Find the course path, student rhythm, and updates.",
+    bodyMr: "अभ्यासक्रमाचा मार्ग, विद्यार्थ्यांची दिनचर्या आणि अद्यतने पाहा.",
     links: [
-      { label: "All Courses", href: "/courses" },
-      { label: "School", href: "/school" },
-      { label: "Student Life", href: "/student-life" },
-      { label: "News & Notices", href: "/news-events" },
-      { label: "Student Portal", href: "/student/login" },
+      { label: "All Courses", labelMr: "सर्व अभ्यासक्रम", href: "/courses" },
+      { label: "School", labelMr: "शाळा", href: "/school" },
+      { label: "Student Life", labelMr: "विद्यार्थी जीवन", href: "/student-life" },
+      { label: "News & Notices", labelMr: "बातम्या आणि सूचना", href: "/news-events" },
+      { label: "Student Portal", labelMr: "विद्यार्थी पोर्टल", href: "/student/login" },
     ],
   },
   {
     heading: "Join",
+    headingMr: "सामील व्हा",
     body: "Start the conversation with the office.",
+    bodyMr: "कार्यालयाशी संवाद सुरू करा.",
     links: [
-      { label: "Admissions", href: "/admissions" },
-      { label: "Scholarships", href: "/scholarships" },
-      { label: "Contact", href: "/contact-us" },
-      { label: "Admin Portal", href: "/crm" },
+      { label: "Admissions", labelMr: "प्रवेश", href: "/admissions" },
+      { label: "Scholarships", labelMr: "शिष्यवृत्ती", href: "/scholarships" },
+      { label: "Contact", labelMr: "संपर्क", href: "/contact-us" },
+      { label: "Admin Portal", labelMr: "प्रशासक पोर्टल", href: "/crm" },
     ],
   },
 ];

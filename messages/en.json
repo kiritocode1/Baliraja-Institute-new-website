@@ -1,0 +1,43 @@
+{
+  "Common": {
+    "menu": "Menu",
+    "close": "Close",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "language": "Language",
+    "siteMenu": "Site menu"
+  },
+  "Header": {
+    "brandKicker": "Baliraja Institute",
+    "admissionsCtaTitle": "Start with admissions",
+    "admissionsCtaBody": "A clearer path through the site: first understand the academy, then compare courses, then speak with the office.",
+    "follow": "Follow"
+  },
+  "Footer": {
+    "estd": "Estd.",
+    "connect": "Connect",
+    "visit": "Visit",
+    "rightsReserved": "All rights reserved.",
+    "col": {
+      "academy": "Academy",
+      "examTracks": "Exam Tracks",
+      "admissions": "Admissions",
+      "stories": "Stories"
+    },
+    "link": {
+      "about": "About",
+      "studentLife": "Student Life",
+      "whyBaliraja": "Why Baliraja",
+      "facultyMentors": "Faculty & Mentors",
+      "allCourses": "All Courses",
+      "enquireApply": "Enquire & Apply",
+      "scholarships": "Scholarships",
+      "testSeries": "Test Series",
+      "visitCampus": "Visit the Campus",
+      "newsNotices": "News & Notices",
+      "campusGallery": "Campus Gallery",
+      "adminPortal": "Admin Portal",
+      "contact": "Contact"
+    }
+  }
+}

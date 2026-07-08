@@ -2,12 +2,14 @@
 
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SvgUnderlineLink } from "@/components/links";
+import { localize } from "@/lib/i18n-content";
 import { overlayNavGroups, primaryNav, site, socials } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -15,13 +17,9 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(SplitText);
 }
 
-function Crest({ light }: { light: boolean }) {
+function Crest({ light, label }: { light: boolean; label: string }) {
   return (
-    <Link
-      href="/"
-      aria-label={`${site.longName}, ${site.place} — home`}
-      className="group flex items-center"
-    >
+    <Link href="/" aria-label={label} className="group flex items-center">
       <BrandLogo
         className={cn(
           "w-[7.2rem] sm:w-[8.2rem]",
@@ -37,6 +35,11 @@ function Crest({ light }: { light: boolean }) {
 export function SiteHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const locale = useLocale();
+  const t = useTranslations();
+  const nav = localize(primaryNav, locale);
+  const groups = localize(overlayNavGroups, locale);
+  const s = localize(site, locale);
 
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -249,7 +252,7 @@ export function SiteHeader() {
         )}
       >
         <div className="mx-auto flex h-[4.5rem] max-w-[100rem] items-center justify-between gap-6 px-5 sm:px-8">
-          <Crest light={light} />
+          <Crest light={light} label={`${s.longName}, ${s.place} — home`} />
 
           <div className="flex items-center gap-4 lg:gap-6">
             <nav
@@ -259,7 +262,7 @@ export function SiteHeader() {
                 light ? "text-cream" : "text-ink",
               )}
             >
-              {primaryNav.map((l) => (
+              {nav.map((l) => (
                 <SvgUnderlineLink key={l.href} href={l.href}>
                   {l.label}
                 </SvgUnderlineLink>
@@ -271,7 +274,7 @@ export function SiteHeader() {
             <button
               type="button"
               onClick={toggle}
-              aria-label={open ? "Close menu" : "Open menu"}
+              aria-label={open ? t("Common.closeMenu") : t("Common.openMenu")}
               aria-expanded={open}
               aria-controls="overlay-menu"
               className={cn(
@@ -280,7 +283,7 @@ export function SiteHeader() {
               )}
             >
               <span className="hidden sm:inline">
-                {open ? "Close" : "Menu"}
+                {open ? t("Common.close") : t("Common.menu")}
               </span>
               <span className="relative flex h-4 w-7 flex-col justify-center">
                 <span
@@ -319,29 +322,28 @@ export function SiteHeader() {
           className="bal-menu"
           role="dialog"
           aria-modal="true"
-          aria-label="Site menu"
+          aria-label={t("Common.siteMenu")}
         >
           <div className="mx-auto grid min-h-full w-full max-w-[100rem] content-between gap-10 px-5 pb-10 pt-28 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(34rem,0.82fr)] lg:items-end lg:gap-16 lg:pb-16 lg:pt-32">
             <div className="bal-menu-primary flex max-w-4xl flex-col gap-6 text-cream">
               <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cream-muted">
-                Baliraja Institute
+                {t("Header.brandKicker")}
               </p>
               <Link
                 href="/admissions"
                 onClick={closeMenu}
                 className="max-w-[13ch] text-[clamp(3rem,8vw,6.8rem)] font-light"
               >
-                Start with admissions
+                {t("Header.admissionsCtaTitle")}
               </Link>
               <p className="max-w-xl text-[1rem] leading-relaxed text-cream-muted sm:text-[1.08rem]">
-                A clearer path through the site: first understand the academy,
-                then compare courses, then speak with the office.
+                {t("Header.admissionsCtaBody")}
               </p>
             </div>
 
             <div className="flex flex-col gap-8 lg:gap-10">
               <div className="bal-menu-secondary grid gap-7 sm:grid-cols-3">
-                {overlayNavGroups.map((group) => (
+                {groups.map((group) => (
                   <nav
                     key={group.heading}
                     aria-label={group.heading}
@@ -372,7 +374,7 @@ export function SiteHeader() {
               <div className="bal-menu-meta grid gap-6 border-t border-cream/15 pt-6 text-cream sm:grid-cols-[1fr_auto] sm:items-end">
                 <div className="flex flex-col gap-3">
                   <p className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-cream-muted">
-                    Follow
+                    {t("Header.follow")}
                   </p>
                   <div className="flex flex-wrap gap-x-5 gap-y-2">
                     {socials.map((l) => (
