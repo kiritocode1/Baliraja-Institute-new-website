@@ -1089,6 +1089,12 @@ export function GalleryAdminPanel({
           className={`${galleryFieldClass} self-end`}
         />
         <input
+          name="captionMr"
+          placeholder="कॅप्शन (Marathi, optional)"
+          aria-label="Caption (Marathi)"
+          className={`${galleryFieldClass} self-end`}
+        />
+        <input
           name="alt"
           placeholder="Alt text (optional)"
           aria-label="Alt text"
@@ -1145,6 +1151,13 @@ export function GalleryAdminPanel({
                 defaultValue={image.caption}
                 required
                 aria-label="Caption"
+                className={galleryFieldClass}
+              />
+              <input
+                name="captionMr"
+                defaultValue={image.captionMr ?? ""}
+                placeholder="कॅप्शन (Marathi)"
+                aria-label="Caption (Marathi)"
                 className={galleryFieldClass}
               />
               <input

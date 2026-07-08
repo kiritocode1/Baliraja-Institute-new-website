@@ -231,6 +231,11 @@ function BlogComposer({
     post?.seoDescription ?? "",
   );
   const [bodyHtml, setBodyHtml] = React.useState(post?.bodyHtml ?? EMPTY_BODY);
+  // Marathi (mr) content — shown on the public site when locale is mr.
+  const [titleMr, setTitleMr] = React.useState(post?.titleMr ?? "");
+  const [excerptMr, setExcerptMr] = React.useState(post?.excerptMr ?? "");
+  const [categoryMr, setCategoryMr] = React.useState(post?.categoryMr ?? "");
+  const [bodyHtmlMr, setBodyHtmlMr] = React.useState(post?.bodyHtmlMr ?? "");
   const [message, setMessage] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
@@ -363,10 +368,14 @@ function BlogComposer({
 
     return {
       title,
+      titleMr,
       slug: duplicate ? "" : selectedSlug,
       excerpt,
+      excerptMr,
       bodyHtml: html,
+      bodyHtmlMr,
       category,
+      categoryMr,
       author,
       readTime: readTime || estimateReadTime(html),
       image,
@@ -645,6 +654,42 @@ function BlogComposer({
                   rows={3}
                   className="mt-3 w-full resize-none border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
                   placeholder="Meta description"
+                />
+              </div>
+
+              <div className="border-t border-cream/12 pt-5">
+                <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
+                  Marathi (मराठी)
+                </p>
+                <p className="mt-1 text-[0.68rem] text-cream-muted/70">
+                  Shown on the public site in Marathi. Leave blank to fall back
+                  to English.
+                </p>
+                <input
+                  value={titleMr}
+                  onChange={(event) => setTitleMr(event.target.value)}
+                  className="mt-3 w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="शीर्षक (title)"
+                />
+                <input
+                  value={categoryMr}
+                  onChange={(event) => setCategoryMr(event.target.value)}
+                  className="mt-3 w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="वर्ग (category)"
+                />
+                <textarea
+                  value={excerptMr}
+                  onChange={(event) => setExcerptMr(event.target.value)}
+                  rows={3}
+                  className="mt-3 w-full resize-none border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="सारांश (excerpt)"
+                />
+                <textarea
+                  value={bodyHtmlMr}
+                  onChange={(event) => setBodyHtmlMr(event.target.value)}
+                  rows={6}
+                  className="mt-3 w-full resize-none border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="मुख्य मजकूर — HTML allowed (body)"
                 />
               </div>
             </div>

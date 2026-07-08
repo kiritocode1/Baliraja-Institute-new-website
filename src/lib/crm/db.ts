@@ -567,6 +567,40 @@ export async function ensureCrmSchema() {
     ON crm_students (lead_id)
   `;
 
+  // Marathi (mr) content columns — public readers overlay these onto the base
+  // fields when the site locale is `mr`. All nullable; blank falls back to base.
+  const mrColumns: Record<string, string[]> = {
+    crm_course_pages: [
+      "title_mr",
+      "summary_mr",
+      "body_html_mr",
+      "category_mr",
+      "audience_mr",
+      "exams_mr",
+      "duration_mr",
+      "image_alt_mr",
+      "seo_title_mr",
+      "seo_description_mr",
+    ],
+    crm_blog_posts: [
+      "title_mr",
+      "excerpt_mr",
+      "body_html_mr",
+      "category_mr",
+      "seo_title_mr",
+      "seo_description_mr",
+    ],
+    crm_gallery_images: ["caption_mr", "alt_mr"],
+    crm_course_notices: ["title_mr", "body_html_mr"],
+  };
+  for (const [table, columns] of Object.entries(mrColumns)) {
+    for (const column of columns) {
+      await db.query(
+        `ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${column} TEXT`,
+      );
+    }
+  }
+
   schemaReady = true;
   return true;
 }

@@ -12,11 +12,12 @@ type FooterColumn = {
 
 type FooterT = Awaited<ReturnType<typeof getTranslations<"Footer">>>;
 
-async function buildColumns(t: FooterT): Promise<FooterColumn[]> {
+async function buildColumns(t: FooterT, locale: string): Promise<FooterColumn[]> {
   // Exam-track links come from published bharti course pages in the CRM.
   const courseLinks = (await listCoursePages())
     .filter((page) => page.status === "published" && page.division === "bharti")
     .slice(0, 5)
+    .map((page) => localize(page, locale))
     .map((page) => ({ label: page.title, href: `/courses/${page.slug}` }));
 
   return [
@@ -58,7 +59,7 @@ export async function SiteFooter() {
   const locale = await getLocale();
   const t = await getTranslations("Footer");
   const s = localize(site, locale);
-  const columns = await buildColumns(t);
+  const columns = await buildColumns(t, locale);
 
   return (
     <footer

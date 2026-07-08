@@ -13,16 +13,22 @@ export type BlogPostStatus = (typeof blogPostStatuses)[number];
 export type BlogPost = {
   id: string;
   title: string;
+  titleMr: string | null;
   slug: string;
   excerpt: string;
+  excerptMr: string | null;
   bodyHtml: string;
+  bodyHtmlMr: string | null;
   category: string;
+  categoryMr: string | null;
   author: string | null;
   readTime: string;
   image: string;
   status: BlogPostStatus;
   seoTitle: string | null;
+  seoTitleMr: string | null;
   seoDescription: string | null;
+  seoDescriptionMr: string | null;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -30,16 +36,22 @@ export type BlogPost = {
 
 export type BlogPostInput = {
   title: string;
+  titleMr?: string | null;
   slug?: string;
   excerpt: string;
+  excerptMr?: string | null;
   bodyHtml: string;
+  bodyHtmlMr?: string | null;
   category: string;
+  categoryMr?: string | null;
   author?: string | null;
   readTime?: string;
   image: string;
   status: BlogPostStatus;
   seoTitle?: string | null;
+  seoTitleMr?: string | null;
   seoDescription?: string | null;
+  seoDescriptionMr?: string | null;
 };
 
 export type BlogCard = {
@@ -229,16 +241,22 @@ function normalizeInput(
 
   return {
     title,
+    titleMr: cleanText(input.titleMr) || null,
     slug,
     excerpt: cleanText(input.excerpt),
+    excerptMr: cleanText(input.excerptMr) || null,
     bodyHtml,
+    bodyHtmlMr: input.bodyHtmlMr ? sanitizeBlogHtml(input.bodyHtmlMr) : null,
     category: cleanText(input.category) || DEFAULT_CATEGORY,
+    categoryMr: cleanText(input.categoryMr) || null,
     author: cleanText(input.author) || null,
     readTime: cleanText(input.readTime) || estimateReadTime(bodyHtml),
     image: safeCoverImageUrl(cleanText(input.image)) || DEFAULT_IMAGE,
     status,
     seoTitle: cleanText(input.seoTitle) || null,
+    seoTitleMr: cleanText(input.seoTitleMr) || null,
     seoDescription: cleanText(input.seoDescription) || null,
+    seoDescriptionMr: cleanText(input.seoDescriptionMr) || null,
   };
 }
 
@@ -248,16 +266,24 @@ function mapDbBlogPost(row: Record<string, unknown>): BlogPost {
   return {
     id: String(row.id),
     title: String(row.title),
+    titleMr: row.title_mr ? String(row.title_mr) : null,
     slug: String(row.slug),
     excerpt: String(row.excerpt),
+    excerptMr: row.excerpt_mr ? String(row.excerpt_mr) : null,
     bodyHtml: String(row.body_html),
+    bodyHtmlMr: row.body_html_mr ? String(row.body_html_mr) : null,
     category: String(row.category),
+    categoryMr: row.category_mr ? String(row.category_mr) : null,
     author: row.author ? String(row.author) : null,
     readTime: String(row.read_time),
     image: String(row.image),
     status: isBlogPostStatus(status) ? status : "draft",
     seoTitle: row.seo_title ? String(row.seo_title) : null,
+    seoTitleMr: row.seo_title_mr ? String(row.seo_title_mr) : null,
     seoDescription: row.seo_description ? String(row.seo_description) : null,
+    seoDescriptionMr: row.seo_description_mr
+      ? String(row.seo_description_mr)
+      : null,
     publishedAt: row.published_at
       ? new Date(String(row.published_at)).toISOString()
       : null,
@@ -279,16 +305,22 @@ async function listExistingBlogPosts() {
       SELECT
         id,
         title,
+        title_mr,
         slug,
         excerpt,
+        excerpt_mr,
         body_html,
+        body_html_mr,
         category,
+        category_mr,
         author,
         read_time,
         image,
         status,
         seo_title,
+        seo_title_mr,
         seo_description,
+        seo_description_mr,
         published_at,
         created_at,
         updated_at
@@ -377,16 +409,22 @@ export async function createBlogPost(input: BlogPostInput) {
       INSERT INTO crm_blog_posts (
         id,
         title,
+        title_mr,
         slug,
         excerpt,
+        excerpt_mr,
         body_html,
+        body_html_mr,
         category,
+        category_mr,
         author,
         read_time,
         image,
         status,
         seo_title,
+        seo_title_mr,
         seo_description,
+        seo_description_mr,
         published_at,
         created_at,
         updated_at
@@ -394,16 +432,22 @@ export async function createBlogPost(input: BlogPostInput) {
       VALUES (
         ${post.id},
         ${post.title},
+        ${post.titleMr},
         ${post.slug},
         ${post.excerpt},
+        ${post.excerptMr},
         ${post.bodyHtml},
+        ${post.bodyHtmlMr},
         ${post.category},
+        ${post.categoryMr},
         ${post.author},
         ${post.readTime},
         ${post.image},
         ${post.status},
         ${post.seoTitle},
+        ${post.seoTitleMr},
         ${post.seoDescription},
+        ${post.seoDescriptionMr},
         ${post.publishedAt},
         ${post.createdAt},
         ${post.updatedAt}
@@ -444,16 +488,22 @@ export async function updateBlogPost(id: string, input: BlogPostInput) {
       UPDATE crm_blog_posts
       SET
         title = ${post.title},
+        title_mr = ${post.titleMr},
         slug = ${post.slug},
         excerpt = ${post.excerpt},
+        excerpt_mr = ${post.excerptMr},
         body_html = ${post.bodyHtml},
+        body_html_mr = ${post.bodyHtmlMr},
         category = ${post.category},
+        category_mr = ${post.categoryMr},
         author = ${post.author},
         read_time = ${post.readTime},
         image = ${post.image},
         status = ${post.status},
         seo_title = ${post.seoTitle},
+        seo_title_mr = ${post.seoTitleMr},
         seo_description = ${post.seoDescription},
+        seo_description_mr = ${post.seoDescriptionMr},
         published_at = ${post.publishedAt},
         updated_at = ${post.updatedAt}
       WHERE id = ${id}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import { EnquiryCta } from "@/components/sections/enquiry-cta";
 import { ExamTracks } from "@/components/sections/exam-tracks";
 import { Gallery } from "@/components/sections/gallery";
@@ -12,16 +13,19 @@ import {
 } from "@/components/sections/home-editorial";
 import { listCoursePages } from "@/lib/crm/course-pages";
 import { listPublishedGalleryImages } from "@/lib/crm/gallery";
+import { localize } from "@/lib/i18n-content";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
 export default async function Home() {
-  const [pages, galleryImages] = await Promise.all([
+  const locale = await getLocale();
+  const [rawPages, galleryImages] = await Promise.all([
     listCoursePages(),
-    listPublishedGalleryImages(),
+    listPublishedGalleryImages(locale),
   ]);
+  const pages = rawPages.map((page) => localize(page, locale));
   // The exam-tracks section renders CRM course pages: edits in /crm/courses
   // show here after publish.
   const bharti = pages.filter(

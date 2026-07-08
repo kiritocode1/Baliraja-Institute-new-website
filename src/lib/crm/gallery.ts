@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { ensureCrmSchema, getSql } from "@/lib/crm/db";
+import { localize } from "@/lib/i18n-content";
 import { readJsonFile, writeJsonFile } from "@/lib/crm/local-store";
 
 export const galleryAlbums = [
@@ -16,7 +17,9 @@ export type CrmGalleryImage = {
   id: string;
   url: string;
   caption: string;
+  captionMr: string | null;
   alt: string;
+  altMr: string | null;
   album: GalleryAlbum;
   sortOrder: number;
   published: boolean;
@@ -38,7 +41,9 @@ function mapDbImage(row: Record<string, unknown>): CrmGalleryImage {
     id: String(row.id),
     url: String(row.url),
     caption: String(row.caption),
+    captionMr: row.caption_mr ? String(row.caption_mr) : null,
     alt: String(row.alt),
+    altMr: row.alt_mr ? String(row.alt_mr) : null,
     album: parseAlbum(row.album),
     sortOrder: Number(row.sort_order ?? 100),
     published: Boolean(row.published),
@@ -54,7 +59,7 @@ export async function listGalleryImages(): Promise<CrmGalleryImage[]> {
   if (ready && db) {
     const rows = (await db`
       SELECT
-        id, url, caption, alt, album, sort_order, published,
+        id, url, caption, caption_mr, alt, alt_mr, album, sort_order, published,
         created_at, updated_at
       FROM crm_gallery_images
       ORDER BY sort_order ASC, created_at DESC
@@ -68,16 +73,21 @@ export async function listGalleryImages(): Promise<CrmGalleryImage[]> {
   );
 }
 
-export async function listPublishedGalleryImages(album?: string) {
-  return (await listGalleryImages()).filter(
-    (image) => image.published && (!album || image.album === album),
-  );
+export async function listPublishedGalleryImages(
+  locale = "en",
+  album?: string,
+) {
+  return (await listGalleryImages())
+    .filter((image) => image.published && (!album || image.album === album))
+    .map((image) => localize(image, locale));
 }
 
 export async function createGalleryImage(input: {
   url: string;
   caption: string;
+  captionMr?: string | null;
   alt: string;
+  altMr?: string | null;
   album: string;
   sortOrder?: number | null;
 }): Promise<CrmGalleryImage> {
@@ -86,7 +96,9 @@ export async function createGalleryImage(input: {
     id: crypto.randomUUID(),
     url: input.url.trim(),
     caption: input.caption.trim(),
+    captionMr: input.captionMr?.trim() || null,
     alt: input.alt.trim() || input.caption.trim(),
+    altMr: input.altMr?.trim() || null,
     album: parseAlbum(input.album),
     sortOrder: input.sortOrder ?? 100,
     published: true,
@@ -104,13 +116,13 @@ export async function createGalleryImage(input: {
   if (ready && db) {
     await db`
       INSERT INTO crm_gallery_images (
-        id, url, caption, alt, album, sort_order, published,
+        id, url, caption, caption_mr, alt, alt_mr, album, sort_order, published,
         created_at, updated_at
       )
       VALUES (
-        ${image.id}, ${image.url}, ${image.caption}, ${image.alt},
-        ${image.album}, ${image.sortOrder}, ${image.published},
-        ${image.createdAt}, ${image.updatedAt}
+        ${image.id}, ${image.url}, ${image.caption}, ${image.captionMr},
+        ${image.alt}, ${image.altMr}, ${image.album}, ${image.sortOrder},
+        ${image.published}, ${image.createdAt}, ${image.updatedAt}
       )
     `;
     return image;
@@ -126,7 +138,9 @@ export async function updateGalleryImage(
   id: string,
   input: {
     caption: string;
+    captionMr?: string | null;
     alt: string;
+    altMr?: string | null;
     album: string;
     sortOrder: number;
     published: boolean;
@@ -134,6 +148,8 @@ export async function updateGalleryImage(
 ) {
   const now = new Date().toISOString();
   const album = parseAlbum(input.album);
+  const captionMr = input.captionMr?.trim() || null;
+  const altMr = input.altMr?.trim() || null;
   const ready = await ensureCrmSchema();
   const db = getSql();
 
@@ -142,7 +158,9 @@ export async function updateGalleryImage(
       UPDATE crm_gallery_images
       SET
         caption = ${input.caption.trim()},
+        caption_mr = ${captionMr},
         alt = ${input.alt.trim() || input.caption.trim()},
+        alt_mr = ${altMr},
         album = ${album},
         sort_order = ${input.sortOrder},
         published = ${input.published},
@@ -160,7 +178,9 @@ export async function updateGalleryImage(
         ? {
             ...image,
             caption: input.caption.trim(),
+            captionMr,
             alt: input.alt.trim() || input.caption.trim(),
+            altMr,
             album,
             sortOrder: input.sortOrder,
             published: input.published,

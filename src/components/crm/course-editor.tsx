@@ -228,6 +228,11 @@ function CourseComposer({
     page?.seoDescription ?? "",
   );
   const [bodyHtml, setBodyHtml] = React.useState(page?.bodyHtml ?? EMPTY_BODY);
+  // Marathi (mr) content — public pages show these when the site locale is mr.
+  const [titleMr, setTitleMr] = React.useState(page?.titleMr ?? "");
+  const [summaryMr, setSummaryMr] = React.useState(page?.summaryMr ?? "");
+  const [categoryMr, setCategoryMr] = React.useState(page?.categoryMr ?? "");
+  const [bodyHtmlMr, setBodyHtmlMr] = React.useState(page?.bodyHtmlMr ?? "");
   const [message, setMessage] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
@@ -356,10 +361,14 @@ function CourseComposer({
     return {
       seedKey: page?.seedKey ?? null,
       title,
+      titleMr,
       slug: duplicate ? "" : selectedSlug,
       summary,
+      summaryMr,
       bodyHtml: html,
+      bodyHtmlMr,
       category,
+      categoryMr,
       division,
       medium: division === "school" ? medium : "",
       audience,
@@ -688,6 +697,42 @@ function CourseComposer({
                   rows={3}
                   className="mt-3 w-full resize-none border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
                   placeholder="Meta description"
+                />
+              </div>
+
+              <div className="border-t border-cream/12 pt-5">
+                <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-cream-muted">
+                  Marathi (मराठी)
+                </p>
+                <p className="mt-1 text-[0.68rem] text-cream-muted/70">
+                  Shown on the public site in Marathi. Leave blank to fall back
+                  to English.
+                </p>
+                <input
+                  value={titleMr}
+                  onChange={(event) => setTitleMr(event.target.value)}
+                  className="mt-3 w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="शीर्षक (title)"
+                />
+                <input
+                  value={categoryMr}
+                  onChange={(event) => setCategoryMr(event.target.value)}
+                  className="mt-3 w-full border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="वर्ग (category)"
+                />
+                <textarea
+                  value={summaryMr}
+                  onChange={(event) => setSummaryMr(event.target.value)}
+                  rows={3}
+                  className="mt-3 w-full resize-none border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="सारांश (summary)"
+                />
+                <textarea
+                  value={bodyHtmlMr}
+                  onChange={(event) => setBodyHtmlMr(event.target.value)}
+                  rows={6}
+                  className="mt-3 w-full resize-none border border-cream/15 bg-oxblood-deep px-3 py-2.5 text-sm text-cream outline-none transition-colors focus:border-brass"
+                  placeholder="मुख्य मजकूर — HTML allowed (body)"
                 />
               </div>
             </div>

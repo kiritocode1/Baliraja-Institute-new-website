@@ -87,12 +87,18 @@ function parseBlogPostInput(input: BlogPostInput): BlogPostInput {
     throw new Error("Title, excerpt, and article body are required.");
   }
 
+  const mr = (value: unknown) => String(value ?? "").trim() || null;
+
   return {
     title,
+    titleMr: mr(input.titleMr),
     slug: String(input.slug ?? "").trim(),
     excerpt,
+    excerptMr: mr(input.excerptMr),
     bodyHtml,
+    bodyHtmlMr: mr(input.bodyHtmlMr),
     category,
+    categoryMr: mr(input.categoryMr),
     author: String(input.author ?? "").trim() || null,
     readTime: String(input.readTime ?? "").trim(),
     image,
@@ -101,7 +107,9 @@ function parseBlogPostInput(input: BlogPostInput): BlogPostInput {
         ? input.status
         : "draft",
     seoTitle: String(input.seoTitle ?? "").trim() || null,
+    seoTitleMr: mr(input.seoTitleMr),
     seoDescription: String(input.seoDescription ?? "").trim() || null,
+    seoDescriptionMr: mr(input.seoDescriptionMr),
   };
 }
 
@@ -122,23 +130,35 @@ function parseCoursePageInput(input: CoursePageInput): CoursePageInput {
     throw new Error("Title, summary, and course body are required.");
   }
 
+  const mr = (value: unknown) => String(value ?? "").trim() || null;
+
   return {
     seedKey: String(input.seedKey ?? "").trim() || null,
     title,
+    titleMr: mr(input.titleMr),
     slug: String(input.slug ?? "").trim(),
     summary,
+    summaryMr: mr(input.summaryMr),
     bodyHtml,
+    bodyHtmlMr: mr(input.bodyHtmlMr),
     category,
+    categoryMr: mr(input.categoryMr),
     division: String(input.division ?? "").trim() || null,
     medium: String(input.medium ?? "").trim() || null,
     audience: String(input.audience ?? "").trim() || null,
+    audienceMr: mr(input.audienceMr),
     exams: String(input.exams ?? "").trim() || null,
+    examsMr: mr(input.examsMr),
     duration: String(input.duration ?? "").trim() || null,
+    durationMr: mr(input.durationMr),
     image,
     imageAlt: String(input.imageAlt ?? "").trim() || null,
+    imageAltMr: mr(input.imageAltMr),
     status: parseCourseStatus(input.status),
     seoTitle: String(input.seoTitle ?? "").trim() || null,
+    seoTitleMr: mr(input.seoTitleMr),
     seoDescription: String(input.seoDescription ?? "").trim() || null,
+    seoDescriptionMr: mr(input.seoDescriptionMr),
     displayOrder: Number.isFinite(displayOrder) ? displayOrder : 100,
   };
 }
@@ -562,7 +582,9 @@ export async function uploadGalleryImageAction(formData: FormData) {
   await createGalleryImage({
     url: uploaded.url,
     caption: String(formData.get("caption") ?? ""),
+    captionMr: String(formData.get("captionMr") ?? ""),
     alt: String(formData.get("alt") ?? ""),
+    altMr: String(formData.get("altMr") ?? ""),
     album: String(formData.get("album") ?? "campus"),
     sortOrder: optionalNumber(formData, "sortOrder"),
   });
@@ -578,7 +600,9 @@ export async function updateGalleryImageAction(formData: FormData) {
 
   await updateGalleryImage(id, {
     caption: String(formData.get("caption") ?? ""),
+    captionMr: String(formData.get("captionMr") ?? ""),
     alt: String(formData.get("alt") ?? ""),
+    altMr: String(formData.get("altMr") ?? ""),
     album: String(formData.get("album") ?? "campus"),
     sortOrder: optionalNumber(formData, "sortOrder") ?? 100,
     published: formData.get("published") === "true",

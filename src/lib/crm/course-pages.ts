@@ -34,20 +34,30 @@ export type CoursePage = {
   id: string;
   seedKey: string | null;
   title: string;
+  titleMr: string | null;
   slug: string;
   summary: string;
+  summaryMr: string | null;
   bodyHtml: string;
+  bodyHtmlMr: string | null;
   category: string;
+  categoryMr: string | null;
   division: CourseDivision;
   medium: CourseMedium | null;
   audience: string | null;
+  audienceMr: string | null;
   exams: string | null;
+  examsMr: string | null;
   duration: string | null;
+  durationMr: string | null;
   image: string;
   imageAlt: string | null;
+  imageAltMr: string | null;
   status: CoursePageStatus;
   seoTitle: string | null;
+  seoTitleMr: string | null;
   seoDescription: string | null;
+  seoDescriptionMr: string | null;
   displayOrder: number;
   publishedAt: string | null;
   createdAt: string;
@@ -57,20 +67,30 @@ export type CoursePage = {
 export type CoursePageInput = {
   seedKey?: string | null;
   title: string;
+  titleMr?: string | null;
   slug?: string;
   summary: string;
+  summaryMr?: string | null;
   bodyHtml: string;
+  bodyHtmlMr?: string | null;
   category: string;
+  categoryMr?: string | null;
   division?: string | null;
   medium?: string | null;
   audience?: string | null;
+  audienceMr?: string | null;
   exams?: string | null;
+  examsMr?: string | null;
   duration?: string | null;
+  durationMr?: string | null;
   image: string;
   imageAlt?: string | null;
+  imageAltMr?: string | null;
   status: CoursePageStatus;
   seoTitle?: string | null;
+  seoTitleMr?: string | null;
   seoDescription?: string | null;
+  seoDescriptionMr?: string | null;
   displayOrder?: number;
 };
 
@@ -148,25 +168,35 @@ function staticCoursePages(): CoursePage[] {
     id: `static-featured-${course.key}`,
     seedKey: `featured-${course.key}`,
     title: course.title,
+    titleMr: course.titleMr ?? null,
     slug: slugifyBlogTitle(course.title),
     summary: course.blurb,
+    summaryMr: course.blurbMr ?? null,
     bodyHtml: courseBody({
       title: course.title,
       summary: course.blurb,
       exams: course.exams,
       audience: "defence aspirants",
     }),
+    bodyHtmlMr: null,
     category: "Defence",
+    categoryMr: "संरक्षण",
     division: "bharti" as const,
     medium: null,
     audience: "Defence aspirants",
+    audienceMr: "संरक्षण विद्यार्थी",
     exams: course.exams,
+    examsMr: null,
     duration: "Foundation, crash, and interview-preparation support",
+    durationMr: "फाउंडेशन, क्रॅश व मुलाखत-तयारी सहाय्य",
     image: course.image,
     imageAlt: course.alt,
+    imageAltMr: null,
     status: "published" as const,
     seoTitle: null,
+    seoTitleMr: null,
     seoDescription: course.blurb,
+    seoDescriptionMr: course.blurbMr ?? null,
     displayOrder: index + 1,
     publishedAt: now,
     createdAt: now,
@@ -176,24 +206,34 @@ function staticCoursePages(): CoursePage[] {
     id: `static-track-${slugifyBlogTitle(track.title)}`,
     seedKey: `track-${slugifyBlogTitle(track.title)}`,
     title: track.title,
+    titleMr: track.titleMr ?? null,
     slug: slugifyBlogTitle(track.title),
     summary: track.blurb,
+    summaryMr: track.blurbMr ?? null,
     bodyHtml: courseBody({
       title: track.title,
       summary: track.blurb,
       exams: track.title,
     }),
+    bodyHtmlMr: null,
     category: "Exam track",
+    categoryMr: "परीक्षा मार्ग",
     division: "bharti" as const,
     medium: null,
     audience: `${track.title} aspirants`,
+    audienceMr: null,
     exams: track.title,
+    examsMr: track.titleMr ?? null,
     duration: "Foundation, test-series, and revision support",
+    durationMr: "फाउंडेशन, टेस्ट-सिरीज व उजळणी सहाय्य",
     image: track.image,
     imageAlt: null,
+    imageAltMr: null,
     status: "published" as const,
     seoTitle: null,
+    seoTitleMr: null,
     seoDescription: track.blurb,
+    seoDescriptionMr: track.blurbMr ?? null,
     displayOrder: featured.length + index + 1,
     publishedAt: now,
     createdAt: now,
@@ -216,9 +256,20 @@ function staticCoursePages(): CoursePage[] {
       id: "static-school-marathi",
       seedKey: "school-marathi",
       title: "Baliraja School — Marathi Medium",
+      titleMr: "बलिराजा शाळा — मराठी माध्यम",
       slug: "school-marathi-medium",
       summary:
         "Full schooling in Marathi medium on the Baliraja campus — disciplined classrooms, sports grounds, and the same mentoring culture that trains bharti aspirants.",
+      summaryMr:
+        "बलिराजा कॅम्पसवर मराठी माध्यमात संपूर्ण शालेय शिक्षण — शिस्तबद्ध वर्ग, क्रीडांगणे आणि भरती विद्यार्थ्यांना घडवणारीच मार्गदर्शन संस्कृती.",
+      bodyHtmlMr: null,
+      categoryMr: "शाळा",
+      audienceMr: "शालेय विद्यार्थी व पालक",
+      examsMr: null,
+      durationMr: "संपूर्ण शैक्षणिक वर्ष",
+      imageAltMr: null,
+      seoTitleMr: null,
+      seoDescriptionMr: null,
       bodyHtml: divisionBody({
         intro:
           "Marathi-medium schooling with structured classes, daily study discipline, and access to the campus grounds and library.",
@@ -250,9 +301,20 @@ function staticCoursePages(): CoursePage[] {
       id: "static-school-semi-english",
       seedKey: "school-semi-english",
       title: "Baliraja School — Semi-English Medium",
+      titleMr: "बलिराजा शाळा — सेमी-इंग्रजी माध्यम",
       slug: "school-semi-english-medium",
       summary:
         "Semi-English medium schooling — Marathi-first teaching with mathematics and science in English, preparing students for higher education without losing their footing.",
+      summaryMr:
+        "सेमी-इंग्रजी माध्यम शिक्षण — मराठी-प्राधान्य शिकवण, गणित व विज्ञान इंग्रजीत, विद्यार्थ्यांना पाया न गमावता उच्च शिक्षणासाठी तयार करते.",
+      bodyHtmlMr: null,
+      categoryMr: "शाळा",
+      audienceMr: "शालेय विद्यार्थी व पालक",
+      examsMr: null,
+      durationMr: "संपूर्ण शैक्षणिक वर्ष",
+      imageAltMr: null,
+      seoTitleMr: null,
+      seoDescriptionMr: null,
       bodyHtml: divisionBody({
         intro:
           "Semi-English schooling where mathematics and science are taught in English and other subjects in Marathi, easing the path to English-medium higher education.",
@@ -284,9 +346,20 @@ function staticCoursePages(): CoursePage[] {
       id: "static-sports-academy",
       seedKey: "sports-academy",
       title: "Sports Academy",
+      titleMr: "क्रीडा अकॅडमी",
       slug: "sports-academy",
       summary:
         "Ground training, coaching, and physical development — open to school students and bharti aspirants building toward physical eligibility standards.",
+      summaryMr:
+        "मैदानी प्रशिक्षण, कोचिंग व शारीरिक विकास — शालेय विद्यार्थी व शारीरिक पात्रता निकषांकडे वाटचाल करणाऱ्या भरती विद्यार्थ्यांसाठी खुले.",
+      bodyHtmlMr: null,
+      categoryMr: "क्रीडा",
+      audienceMr: "शालेय विद्यार्थी व तरुण खेळाडू",
+      examsMr: null,
+      durationMr: "हंगामी व वर्षभर बॅचेस",
+      imageAltMr: null,
+      seoTitleMr: null,
+      seoDescriptionMr: null,
       bodyHtml: divisionBody({
         intro:
           "Structured sports coaching on the academy grounds: running, field events, and strength work with measured progress over the season.",
@@ -318,9 +391,20 @@ function staticCoursePages(): CoursePage[] {
       id: "static-summer-camp",
       seedKey: "summer-camp",
       title: "Summer Camp",
+      titleMr: "उन्हाळी शिबिर",
       slug: "summer-camp",
       summary:
         "Vacation camps on the Baliraja campus — sports, discipline, and guided activity for younger students during school holidays.",
+      summaryMr:
+        "बलिराजा कॅम्पसवर सुट्टीतील शिबिरे — शालेय सुट्ट्यांमध्ये लहान विद्यार्थ्यांसाठी क्रीडा, शिस्त व मार्गदर्शित उपक्रम.",
+      bodyHtmlMr: null,
+      categoryMr: "शिबिर",
+      audienceMr: "सुट्टीतील शालेय विद्यार्थी",
+      examsMr: null,
+      durationMr: "उन्हाळी सुट्टी बॅचेस",
+      imageAltMr: null,
+      seoTitleMr: null,
+      seoDescriptionMr: null,
       bodyHtml: divisionBody({
         intro:
           "A residential-style vacation camp mixing sports, physical activity, and disciplined daily routine on the academy campus.",
@@ -353,6 +437,10 @@ function staticCoursePages(): CoursePage[] {
   return [...featured, ...tracks, ...divisions];
 }
 
+function mrText(value: unknown): string | null {
+  return value ? String(value) : null;
+}
+
 function mapDbCoursePage(row: Record<string, unknown>): CoursePage {
   const status = String(row.status);
 
@@ -360,20 +448,30 @@ function mapDbCoursePage(row: Record<string, unknown>): CoursePage {
     id: String(row.id),
     seedKey: row.seed_key ? String(row.seed_key) : null,
     title: String(row.title),
+    titleMr: mrText(row.title_mr),
     slug: String(row.slug),
     summary: String(row.summary),
+    summaryMr: mrText(row.summary_mr),
     bodyHtml: String(row.body_html),
+    bodyHtmlMr: mrText(row.body_html_mr),
     category: String(row.category),
+    categoryMr: mrText(row.category_mr),
     division: parseDivision(row.division),
     medium: parseMedium(row.medium),
     audience: row.audience ? String(row.audience) : null,
+    audienceMr: mrText(row.audience_mr),
     exams: row.exams ? String(row.exams) : null,
+    examsMr: mrText(row.exams_mr),
     duration: row.duration ? String(row.duration) : null,
+    durationMr: mrText(row.duration_mr),
     image: String(row.image),
     imageAlt: row.image_alt ? String(row.image_alt) : null,
+    imageAltMr: mrText(row.image_alt_mr),
     status: isCoursePageStatus(status) ? status : "draft",
     seoTitle: row.seo_title ? String(row.seo_title) : null,
+    seoTitleMr: mrText(row.seo_title_mr),
     seoDescription: row.seo_description ? String(row.seo_description) : null,
+    seoDescriptionMr: mrText(row.seo_description_mr),
     displayOrder: Number(row.display_order ?? 100),
     publishedAt: row.published_at
       ? new Date(String(row.published_at)).toISOString()
@@ -393,20 +491,30 @@ async function listStoredCoursePages() {
         id,
         seed_key,
         title,
+        title_mr,
         slug,
         summary,
+        summary_mr,
         body_html,
+        body_html_mr,
         category,
+        category_mr,
         division,
         medium,
         audience,
+        audience_mr,
         exams,
+        exams_mr,
         duration,
+        duration_mr,
         image,
         image_alt,
+        image_alt_mr,
         status,
         seo_title,
+        seo_title_mr,
         seo_description,
+        seo_description_mr,
         display_order,
         published_at,
         created_at,
@@ -479,20 +587,30 @@ function normalizeInput(
   return {
     seedKey: cleanText(input.seedKey) || null,
     title,
+    titleMr: cleanText(input.titleMr) || null,
     slug,
     summary: cleanText(input.summary),
+    summaryMr: cleanText(input.summaryMr) || null,
     bodyHtml,
+    bodyHtmlMr: input.bodyHtmlMr ? sanitizeBlogHtml(input.bodyHtmlMr) : null,
     category: cleanText(input.category) || "Course",
+    categoryMr: cleanText(input.categoryMr) || null,
     division: parseDivision(input.division),
     medium: parseMedium(input.medium),
     audience: cleanText(input.audience) || null,
+    audienceMr: cleanText(input.audienceMr) || null,
     exams: cleanText(input.exams) || null,
+    examsMr: cleanText(input.examsMr) || null,
     duration: cleanText(input.duration) || null,
+    durationMr: cleanText(input.durationMr) || null,
     image: safeCoverImageUrl(cleanText(input.image)) || DEFAULT_IMAGE,
     imageAlt: cleanText(input.imageAlt) || null,
+    imageAltMr: cleanText(input.imageAltMr) || null,
     status,
     seoTitle: cleanText(input.seoTitle) || null,
+    seoTitleMr: cleanText(input.seoTitleMr) || null,
     seoDescription: cleanText(input.seoDescription) || null,
+    seoDescriptionMr: cleanText(input.seoDescriptionMr) || null,
     displayOrder: Number.isFinite(input.displayOrder)
       ? Number(input.displayOrder)
       : 100,
@@ -584,20 +702,30 @@ export async function saveCoursePage(
         id,
         seed_key,
         title,
+        title_mr,
         slug,
         summary,
+        summary_mr,
         body_html,
+        body_html_mr,
         category,
+        category_mr,
         division,
         medium,
         audience,
+        audience_mr,
         exams,
+        exams_mr,
         duration,
+        duration_mr,
         image,
         image_alt,
+        image_alt_mr,
         status,
         seo_title,
+        seo_title_mr,
         seo_description,
+        seo_description_mr,
         display_order,
         published_at,
         created_at,
@@ -607,20 +735,30 @@ export async function saveCoursePage(
         ${page.id},
         ${page.seedKey},
         ${page.title},
+        ${page.titleMr},
         ${page.slug},
         ${page.summary},
+        ${page.summaryMr},
         ${page.bodyHtml},
+        ${page.bodyHtmlMr},
         ${page.category},
+        ${page.categoryMr},
         ${page.division},
         ${page.medium},
         ${page.audience},
+        ${page.audienceMr},
         ${page.exams},
+        ${page.examsMr},
         ${page.duration},
+        ${page.durationMr},
         ${page.image},
         ${page.imageAlt},
+        ${page.imageAltMr},
         ${page.status},
         ${page.seoTitle},
+        ${page.seoTitleMr},
         ${page.seoDescription},
+        ${page.seoDescriptionMr},
         ${page.displayOrder},
         ${page.publishedAt},
         ${page.createdAt},
@@ -630,20 +768,30 @@ export async function saveCoursePage(
       DO UPDATE SET
         seed_key = EXCLUDED.seed_key,
         title = EXCLUDED.title,
+        title_mr = EXCLUDED.title_mr,
         slug = EXCLUDED.slug,
         summary = EXCLUDED.summary,
+        summary_mr = EXCLUDED.summary_mr,
         body_html = EXCLUDED.body_html,
+        body_html_mr = EXCLUDED.body_html_mr,
         category = EXCLUDED.category,
+        category_mr = EXCLUDED.category_mr,
         division = EXCLUDED.division,
         medium = EXCLUDED.medium,
         audience = EXCLUDED.audience,
+        audience_mr = EXCLUDED.audience_mr,
         exams = EXCLUDED.exams,
+        exams_mr = EXCLUDED.exams_mr,
         duration = EXCLUDED.duration,
+        duration_mr = EXCLUDED.duration_mr,
         image = EXCLUDED.image,
         image_alt = EXCLUDED.image_alt,
+        image_alt_mr = EXCLUDED.image_alt_mr,
         status = EXCLUDED.status,
         seo_title = EXCLUDED.seo_title,
+        seo_title_mr = EXCLUDED.seo_title_mr,
         seo_description = EXCLUDED.seo_description,
+        seo_description_mr = EXCLUDED.seo_description_mr,
         display_order = EXCLUDED.display_order,
         published_at = EXCLUDED.published_at,
         updated_at = EXCLUDED.updated_at

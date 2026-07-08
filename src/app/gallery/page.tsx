@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { NextUpCta, PageHero } from "@/components/page-sections";
 import { Gallery } from "@/components/sections/gallery";
@@ -50,9 +50,10 @@ export default async function GalleryPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const t = await getTranslations("GalleryPage");
+  const locale = await getLocale();
   const sp = await searchParams;
   const albumParam = Array.isArray(sp.album) ? sp.album[0] : sp.album;
-  const allImages = await listPublishedGalleryImages();
+  const allImages = await listPublishedGalleryImages(locale);
   const activeAlbum = galleryAlbums.find((album) => album === albumParam);
   const usedAlbums = galleryAlbums.filter((album) =>
     allImages.some((image) => image.album === album),
