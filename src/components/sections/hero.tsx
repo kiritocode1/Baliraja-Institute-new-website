@@ -40,7 +40,7 @@ export async function Hero() {
 
         <div className="mt-5 h-px w-full bg-cream/32" aria-hidden="true" />
 
-        <h1 className="mt-4 max-w-full font-sans text-[clamp(3rem,15vw,12rem)] font-light leading-[0.9] tracking-normal text-cream sm:max-w-none sm:text-[clamp(5.6rem,12vw,12rem)] sm:leading-[0.78] 2xl:whitespace-nowrap">
+        <h1 className="mt-4 max-w-full font-sans text-[clamp(2.4rem,11vw,9rem)] font-light leading-[0.9] tracking-normal text-cream sm:max-w-none sm:text-[clamp(4.4rem,9vw,9rem)] sm:leading-[0.78] 2xl:whitespace-nowrap">
           <VerticalCutReveal
             containerClassName="2xl:flex-nowrap"
             staggerDuration={0.06}
