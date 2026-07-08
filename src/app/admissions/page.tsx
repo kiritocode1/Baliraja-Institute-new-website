@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { AdmissionHeroVideoPlayer } from "@/components/admission-hero-video-player";
 import { EnquiryForm } from "@/components/enquiry-form";
@@ -11,6 +12,7 @@ import {
   SupportGrid,
 } from "@/components/page-sections";
 import { getAssetUrl } from "@/lib/assets";
+import { localize } from "@/lib/i18n-content";
 import { createPageMetadata } from "@/lib/seo";
 import {
   admissionsDiscoverySteps,
@@ -37,33 +39,30 @@ export const metadata = createPageMetadata({
   path: "/admissions",
 });
 
-const steps: { num: string; title: string; body: string }[] = [
-  {
-    num: "01",
-    title: "You submit the form",
-    body: "Share student, education, program and contact details in one place.",
-  },
-  {
-    num: "02",
-    title: "We call you back",
-    body: "Within two working days, a mentor checks the right track, schedule and fees.",
-  },
-  {
-    num: "03",
-    title: "You visit and enrol",
-    body: "Sit in on a session, see the study hall, and confirm your seat for the batch.",
-  },
-];
-
 export default async function AdmissionsPage({
   searchParams,
 }: {
   searchParams: Promise<{ track?: string; request?: string }>;
 }) {
+  const t = await getTranslations("Admissions");
+  const locale = await getLocale();
+  const s = localize(site, locale);
+  const stats = localize(proofStats, locale);
+  const discovery = localize(admissionsDiscoverySteps, locale);
+  const support = localize(supportPoints, locale);
+  const faqs = localize(admissionsFaqs, locale);
+  const guide = localize(preparationGuide, locale);
+  const steps = [
+    { num: "01", title: t("step1Title"), body: t("step1Body") },
+    { num: "02", title: t("step2Title"), body: t("step2Body") },
+    { num: "03", title: t("step3Title"), body: t("step3Body") },
+  ];
   const { track, request } = await searchParams;
+  // Track values are matched within the active locale, since in-site links
+  // produce locale-consistent track names.
   const trackNames = [
-    ...featuredExams.map((exam) => exam.title),
-    ...examTracks.map((exam) => exam.title),
+    ...localize(featuredExams, locale).map((exam) => exam.title),
+    ...localize(examTracks, locale).map((exam) => exam.title),
     "School",
     "Sports",
     "Summer Camp",
@@ -76,22 +75,22 @@ export default async function AdmissionsPage({
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="Admissions · Open for the next batch"
-        title="Your journey starts here"
-        body="One short form. No payment, no obligation. We read every enquiry and call you back to plan the right track, batch timing and fee structure in person."
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody")}
         actions={[
-          { href: "/courses", label: "Compare courses" },
-          { href: "/scholarships", label: "See concessions" },
+          { href: "/courses", label: t("heroCompare") },
+          { href: "/scholarships", label: t("heroConcessions") },
         ]}
       >
         <AdmissionHeroVideoPlayer />
       </PageHero>
 
       <DiscoveryProcess
-        eyebrow="Discovering you"
-        title="The right batch starts with the right questions"
-        body="The admission conversation is not a sales counter. It is a short review of the student’s exam goal, present level, family context and support needs."
-        steps={admissionsDiscoverySteps}
+        eyebrow={t("discoveryEyebrow")}
+        title={t("discoveryTitle")}
+        body={t("discoveryBody")}
+        steps={discovery}
       />
 
       {/* Form + aside */}
@@ -117,7 +116,7 @@ export default async function AdmissionsPage({
 
             <div>
               <h2 className="font-display text-2xl font-normal text-oxblood">
-                What happens next
+                {t("whatNext")}
               </h2>
               <ol className="mt-6 flex flex-col">
                 {steps.map((step) => (
@@ -141,49 +140,49 @@ export default async function AdmissionsPage({
 
             <div className="border-t border-line pt-6">
               <h2 className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-brass-deep">
-                Prefer to talk?
+                {t("preferTalk")}
               </h2>
               <div className="mt-4 flex flex-col gap-1.5 text-[0.98rem]">
                 <a
-                  href={site.contact.phoneHref}
+                  href={s.contact.phoneHref}
                   className="link-hover link-hover--slide w-fit text-ink"
                 >
-                  {site.contact.phone}
+                  {s.contact.phone}
                 </a>
                 <a
-                  href={site.contact.emailHref}
+                  href={s.contact.emailHref}
                   className="link-hover link-hover--slide w-fit text-ink"
                 >
-                  {site.contact.email}
+                  {s.contact.email}
                 </a>
-                <span className="text-ink-soft">{site.contact.hours}</span>
+                <span className="text-ink-soft">{s.contact.hours}</span>
               </div>
             </div>
           </aside>
         </div>
       </section>
 
-      <StatBand stats={proofStats} />
+      <StatBand stats={stats} />
 
-      <GuideCtaPanel guide={preparationGuide} />
+      <GuideCtaPanel guide={guide} />
 
       <SupportGrid
-        eyebrow="Admissions support"
-        title="A mentor call before a commitment"
-        body="Admissions should help the student choose correctly. The counselling call covers exam track, attempt date, medium, fee support and daily study expectations."
-        points={supportPoints}
+        eyebrow={t("supportEyebrow")}
+        title={t("supportTitle")}
+        body={t("supportBody")}
+        points={support}
       />
 
       <FaqBand
-        eyebrow="Admissions FAQs"
-        title="Still have questions?"
-        body="The most common questions are practical: track choice, family visits, medium, concessions and test-series access."
-        items={admissionsFaqs}
+        eyebrow={t("faqEyebrow")}
+        title={t("faqTitle")}
+        body={t("faqBody")}
+        items={faqs}
       />
 
       <NextUpCta
-        title="Scholarships"
-        body="Need fee support before joining a batch? Check concession pathways for rural, farming, defence and repeat-attempt students."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/scholarships"
       />
     </div>

@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   FeatureBand,
   ImageCardGrid,
@@ -10,6 +11,7 @@ import {
   getCoursePageBySeedKey,
   listPublishedCourseCards,
 } from "@/lib/crm/course-pages";
+import { localize } from "@/lib/i18n-content";
 import { createPageMetadata } from "@/lib/seo";
 import { featuredExams, proofStats } from "@/lib/site";
 
@@ -19,29 +21,6 @@ export const metadata = createPageMetadata({
     "Explore Baliraja Institute tracks for Army, Navy, Air Force, Police Bharti, SSC, Railway and allied recruitment preparation.",
   path: "/courses",
 });
-
-const courseReels = [
-  {
-    id: "course-1",
-    src: "/courses/course-hero-v1.mp4",
-    title: "Bharti Exam Tracks",
-  },
-  {
-    id: "course-2",
-    src: "/student-life/about-v4.mp4",
-    title: "Academy Overview",
-  },
-  {
-    id: "course-3",
-    src: "/courses/course-hero-v2.mp4",
-    title: "Defence & Banking Tracks",
-  },
-  {
-    id: "course-4",
-    src: "/student-life/aboutv-v3.mp4",
-    title: "Student Mentorship",
-  },
-];
 
 function featuredBody(course: {
   exams: string | null;
@@ -54,42 +33,52 @@ function featuredBody(course: {
 }
 
 export default async function CoursesPage() {
+  const t = await getTranslations("Courses");
+  const locale = await getLocale();
   const [courseCards, armyPage, navyPage] = await Promise.all([
-    listPublishedCourseCards(),
-    getCoursePageBySeedKey("featured-army"),
-    getCoursePageBySeedKey("featured-navy"),
+    listPublishedCourseCards(locale),
+    getCoursePageBySeedKey("featured-army", true, locale),
+    getCoursePageBySeedKey("featured-navy", true, locale),
   ]);
+  const fx = localize(featuredExams, locale);
+  const stats = localize(proofStats, locale);
+  const courseReels = [
+    { id: "course-1", src: "/courses/course-hero-v1.mp4", title: t("reel1") },
+    { id: "course-2", src: "/student-life/about-v4.mp4", title: t("reel2") },
+    { id: "course-3", src: "/courses/course-hero-v2.mp4", title: t("reel3") },
+    { id: "course-4", src: "/student-life/aboutv-v3.mp4", title: t("reel4") },
+  ];
   const army = armyPage ?? {
-    title: featuredExams[0].title,
-    category: featuredExams[0].kicker,
-    exams: featuredExams[0].exams,
-    summary: featuredExams[0].blurb,
+    title: fx[0].title,
+    category: fx[0].kicker,
+    exams: fx[0].exams,
+    summary: fx[0].blurb,
     duration: null,
-    image: featuredExams[0].image,
-    imageAlt: featuredExams[0].alt,
-    slug: featuredExams[0].key,
+    image: fx[0].image,
+    imageAlt: fx[0].alt,
+    slug: fx[0].key,
   };
   const navy = navyPage ?? {
-    title: featuredExams[1].title,
-    category: featuredExams[1].kicker,
-    exams: featuredExams[1].exams,
-    summary: featuredExams[1].blurb,
+    title: fx[1].title,
+    category: fx[1].kicker,
+    exams: fx[1].exams,
+    summary: fx[1].blurb,
     duration: null,
-    image: featuredExams[1].image,
-    imageAlt: featuredExams[1].alt,
-    slug: featuredExams[1].key,
+    image: fx[1].image,
+    imageAlt: fx[1].alt,
+    slug: fx[1].key,
   };
 
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="Courses"
-        title="Choose the right exam track"
-        body="Defence entries, police bharti, banking, SSC, railway and local government tracks are separated clearly so students can choose with confidence."
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody")}
         imageAlt="A Baliraja student reading exam preparation material"
         actions={[
-          { href: "/admissions", label: "Ask for guidance" },
-          { href: "/scholarships", label: "See concessions" },
+          { href: "/admissions", label: t("heroGuidance") },
+          { href: "/scholarships", label: t("heroConcessions") },
         ]}
       />
       <PlayableReelGrid reels={courseReels} />
@@ -102,7 +91,7 @@ export default async function CoursesPage() {
         imageAlt={army.imageAlt ?? army.title}
         action={{
           href: `/courses/${army.slug}`,
-          label: `Prepare for ${army.title}`,
+          label: t("prepareFor", { title: army.title }),
         }}
       />
 
@@ -114,52 +103,52 @@ export default async function CoursesPage() {
         imageAlt={navy.imageAlt ?? navy.title}
         action={{
           href: `/courses/${navy.slug}`,
-          label: `Prepare for ${navy.title}`,
+          label: t("prepareFor", { title: navy.title }),
         }}
         reverse
       />
 
-      <StatBand stats={proofStats} />
+      <StatBand stats={stats} />
 
       <ImageCardGrid
-        eyebrow="Exam tracks"
-        title="Pick your preparation route"
-        body="Each course now has a focused page with exam scope, batch guidance, and a clear admission path."
+        eyebrow={t("tracksEyebrow")}
+        title={t("tracksTitle")}
+        body={t("tracksBody")}
         items={courseCards.filter((card) => card.division === "bharti")}
       />
 
       {courseCards.some((card) => card.division === "school") ? (
         <ImageCardGrid
-          eyebrow="School"
-          title="Baliraja schools"
-          body="Marathi and semi-English medium schooling on the same campus discipline that powers the academy."
+          eyebrow={t("schoolEyebrow")}
+          title={t("schoolTitle")}
+          body={t("schoolBody")}
           items={courseCards.filter((card) => card.division === "school")}
         />
       ) : null}
 
       {courseCards.some((card) => card.division === "sports") ? (
         <ImageCardGrid
-          eyebrow="Sports academy"
-          title="Sports programs"
-          body="Ground training, coaching, and physical development programs open beyond bharti preparation."
+          eyebrow={t("sportsEyebrow")}
+          title={t("sportsTitle")}
+          body={t("sportsBody")}
           items={courseCards.filter((card) => card.division === "sports")}
         />
       ) : null}
 
       {courseCards.some((card) => card.division === "camp") ? (
         <ImageCardGrid
-          eyebrow="Summer camps"
-          title="Camps & short programs"
-          body="Vacation camps and short residential programs for younger students."
+          eyebrow={t("campsEyebrow")}
+          title={t("campsTitle")}
+          body={t("campsBody")}
           items={courseCards.filter((card) => card.division === "camp")}
         />
       ) : null}
 
       <NextUpCta
-        title="Admissions"
-        body="Once the route is clear, the next step is a mentor call and a batch recommendation."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/admissions"
-        label="Start enquiry"
+        label={t("nextUpLabel")}
       />
     </div>
   );

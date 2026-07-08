@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { NextUpCta, PageHero } from "@/components/page-sections";
 import { Gallery } from "@/components/sections/gallery";
@@ -48,6 +49,7 @@ export default async function GalleryPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await getTranslations("GalleryPage");
   const sp = await searchParams;
   const albumParam = Array.isArray(sp.album) ? sp.album[0] : sp.album;
   const allImages = await listPublishedGalleryImages();
@@ -62,12 +64,12 @@ export default async function GalleryPage({
   return (
     <div className="bg-parchment">
       <PageHero
-        eyebrow="Campus gallery"
-        title="Campus gallery"
-        body="A dedicated gallery page gives students and parents a real place to inspect classroom, reading hall and preparation moments instead of landing on a homepage fragment."
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        body={t("heroBody")}
         actions={[
-          { href: "/student-life", label: "See student life" },
-          { href: "/contact-us", label: "Visit the campus" },
+          { href: "/student-life", label: t("studentLife") },
+          { href: "/contact-us", label: t("visit") },
         ]}
       >
         {usedAlbums.length > 1 ? (
@@ -83,7 +85,7 @@ export default async function GalleryPage({
                   : "border-line-strong text-ink hover:border-oxblood"
               }`}
             >
-              All
+              {t("all")}
             </Link>
             {usedAlbums.map((album) => (
               <Link
@@ -116,8 +118,8 @@ export default async function GalleryPage({
       </PageHero>
 
       <NextUpCta
-        title="Student Life"
-        body="Move from the photographs to the routines, mentoring and study support behind daily preparation."
+        title={t("nextUpTitle")}
+        body={t("nextUpBody")}
         href="/student-life"
       />
     </div>

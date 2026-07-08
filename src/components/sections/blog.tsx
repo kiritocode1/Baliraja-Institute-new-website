@@ -5,7 +5,7 @@ import { getAssetUrl } from "@/lib/assets";
 import { listPublishedBlogCards } from "@/lib/crm/blog-posts";
 
 export async function Blog() {
-  const blogPosts = await listPublishedBlogCards(3);
+  const blogPosts = await listPublishedBlogCards("en", 3);
 
   return (
     <section id="blog" className="bg-parchment py-24 sm:py-32">

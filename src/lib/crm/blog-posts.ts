@@ -3,6 +3,7 @@ import { ensureCrmSchema, getSql } from "@/lib/crm/db";
 import { readJsonFile, writeJsonFile } from "@/lib/crm/local-store";
 import { resolveCrmMediaUrl } from "@/lib/crm/media-proxy";
 import { isAllowedCrmMediaUrl } from "@/lib/crm/media-storage";
+import { localize } from "@/lib/i18n-content";
 import { blogPosts as staticBlogPosts } from "@/lib/site";
 
 export const blogPostStatuses = ["draft", "published", "archived"] as const;
@@ -306,10 +307,12 @@ export async function listBlogPosts() {
 }
 
 export async function listPublishedBlogCards(
+  locale = "en",
   limit?: number,
 ): Promise<BlogCard[]> {
   const posts = (await listExistingBlogPosts())
     .filter((post) => post.status === "published")
+    .map((post) => localize(post, locale))
     .sort((a, b) => {
       const aDate = a.publishedAt ?? a.updatedAt;
       const bDate = b.publishedAt ?? b.updatedAt;
@@ -318,6 +321,7 @@ export async function listPublishedBlogCards(
 
   if (posts.length === 0) {
     return staticBlogPosts
+      .map((post) => localize(post, locale))
       .slice(0, limit)
       .map((post) => ({ ...post, publishedAt: null }));
   }

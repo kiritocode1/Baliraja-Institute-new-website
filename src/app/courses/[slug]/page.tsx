@@ -1,5 +1,6 @@
 import { ArrowLeft, BookOpen, Clock, Users } from "lucide-react";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -55,7 +56,9 @@ export async function generateMetadata({
 
 export default async function CoursePage({ params }: PageProps) {
   const { slug } = await params;
-  const page = await getCoursePageBySlug(slug);
+  const locale = await getLocale();
+  const t = await getTranslations("CourseDetail");
+  const page = await getCoursePageBySlug(slug, true, locale);
 
   if (!page) notFound();
 
@@ -102,7 +105,7 @@ export default async function CoursePage({ params }: PageProps) {
             className="mb-10 inline-flex w-fit items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream-muted transition-colors hover:text-brass"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-            Courses
+            {t("back")}
           </Link>
           <div className="flex flex-wrap items-center gap-3">
             <span className="bg-brass px-3 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-oxblood-deep">
@@ -152,24 +155,23 @@ export default async function CoursePage({ params }: PageProps) {
           <aside className="h-fit border border-line bg-parchment-deep p-6">
             <BookOpen className="size-8 text-oxblood" aria-hidden="true" />
             <h2 className="mt-5 font-display text-3xl leading-none text-oxblood">
-              Start with a mentor call
+              {t("mentorTitle")}
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-ink-soft">
-              Share your target exam and attempt timeline. The office will map
-              you to the right batch, medium, and test-series route.
+              {t("mentorBody")}
             </p>
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href={`/admissions?track=${encodeURIComponent(page.title)}`}
                 className="inline-flex items-center justify-center bg-oxblood px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-cream transition-colors hover:bg-oxblood-deep"
               >
-                Enquire for this course
+                {t("enquire")}
               </Link>
               <Link
                 href="/contact-us"
                 className="inline-flex items-center justify-center border border-line-strong px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-oxblood transition-colors hover:border-oxblood"
               >
-                Contact the office
+                {t("contact")}
               </Link>
             </div>
           </aside>

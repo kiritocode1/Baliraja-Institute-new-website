@@ -1,9 +1,11 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { localize } from "@/lib/i18n-content";
 import { site } from "@/lib/site";
 
 // Shader injection (cursor-driven material spotlight).
@@ -23,6 +25,9 @@ const fragmentMain = /* glsl */ `
 `;
 
 export function MaterialSpotlight() {
+  const t = useTranslations("MaterialSpotlight");
+  const locale = useLocale();
+  const s = localize(site, locale);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -257,10 +262,10 @@ export function MaterialSpotlight() {
           Baliraja
         </h2>
         <p className="mt-6 max-w-md font-display text-[clamp(1.05rem,2.4vw,1.6rem)] italic leading-snug text-ink/80">
-          “{site.motto}.”
+          “{s.motto}.”
         </p>
         <p className="mt-4 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-ink-soft">
-          Career Academy · {site.place}
+          {t("careerAcademy")} · {s.place}
         </p>
       </div>
     </section>

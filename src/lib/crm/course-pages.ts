@@ -521,7 +521,11 @@ export async function listPublishedCourseCards(
     }));
 }
 
-export async function getCoursePageBySlug(slug: string, publishedOnly = true) {
+export async function getCoursePageBySlug(
+  slug: string,
+  publishedOnly = true,
+  locale = "en",
+) {
   const normalized = slugifyBlogTitle(slug);
   const page =
     (await listCoursePages()).find((item) => item.slug === normalized) ?? null;
@@ -529,12 +533,13 @@ export async function getCoursePageBySlug(slug: string, publishedOnly = true) {
   if (!page) return null;
   if (publishedOnly && page.status !== "published") return null;
 
-  return page;
+  return localize(page, locale);
 }
 
 export async function getCoursePageBySeedKey(
   seedKey: string,
   publishedOnly = true,
+  locale = "en",
 ) {
   const page =
     (await listCoursePages()).find((item) => item.seedKey === seedKey) ?? null;
@@ -542,7 +547,7 @@ export async function getCoursePageBySeedKey(
   if (!page) return null;
   if (publishedOnly && page.status !== "published") return null;
 
-  return page;
+  return localize(page, locale);
 }
 
 export async function saveCoursePage(
