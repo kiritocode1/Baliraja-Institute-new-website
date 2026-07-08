@@ -170,7 +170,10 @@ export const VerticalCutReveal = forwardRef<
             <span
               aria-hidden="true"
               className={cn(
-                "inline-flex max-w-full overflow-hidden break-words [overflow-wrap:anywhere]",
+                // pb/-mb extends the overflow-hidden clip box below the baseline
+                // so descenders and Devanagari below-base matras aren't cut,
+                // without changing layout.
+                "inline-flex max-w-full overflow-hidden break-words pb-[0.3em] -mb-[0.3em] [overflow-wrap:anywhere]",
                 wordLevelClassName,
               )}
               key={`${wordObj.characters.join("")}-${wordIndex}`}

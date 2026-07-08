@@ -33,4 +33,40 @@ for (const language of languages) {
   }
 }
 
+// next-intl throws at runtime on a missing message key, so en.json and mr.json
+// must have identical key sets. Fail the build on any drift.
+function keyPaths(obj, prefix = "") {
+  const paths = [];
+  for (const [key, value] of Object.entries(obj)) {
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      paths.push(...keyPaths(value, path));
+    } else {
+      paths.push(path);
+    }
+  }
+  return paths.sort();
+}
+
+const messagesDir = path.join(process.cwd(), "messages");
+const en = JSON.parse(fs.readFileSync(path.join(messagesDir, "en.json"), "utf8"));
+const mr = JSON.parse(fs.readFileSync(path.join(messagesDir, "mr.json"), "utf8"));
+const enKeys = keyPaths(en);
+const mrKeys = keyPaths(mr);
+const missingInMr = enKeys.filter((k) => !mrKeys.includes(k));
+const missingInEn = mrKeys.filter((k) => !enKeys.includes(k));
+
+if (missingInMr.length || missingInEn.length) {
+  throw new Error(
+    [
+      "messages/en.json and messages/mr.json key sets differ:",
+      missingInMr.length ? `Missing in mr.json: ${missingInMr.join(", ")}` : "",
+      missingInEn.length ? `Missing in en.json: ${missingInEn.join(", ")}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
+}
+
 console.log(`Translation languages valid: ${translated.join(", ")}`);
+console.log(`Message keys in sync: ${enKeys.length} keys (en == mr).`);

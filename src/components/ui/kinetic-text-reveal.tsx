@@ -265,7 +265,11 @@ export const KineticTextReveal = forwardRef<
             <span
               key={`${run}-${segment.key}`}
               className={cn(
-                "inline-block max-w-full overflow-hidden break-words align-baseline pb-1 [overflow-wrap:anywhere]",
+                // pb/-mb extends the overflow-hidden clip box below the baseline
+                // so descenders and Devanagari below-base matras aren't cut,
+                // without changing layout. (pb-1 alone was far too small for
+                // large display type.)
+                "inline-block max-w-full overflow-hidden break-words align-baseline pb-[0.3em] -mb-[0.3em] [overflow-wrap:anywhere]",
                 maskClassName,
               )}
               aria-hidden="true"
