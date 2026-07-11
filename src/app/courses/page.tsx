@@ -35,10 +35,10 @@ function featuredBody(course: {
 export default async function CoursesPage() {
   const t = await getTranslations("Courses");
   const locale = await getLocale();
-  const [courseCards, armyPage, navyPage] = await Promise.all([
+  const [courseCards, armyPage, policePage] = await Promise.all([
     listPublishedCourseCards(locale),
     getCoursePageBySeedKey("featured-army", true, locale),
-    getCoursePageBySeedKey("featured-navy", true, locale),
+    getCoursePageBySeedKey("featured-police-bharti", true, locale),
   ]);
   const fx = localize(featuredExams, locale);
   const stats = localize(proofStats, locale);
@@ -58,7 +58,7 @@ export default async function CoursesPage() {
     imageAlt: fx[0].alt,
     slug: fx[0].key,
   };
-  const navy = navyPage ?? {
+  const police = policePage ?? {
     title: fx[1].title,
     category: fx[1].kicker,
     exams: fx[1].exams,
@@ -96,14 +96,14 @@ export default async function CoursesPage() {
       />
 
       <FeatureBand
-        eyebrow={navy.category}
-        title={navy.title}
-        body={featuredBody(navy)}
-        image={navy.image}
-        imageAlt={navy.imageAlt ?? navy.title}
+        eyebrow={police.category}
+        title={police.title}
+        body={featuredBody(police)}
+        image={police.image}
+        imageAlt={police.imageAlt ?? police.title}
         action={{
-          href: `/courses/${navy.slug}`,
-          label: t("prepareFor", { title: navy.title }),
+          href: `/courses/${police.slug}`,
+          label: t("prepareFor", { title: police.title }),
         }}
         reverse
       />

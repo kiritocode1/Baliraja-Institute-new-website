@@ -21,6 +21,8 @@ export const site = {
   contact: {
     address:
       "Gangapur, Near Adamapur (Balumama Temple), Tal. Bhudargad, Dist. Kolhapur, Maharashtra 416 209",
+    addressMr:
+      "गंगापूर, आदमापूरजवळ (बाळूमामा मंदिर), ता. भुदरगड, जि. कोल्हापूर, महाराष्ट्र ४१६ २०९",
     phone: "+91 90979 74444",
     phoneHref: "tel:+919097974444",
     email: "balirajaca@gmail.com",
@@ -134,13 +136,13 @@ export const examTracks: ExamTrack[] = [
   },
   {
     code: "03",
-    title: "Police Bharti",
-    titleMr: "पोलीस भरती",
+    title: "Navy",
+    titleMr: "नेव्ही",
     blurb:
-      "Written preparation paired with ground and physical-test guidance for constable and driver recruitment.",
+      "Aptitude, science and English preparation for Indian Navy Agniveer and Coast Guard entries, with timed mocks built to the latest pattern.",
     blurbMr:
-      "कॉन्स्टेबल व चालक भरतीसाठी लेखी तयारीसोबत मैदानी व शारीरिक-चाचणी मार्गदर्शन.",
-    image: "/home/exam-police-bharati.webp",
+      "भारतीय नौदल अग्निवीर व तटरक्षक दल प्रवेशांसाठी अभियोग्यता, विज्ञान व इंग्रजी तयारी — नवीनतम नमुन्यावर आधारित वेळबद्ध मॉक्ससह.",
+    image: unsplash("1726450663094-b90adfeea0f8"),
   },
   {
     code: "04",
@@ -233,23 +235,23 @@ export const featuredExams: FeaturedExam[] = [
     blurb:
       "Written coaching, physical preparation and SSB interview guidance for the National Defence Academy and Agniveer recruitment.",
     blurbMr:
-      "राष्ट्रीय संरक्षण अकादमी व अग्निवीर भरतीसाठी लेखी मार्गदर्शन, शारीरिक तयारी व एसएसबी मुलाखत मार्गदर्शन.",
+      "नॅशनल डिफेन्स अकॅडमी (NDA) आणि अग्निवीर भरतीसाठी लेखी परीक्षा मार्गदर्शन, शारीरिक तयारी (Physical Preparation) आणि SSB इंटरव्यूचे परिपूर्ण मार्गदर्शन.",
     image: "/home/exam-army.webp",
     alt: "An officer cadet on parade in ceremonial dress with the national tricolour sash",
   },
   {
-    key: "navy",
+    key: "police-bharti",
     kicker: "Defence · most asked for",
     kickerMr: "संरक्षण · सर्वाधिक विचारले जाणारे",
-    title: "Navy",
-    titleMr: "नेव्ही",
-    exams: "INET · Agniveer SSR & MR · Coast Guard · NDA",
+    title: "Police Bharti",
+    titleMr: "पोलीस भरती",
+    exams: "Constable · Driver · Sub-Inspector",
     blurb:
-      "Aptitude, science and English preparation for Indian Navy Agniveer and Coast Guard entries, with timed mocks built to the latest pattern.",
+      "Written preparation paired with ground and physical-test guidance for constable and driver recruitment.",
     blurbMr:
-      "भारतीय नौदल अग्निवीर व तटरक्षक दल प्रवेशांसाठी अभियोग्यता, विज्ञान व इंग्रजी तयारी — नवीनतम नमुन्यावर आधारित वेळबद्ध मॉक्ससह.",
-    image: unsplash("1726450663094-b90adfeea0f8"),
-    alt: "An Indian Navy warship under way on the open sea",
+      "पोलीस शिपाई आणि चालक भरतीसाठी लेखी परीक्षेच्या तयारीसोबतच मैदानाचा सराव आणि शारीरिक चाचणीचे (Ground Test) योग्य मार्गदर्शन.",
+    image: "/home/exam-police-bharati.webp",
+    alt: "Police Bharti physical training and exam preparation",
   },
 ];
 
@@ -333,29 +335,29 @@ export const academyContextItems: AcademyContextItem[] = [
     title: "A working place for serious attempts",
     titleMr: "गंभीर प्रयत्नांसाठी एक कार्यशील जागा",
     body: "Baliraja is presented as a real study environment: classrooms, reading hours, mentor conversations and a practical admission path.",
-    bodyMr: "बलिराजा एक खरे अभ्यास वातावरण म्हणून सादर केले आहे: वर्ग, वाचनाचे तास, मार्गदर्शक संवाद आणि व्यावहारिक प्रवेश मार्ग.",
+    bodyMr: "'बळीराजा' हे अभ्यासाचे एक खरेखुरे वातावरण म्हणून सादर केले गेले आहे: जसे की वर्गखोल्या (classrooms), वाचनाचे तास, मार्गदर्शकांशी चर्चा आणि प्रवेश घेण्याचा एक सुलभ व व्यावहारिक मार्ग.",
     image: "/home/con-A-working-place-for-serious-attempts.jpg",
     alt: "Baliraja Institute classroom prepared for a competitive exam lecture",
     href: "/about",
   },
   {
     eyebrow: "University route",
-    eyebrowMr: "विद्यापीठ मार्ग",
+    eyebrowMr: "युनिव्हर्सिटी मार्ग",
     title: "Guidance for students planning the next step",
-    titleMr: "पुढील पाऊल नियोजित करणाऱ्या विद्यार्थ्यांसाठी मार्गदर्शन",
+    titleMr: "पुढचे पाऊल टाकू इच्छिणाऱ्या विद्यार्थ्यांसाठी मार्गदर्शन",
     body: "Students and families can add university, eligibility, documents and career-path information here as those pages grow.",
-    bodyMr: "ही पाने वाढतील तसतशी विद्यार्थी व कुटुंबे विद्यापीठ, पात्रता, कागदपत्रे आणि करिअर-मार्गाची माहिती येथे जोडू शकतात.",
+    bodyMr: "संस्थेचा विस्तार होईल तसे विद्यार्थी आणि त्यांचे कुटुंब येथे विद्यापीठ, पात्रता, आवश्यक कागदपत्रे आणि करिअरच्या मार्गाशी संबंधित अधिक माहिती जोडू शकतात.",
     image: "/home/con-Guidance-for-students-planning-the-next-step.png",
     alt: "Students walking toward an institutional campus building",
     href: "/student-life",
   },
   {
     eyebrow: "Study base",
-    eyebrowMr: "अभ्यास आधार",
+    eyebrowMr: "अभ्यासाचा पाया",
     title: "Reading, revision and reference material",
-    titleMr: "वाचन, उजळणी व संदर्भ साहित्य",
+    titleMr: "वाचन, उजळणी आणि संदर्भ साहित्य",
     body: "Use this block for reading-hall details, library photographs, book lists, newspaper practice and daily study routines.",
-    bodyMr: "या भागाचा उपयोग वाचनालय तपशील, ग्रंथालय छायाचित्रे, पुस्तक याद्या, वृत्तपत्र सराव आणि रोजच्या अभ्यास दिनचर्येसाठी करा.",
+    bodyMr: "या विभागाचा वापर अभ्यासिका (Reading hall) चा तपशील, ग्रंथालयाचे (Library) फोटो, पुस्तकांची यादी, वर्तमानपत्र वाचनाचा सराव आणि रोजच्या अभ्यासाचे वेळापत्रक दर्शवण्यासाठी करा.",
     image: "/img-books.jpg",
     alt: "Reference books and notes for Baliraja Institute students",
     href: "/student-life",
@@ -366,7 +368,7 @@ export const academyContextItems: AcademyContextItem[] = [
     title: "Keep adding real moments",
     titleMr: "खरे क्षण जोडत राहा",
     body: "The gallery below is data-driven. Drop in new campus, classroom, event, library or university-visit images and update the array.",
-    bodyMr: "खालील गॅलरी डेटा-आधारित आहे. नवीन कॅम्पस, वर्ग, कार्यक्रम, ग्रंथालय किंवा विद्यापीठ-भेटीच्या प्रतिमा टाका आणि अ‍ॅरे अद्ययावत करा.",
+    bodyMr: "खालील गॅलरी ही डेटा-ड्रिव्हन (माहितीवर आधारित) आहे. कॅम्पस, वर्गखोल्या, विविध कार्यक्रम, ग्रंथालय किंवा युनिव्हर्सिटी भेटींचे नवीन फोटो येथे सहज अपलोड करा आणि गॅलरी अपडेट करा.",
     image: "/home/con-Keep-adding-real-moments.JPG",
     alt: "A student writing notes during exam preparation",
     href: "/gallery",

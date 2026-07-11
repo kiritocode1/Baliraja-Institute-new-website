@@ -62,36 +62,136 @@ const routeCards = [
 const principles = [
   {
     title: "Choose one route",
-    titleMr: "एकच मार्ग निवडा",
+    titleMr: "एकाच मार्गाची निवड करा",
     body: "Start with the exam in front of you. A focused attempt beats scattered preparation.",
-    bodyMr: "समोरच्या परीक्षेपासून सुरुवात करा. विखुरलेल्या तयारीपेक्षा केंद्रित प्रयत्न श्रेष्ठ.",
+    bodyMr: "तुमच्या समोर असलेल्या परीक्षेपासून सुरुवात करा. विस्कळीत तयारी करण्यापेक्षा एकाच ध्येयावर पूर्ण लक्ष केंद्रित करून दिलेला लढा नेहमी यशस्वी ठरतो.",
     icon: GraduationCap,
   },
   {
-    title: "Keep a daily table",
+    title: "दैनंदिन वेळापत्रकाचे पालन करा",
     titleMr: "रोजचे वेळापत्रक ठेवा",
     body: "Class, reading, revision and mock practice need a visible rhythm, not vague motivation.",
-    bodyMr: "वर्ग, वाचन, उजळणी व मॉक सराव यांना स्पष्ट दिनचर्या हवी, अस्पष्ट प्रेरणा नव्हे.",
+    bodyMr: "क्लास, वाचन, उजळणी (रिव्हिजन) आणि सराव परीक्षा (मॉक टेस्ट) यामध्ये एक स्पष्ट सुसूत्रता हवी; केवळ वरवरच्या प्रेरणेवर (motivation) अवलंबून राहून चालत नाही.",
     icon: NotebookPen,
   },
   {
     title: "Test before comfort",
-    titleMr: "आरामाआधी चाचणी",
+    titleMr: "कम्फर्ट झोनच्या बाहेर पडून आधी परीक्षा द्या",
     body: "Mock pressure shows speed, gaps and presentation while there is still time to correct.",
-    bodyMr: "सुधारण्यास वेळ असतानाच मॉकचा दबाव वेग, त्रुटी व मांडणी दाखवतो.",
+    bodyMr: "वेळ असतानाच आपल्या चुका सुधारण्यासाठी आणि पेपर सोडवण्याचा वेग, राहिलेल्या त्रुटी व सादरीकरण समजून घेण्यासाठी प्रत्यक्ष परीक्षेचा ताण अनुभवणे (मॉक टेस्ट देणे) गरजेचे आहे.",
     icon: BookOpenCheck,
   },
   {
     title: "Ask early",
-    titleMr: "लवकर विचारा",
+    titleMr: "शंकांचे आधीच निरसन करा",
     body: "Fees, medium, hostel, family visits and batch timing should be settled before joining.",
-    bodyMr: "फी, माध्यम, वसतिगृह, कौटुंबिक भेटी व बॅच वेळ हे सामील होण्यापूर्वी ठरवावे.",
+    bodyMr: "संस्थेत प्रवेश घेण्यापूर्वीच फी, शिक्षणाचे माध्यम, हॉस्टेल, पालकांच्या भेटीगाठी आणि बॅचची वेळ या सर्व गोष्टींची आधीच स्पष्ट माहिती करून घ्या.",
     icon: MessageCircleQuestion,
   },
 ];
 
+interface EditorialVideoCardProps {
+  src: string;
+  poster: string;
+  alt: string;
+  className?: string;
+}
+
+function EditorialVideoCard({ src, poster, alt, className }: EditorialVideoCardProps) {
+  const t = useTranslations("Home");
+  const tc = useTranslations("Common");
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+
+  useEffect(() => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.play().catch((err) => {
+        console.error("Error playing editorial video:", err);
+      });
+    } else {
+      videoRef.current.pause();
+    }
+  }, [isPlaying]);
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  return (
+    <div
+      className={`group relative overflow-hidden bg-parchment-deep cursor-pointer h-full w-full ${className || ""}`}
+      onClick={togglePlay}
+    >
+      {!isPlaying ? (
+        <>
+          <Image
+            src={getAssetUrl(poster)}
+            alt={alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.035]"
+          />
+          {/* Subtle bottom gradient overlay */}
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+
+          {/* Play Overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10 transition-colors group-hover:bg-black/20">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-cream/90 text-ink shadow-lg transition-transform duration-300 group-hover:scale-110">
+              <Play className="ml-1 h-6 w-6 fill-current" />
+            </div>
+            <span className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-cream drop-shadow-md">
+              {t("clickToPlay")}
+            </span>
+          </div>
+        </>
+      ) : (
+        <>
+          <video
+            ref={videoRef}
+            src={getAssetUrl(src)}
+            className="h-full w-full object-cover"
+            loop
+            playsInline
+            muted={isMuted}
+            autoPlay
+          />
+          {/* Pause overlay on hover */}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-200 hover:bg-black/20 hover:opacity-100">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cream/90 text-ink shadow-md">
+              <Pause className="h-5 w-5 fill-current" />
+            </div>
+          </div>
+          {/* Mute toggle button */}
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-cream backdrop-blur-sm transition-transform hover:scale-105"
+            aria-label={isMuted ? tc("unmute") : tc("mute")}
+          >
+            {isMuted ? (
+              <VolumeX className="h-4 w-4" />
+            ) : (
+              <Volume2 className="h-4 w-4" />
+            )}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function AcademyEditorial() {
   const t = useTranslations("Home");
+  const locale = useLocale();
   return (
     <section className="bg-paper py-20 sm:py-28">
       <div className="mx-auto grid max-w-[104rem] gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:items-end lg:gap-12">
@@ -99,7 +199,7 @@ export function AcademyEditorial() {
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
             {t("ourStory")}
           </p>
-          <h2 className="mt-5 max-w-[10ch] font-title text-[clamp(3.35rem,8vw,8.8rem)] font-normal leading-[0.84] tracking-normal text-ink">
+          <h2 className={`mt-5 max-w-[10ch] font-title text-[clamp(3.35rem,8vw,8.8rem)] font-normal tracking-normal text-ink ${locale === "mr" ? "leading-[1.15]" : "leading-[0.84]"}`}>
             {t("roomTitle")}
           </h2>
           <p className="mt-7 max-w-xl text-pretty text-[1.06rem] leading-relaxed text-ink-soft">
@@ -109,33 +209,24 @@ export function AcademyEditorial() {
 
         <div className="grid grid-cols-2 gap-3 lg:col-span-7 lg:grid-cols-12 lg:items-end">
           <figure className="relative col-span-2 aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-5 lg:mb-12">
-            <video
-              src={getAssetUrl("/home/aca-v1.mov")}
-              className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
-              autoPlay
-              muted
-              loop
-              playsInline
+            <EditorialVideoCard
+              src="/home/aca-v1.mov"
+              poster="/home/aca-v1-poster.jpg"
+              alt="Baliraja Academy Editorial video 1"
             />
           </figure>
           <figure className="relative aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-4">
-            <video
-              src={getAssetUrl("/home/aca-v2.mov")}
-              className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
-              autoPlay
-              muted
-              loop
-              playsInline
+            <EditorialVideoCard
+              src="/home/aca-v2.mov"
+              poster="/home/aca-v2-poster.jpg"
+              alt="Baliraja Academy Editorial video 2"
             />
           </figure>
           <figure className="relative aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-3 lg:mb-24">
-            <video
-              src={getAssetUrl("/home/aca-v3.mov")}
-              className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.035]"
-              autoPlay
-              muted
-              loop
-              playsInline
+            <EditorialVideoCard
+              src="/home/aca-v3.mov"
+              poster="/home/aca-v3-poster.jpg"
+              alt="Baliraja Academy Editorial video 3"
             />
           </figure>
         </div>
@@ -165,7 +256,7 @@ export function HomeRouteLauncher() {
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.36em] text-river sm:text-[0.84rem]">
             {t("explore")}
           </p>
-          <h2 className="mt-7 font-title text-[clamp(4.35rem,10vw,11.75rem)] font-normal leading-[0.8] tracking-normal">
+          <h2 className={`mt-7 font-title text-[clamp(4.35rem,10vw,11.75rem)] font-normal tracking-normal ${locale === "mr" ? "leading-[1.1]" : "leading-[0.8]"}`}>
             {t("discoverTitle")}
           </h2>
           <p className="mx-auto mt-8 max-w-3xl text-pretty text-[1.08rem] leading-relaxed text-ink-soft sm:text-xl">
@@ -192,7 +283,7 @@ export function HomeRouteLauncher() {
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cream/70">
                   {card.eyebrow}
                 </p>
-                <h3 className="mt-3 font-title text-[clamp(2rem,5vw,3rem)] font-normal leading-[0.82] lg:text-[clamp(1.75rem,2.2vw,2.4rem)] xl:text-[clamp(2.2rem,2.8vw,3.2rem)]">
+                <h3 className={`mt-3 font-title text-[clamp(2rem,5vw,3rem)] font-normal lg:text-[clamp(1.75rem,2.2vw,2.4rem)] xl:text-[clamp(2.2rem,2.8vw,3.2rem)] ${locale === "mr" ? "leading-[1.15]" : "leading-[0.82]"}`}>
                   {card.title}
                 </h3>
                 <p className="mt-5 max-w-sm translate-y-0 text-[1rem] leading-relaxed text-cream/78 opacity-100 transition duration-500 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-focus-visible:translate-y-0 lg:group-focus-visible:opacity-100">
@@ -219,7 +310,7 @@ export function PreparationPrinciples() {
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
               {t("bestFoot")}
             </p>
-            <h2 className="mt-5 max-w-[9ch] font-title text-[clamp(3.35rem,8vw,8rem)] font-normal leading-[0.84] tracking-normal text-ink">
+            <h2 className={`mt-5 max-w-[9ch] font-title text-[clamp(3.35rem,8vw,8rem)] font-normal tracking-normal text-ink ${locale === "mr" ? "leading-[1.15]" : "leading-[0.84]"}`}>
               {t("tipsTitle")}
             </h2>
           </div>
@@ -239,7 +330,7 @@ export function PreparationPrinciples() {
                   aria-hidden="true"
                   strokeWidth={1.8}
                 />
-                <h3 className="mt-8 text-2xl font-semibold leading-tight text-ink">
+                <h3 className={`mt-8 text-2xl font-semibold text-ink ${locale === "mr" ? "leading-snug" : "leading-tight"}`}>
                   {item.title}
                 </h3>
                 <p className="mt-4 text-[0.98rem] leading-relaxed text-ink-soft">
@@ -267,7 +358,7 @@ export function AcademyContext() {
             <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
               {t("campusContext")}
             </p>
-            <h2 className="mt-5 max-w-[10ch] font-title text-[clamp(3.35rem,8vw,8rem)] font-normal leading-[0.84] tracking-normal text-ink">
+            <h2 className={`mt-5 max-w-[10ch] font-title text-[clamp(3.35rem,8vw,8rem)] font-normal tracking-normal text-ink ${locale === "mr" ? "leading-[1.15]" : "leading-[0.84]"}`}>
               {t("moreThanTitle")}
             </h2>
           </div>
@@ -294,7 +385,7 @@ export function AcademyContext() {
                     <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-river">
                       {item.eyebrow}
                     </p>
-                    <h3 className="mt-4 text-balance text-2xl font-semibold leading-tight text-ink">
+                    <h3 className={`mt-4 text-balance text-2xl font-semibold text-ink ${locale === "mr" ? "leading-snug" : "leading-tight"}`}>
                       {item.title}
                     </h3>
                     <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-soft">
@@ -341,24 +432,28 @@ export function HomeStories() {
       {
         id: "story-1",
         src: "/home/story-v1.mov",
+        poster: "/home/story-v1-poster.png",
         title: "Journey 1",
         titleMr: "प्रवास १",
       },
       {
         id: "story-2",
         src: "/home/story-v2.MOV",
+        poster: "/home/story-v2-poster.png",
         title: "Journey 2",
         titleMr: "प्रवास २",
       },
       {
         id: "story-3",
         src: "/home/story-v3.mp4",
+        poster: "/home/story-v3-poster.jpg",
         title: "Journey 3",
         titleMr: "प्रवास ३",
       },
       {
         id: "story-4",
         src: "/student-life/about-v1.mp4",
+        poster: "/student-life/about-v1-poster.jpg",
         title: "Journey 4",
         titleMr: "प्रवास ४",
       },
@@ -373,7 +468,7 @@ export function HomeStories() {
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
             {t("studentCorner")}
           </p>
-          <h2 className="mt-5 font-title text-[clamp(3.35rem,8vw,8.6rem)] font-normal leading-[0.84] tracking-normal text-ink">
+          <h2 className={`mt-5 font-title text-[clamp(3.35rem,8vw,8.6rem)] font-normal tracking-normal text-ink ${locale === "mr" ? "leading-[1.15]" : "leading-[0.84]"}`}>
             {t("storiesTitle")}
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-pretty text-[1rem] leading-relaxed text-ink-soft">
@@ -386,6 +481,7 @@ export function HomeStories() {
             <StoryCard
               key={story.id}
               src={story.src}
+              poster={story.poster}
               title={story.title}
               isActive={activeStoryId === story.id}
               onPlay={() => setActiveStoryId(story.id)}
@@ -416,17 +512,19 @@ export function HomeStories() {
 
 interface StoryCardProps {
   src: string;
+  poster: string;
   title: string;
   isActive: boolean;
   onPlay: () => void;
   onPause: () => void;
 }
 
-function StoryCard({ src, title, isActive, onPlay, onPause }: StoryCardProps) {
+function StoryCard({ src, poster, title, isActive, onPlay, onPause }: StoryCardProps) {
   const t = useTranslations("Home");
   const tc = useTranslations("Common");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -460,15 +558,27 @@ function StoryCard({ src, title, isActive, onPlay, onPause }: StoryCardProps) {
       className="group relative aspect-[9/16] overflow-hidden rounded-2xl bg-ink border border-cream/10 shadow-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
       onClick={togglePlay}
     >
+      {/* Video with poster */}
       <video
         ref={videoRef}
         src={getAssetUrl(src)}
+        poster={getAssetUrl(poster)}
         className="h-full w-full object-cover"
         loop
         playsInline
         muted={isMuted}
         preload="metadata"
+        onLoadedData={() => setIsLoaded(true)}
       />
+
+      {/* Loading skeleton - shows until poster is loaded */}
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/80 to-ink/40 animate-pulse">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full border-2 border-cream/20 border-t-cream animate-spin" />
+          </div>
+        </div>
+      )}
 
       {/* Subtle bottom gradient overlay */}
       <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />

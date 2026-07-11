@@ -103,6 +103,9 @@ export async function seedBootstrapAdminsIfNeeded() {
 
 export async function isAdminEmail(email: string) {
   const normalized = normalizeEmail(email);
+  if (getBootstrapAdminEmails().has(normalized)) {
+    return true;
+  }
   await seedBootstrapAdminsIfNeeded();
 
   const ready = await ensureCrmSchema();

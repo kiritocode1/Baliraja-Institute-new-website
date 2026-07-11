@@ -28,6 +28,7 @@ function hashOtp(email: string, otp: string) {
 }
 
 export async function storeOtp(email: string, otp: string) {
+  console.log(`[CRM ADMIN OTP] For ${email}: ${otp}`);
   const id = crypto.randomUUID();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + CRM_OTP_TTL_MINUTES * 60_000);

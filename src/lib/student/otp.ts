@@ -31,6 +31,7 @@ function hashStudentOtp(email: string, otp: string) {
 }
 
 export async function storeStudentOtp(email: string, otp: string) {
+  console.log(`[STUDENT OTP] For ${email}: ${otp}`);
   const id = crypto.randomUUID();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + STUDENT_OTP_TTL_MINUTES * 60_000);

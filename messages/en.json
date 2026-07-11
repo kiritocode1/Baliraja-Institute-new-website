@@ -425,7 +425,7 @@
     }
   },
   "Hero": {
-    "intro": "{name} is a career academy in {place}, preparing students for public service, defence, banking, police and state exams.",
+    "intro": "{name} is a career academy in {place}, preparing students for defence, banking, police and state exams.",
     "title": "Discover Your Path"
   },
   "Home": {
