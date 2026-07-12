@@ -211,21 +211,21 @@ export function AcademyEditorial() {
           <figure className="relative col-span-2 aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-5 lg:mb-12">
             <EditorialVideoCard
               src="/home/aca-v1.mov"
-              poster="/home/aca-v1-poster.jpg"
+              poster="/home/aca-v1-poster.png"
               alt="Baliraja Academy Editorial video 1"
             />
           </figure>
           <figure className="relative aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-4">
             <EditorialVideoCard
               src="/home/aca-v2.mov"
-              poster="/home/aca-v2-poster.jpg"
+              poster="/home/aca-v2-poster.png"
               alt="Baliraja Academy Editorial video 2"
             />
           </figure>
           <figure className="relative aspect-[3/4] overflow-hidden bg-parchment-deep lg:col-span-3 lg:mb-24">
             <EditorialVideoCard
               src="/home/aca-v3.mov"
-              poster="/home/aca-v3-poster.jpg"
+              poster="/home/aca-v3-poster.png"
               alt="Baliraja Academy Editorial video 3"
             />
           </figure>
