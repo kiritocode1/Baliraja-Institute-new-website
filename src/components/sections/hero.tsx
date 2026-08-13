@@ -33,7 +33,7 @@ export async function Hero() {
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[116rem] flex-col justify-end px-5 pb-[clamp(1.75rem,4vw,3.75rem)] pt-32 sm:px-8">
+      <div className="relative flex min-h-[100svh] w-full flex-col justify-end px-5 pb-[clamp(1.75rem,4vw,3.75rem)] pt-32 sm:px-8">
         <p className="max-w-[35rem] text-pretty text-[0.92rem] leading-relaxed text-cream/88 sm:text-[1rem]">
           {t("intro", { name: s.longName, place: s.place })}
         </p>

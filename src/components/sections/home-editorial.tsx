@@ -3,10 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import {
   ArrowRight,
-  BookOpenCheck,
-  GraduationCap,
-  MessageCircleQuestion,
-  NotebookPen,
   Play,
   Pause,
   Volume2,
@@ -59,36 +55,7 @@ const routeCards = [
   },
 ];
 
-const principles = [
-  {
-    title: "Choose one route",
-    titleMr: "एकाच मार्गाची निवड करा",
-    body: "Start with the exam in front of you. A focused attempt beats scattered preparation.",
-    bodyMr: "तुमच्या समोर असलेल्या परीक्षेपासून सुरुवात करा. विस्कळीत तयारी करण्यापेक्षा एकाच ध्येयावर पूर्ण लक्ष केंद्रित करून दिलेला लढा नेहमी यशस्वी ठरतो.",
-    icon: GraduationCap,
-  },
-  {
-    title: "दैनंदिन वेळापत्रकाचे पालन करा",
-    titleMr: "रोजचे वेळापत्रक ठेवा",
-    body: "Class, reading, revision and mock practice need a visible rhythm, not vague motivation.",
-    bodyMr: "क्लास, वाचन, उजळणी (रिव्हिजन) आणि सराव परीक्षा (मॉक टेस्ट) यामध्ये एक स्पष्ट सुसूत्रता हवी; केवळ वरवरच्या प्रेरणेवर (motivation) अवलंबून राहून चालत नाही.",
-    icon: NotebookPen,
-  },
-  {
-    title: "Test before comfort",
-    titleMr: "कम्फर्ट झोनच्या बाहेर पडून आधी परीक्षा द्या",
-    body: "Mock pressure shows speed, gaps and presentation while there is still time to correct.",
-    bodyMr: "वेळ असतानाच आपल्या चुका सुधारण्यासाठी आणि पेपर सोडवण्याचा वेग, राहिलेल्या त्रुटी व सादरीकरण समजून घेण्यासाठी प्रत्यक्ष परीक्षेचा ताण अनुभवणे (मॉक टेस्ट देणे) गरजेचे आहे.",
-    icon: BookOpenCheck,
-  },
-  {
-    title: "Ask early",
-    titleMr: "शंकांचे आधीच निरसन करा",
-    body: "Fees, medium, hostel, family visits and batch timing should be settled before joining.",
-    bodyMr: "संस्थेत प्रवेश घेण्यापूर्वीच फी, शिक्षणाचे माध्यम, हॉस्टेल, पालकांच्या भेटीगाठी आणि बॅचची वेळ या सर्व गोष्टींची आधीच स्पष्ट माहिती करून घ्या.",
-    icon: MessageCircleQuestion,
-  },
-];
+
 
 interface EditorialVideoCardProps {
   src: string;
@@ -193,7 +160,7 @@ export function AcademyEditorial() {
   const t = useTranslations("Home");
   const locale = useLocale();
   return (
-    <section className="bg-paper py-20 sm:py-28">
+    <section id="our-story" className="bg-paper py-20 sm:py-28">
       <div className="mx-auto grid max-w-[104rem] gap-10 px-5 sm:px-8 lg:grid-cols-12 lg:items-end lg:gap-12">
         <div className="lg:col-span-5">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
@@ -240,7 +207,7 @@ export function HomeRouteLauncher() {
   const locale = useLocale();
   const cards = localize(routeCards, locale);
   return (
-    <section className="relative overflow-hidden bg-stone py-28 text-ink sm:py-36 lg:py-44">
+    <section id="explore" className="relative overflow-hidden bg-stone py-28 text-ink sm:py-36 lg:py-44">
       <div className="pointer-events-none absolute left-1/2 top-10 hidden h-52 w-[56rem] max-w-[92vw] -translate-x-1/2 text-river/35 sm:block lg:top-14 lg:h-64 lg:w-[66rem]">
         <AnimatedPathText
           duration={22}
@@ -298,52 +265,7 @@ export function HomeRouteLauncher() {
   );
 }
 
-export function PreparationPrinciples() {
-  const t = useTranslations("Home");
-  const locale = useLocale();
-  const items = localize(principles, locale);
-  return (
-    <section className="bg-paper py-20 sm:py-28">
-      <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
-        <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
-          <div>
-            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">
-              {t("bestFoot")}
-            </p>
-            <h2 className={`mt-5 max-w-[9ch] font-title text-[clamp(3.35rem,8vw,8rem)] font-normal tracking-normal text-ink ${locale === "mr" ? "leading-[1.15]" : "leading-[0.84]"}`}>
-              {t("tipsTitle")}
-            </h2>
-          </div>
-          <p className="max-w-2xl text-pretty text-[1.06rem] leading-relaxed text-ink-soft lg:pt-10">
-            {t("tipsBody")}
-          </p>
-        </div>
 
-        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:mt-14 lg:grid-cols-4">
-          {items.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <article className="group" key={item.title}>
-                <Icon
-                  className="size-7 text-river transition-transform duration-500 group-hover:-translate-y-1"
-                  aria-hidden="true"
-                  strokeWidth={1.8}
-                />
-                <h3 className={`mt-8 text-2xl font-semibold text-ink ${locale === "mr" ? "leading-snug" : "leading-tight"}`}>
-                  {item.title}
-                </h3>
-                <p className="mt-4 text-[0.98rem] leading-relaxed text-ink-soft">
-                  {item.body}
-                </p>
-              </article>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 export function AcademyContext() {
   const t = useTranslations("Home");
@@ -351,7 +273,7 @@ export function AcademyContext() {
   const locale = useLocale();
   const items = localize(academyContextItems, locale);
   return (
-    <section className="bg-paper py-20 sm:py-28">
+    <section id="campus" className="bg-paper py-20 sm:py-28">
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-end">
           <div>
@@ -462,7 +384,7 @@ export function HomeStories() {
   );
 
   return (
-    <section className="bg-stone py-20 sm:py-28">
+    <section id="stories" className="bg-stone py-20 sm:py-28">
       <div className="mx-auto max-w-[104rem] px-5 sm:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-river">

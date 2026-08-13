@@ -149,10 +149,10 @@ export function LanguageSwitcher({ light = false }: { light?: boolean }) {
           aria-label="Language"
           value={selected}
           onChange={(event) => changeLanguage(event.target.value)}
-          className="absolute inset-0 cursor-pointer opacity-0"
+          className="absolute inset-0 cursor-pointer opacity-0 bg-black text-white"
         >
           {languages.map((language) => (
-            <option key={language.code} value={language.code}>
+            <option key={language.code} value={language.code} className="bg-black text-white">
               {language.nativeLabel}
             </option>
           ))}

@@ -266,7 +266,7 @@ export function ExamTracks({
   }, [tracks]);
 
   return (
-    <section id="courses" className="bg-parchment-deep py-24 sm:py-32">
+    <section id="exam-tracks" className="bg-parchment-deep py-24 sm:py-32">
       <div className="mx-auto max-w-[100rem] px-5 sm:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>

@@ -258,7 +258,7 @@ export function SiteHeader() {
             <nav
               aria-label="Primary"
               className={cn(
-                "hidden items-center gap-9 text-[0.82rem] font-medium uppercase tracking-[0.16em] lg:flex",
+                "hidden items-center gap-3.5 xl:gap-6 text-[0.76rem] xl:text-[0.82rem] font-medium uppercase tracking-[0.12em] xl:tracking-[0.16em] lg:flex",
                 light ? "text-cream" : "text-ink",
               )}
             >

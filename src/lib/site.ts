@@ -43,11 +43,13 @@ export type NavGroup = {
 /** Top-bar primary links (desktop, inline). */
 export const primaryNav: NavLink[] = [
   { label: "Home", labelMr: "मुख्यपृष्ठ", href: "/" },
-  { label: "About", labelMr: "आमच्याबद्दल", href: "/about" },
-  { label: "Student Life", labelMr: "विद्यार्थी जीवन", href: "/student-life" },
-  { label: "Courses", labelMr: "अभ्यासक्रम", href: "/courses" },
+  { label: "Our Story", labelMr: "आमची कथा", href: "/#our-story" },
+  { label: "Explore", labelMr: "एक्सप्लोर", href: "/#explore" },
+  { label: "Campus", labelMr: "कॅम्पस", href: "/#campus" },
+  { label: "Gallery", labelMr: "गॅलरी", href: "/#gallery" },
+  { label: "Exam Tracks", labelMr: "परीक्षा मार्ग", href: "/#exam-tracks" },
+  { label: "Stories", labelMr: "यशोगाथा", href: "/#stories" },
   { label: "School", labelMr: "शाळा", href: "/school" },
-  { label: "Admissions", labelMr: "प्रवेश", href: "/admissions" },
 ];
 
 /** Overlay menu groups: fewer choices first, detailed paths second. */

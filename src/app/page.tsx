@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
-import { EnquiryCta } from "@/components/sections/enquiry-cta";
 import { ExamTracks } from "@/components/sections/exam-tracks";
 import { Gallery } from "@/components/sections/gallery";
 import { Hero } from "@/components/sections/hero";
@@ -9,11 +8,12 @@ import {
   AcademyEditorial,
   HomeRouteLauncher,
   HomeStories,
-  PreparationPrinciples,
 } from "@/components/sections/home-editorial";
 import { listCoursePages } from "@/lib/crm/course-pages";
 import { listPublishedGalleryImages } from "@/lib/crm/gallery";
 import { localize } from "@/lib/i18n-content";
+
+import { DirectorMessage } from "@/components/sections/director-message";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -57,8 +57,8 @@ export default async function Home() {
     <>
       <Hero />
       <AcademyEditorial />
+      <DirectorMessage />
       <HomeRouteLauncher />
-      <PreparationPrinciples />
       <AcademyContext />
       <Gallery
         images={
@@ -73,7 +73,6 @@ export default async function Home() {
       />
       <ExamTracks featured={featured} tracks={tracks} />
       <HomeStories />
-      <EnquiryCta />
     </>
   );
 }
