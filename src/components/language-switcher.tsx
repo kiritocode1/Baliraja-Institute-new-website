@@ -45,19 +45,56 @@ function writeLocaleCookie(code: string) {
   document.cookie = `${LOCALE_COOKIE}=${code}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
 }
 
-function writeGoogTrans(code: string) {
-  // Google Translate always works off the English base DOM.
-  const value = code === "en" ? "" : `/en/${code}`;
-  const expiry = code === "en" ? "Max-Age=0" : `Max-Age=${maxAge}`;
-  // biome-ignore lint/suspicious/noDocumentCookie: Google Translate reads this legacy cookie name.
-  document.cookie = `googtrans=${value}; Path=/; ${expiry}; SameSite=Lax`;
-
+// Domain scopes the googtrans cookie can live at, widest last.
+// "www.baliraja.com" -> ["www.baliraja.com", "baliraja.com"]. Never the bare TLD.
+function hostSuffixes() {
   const host = window.location.hostname;
   const isIpAddress = /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
-  if (host.includes(".") && !isIpAddress) {
-    // biome-ignore lint/suspicious/noDocumentCookie: Google Translate needs the same cookie on the parent domain.
-    document.cookie = `googtrans=${value}; Domain=.${host}; Path=/; ${expiry}; SameSite=Lax`;
+  if (isIpAddress || !host.includes(".")) return [];
+
+  const parts = host.split(".");
+  return parts.slice(0, -1).map((_, index) => parts.slice(index).join("."));
+}
+
+function setGoogTransCookie(value: string, expiry: string, domains: string[]) {
+  for (const domain of domains) {
+    const scope = domain ? `; Domain=${domain}` : "";
+    // biome-ignore lint/suspicious/noDocumentCookie: Google Translate reads this legacy cookie name.
+    document.cookie = `googtrans=${value}; Path=/${scope}; ${expiry}; SameSite=Lax`;
   }
+}
+
+function writeGoogTrans(code: string) {
+  // Google Translate always works off the English base DOM.
+  const suffixes = hostSuffixes();
+
+  if (code === "en") {
+    // Clear every scope the cookie can be sitting at. Google's own writer (its
+    // `lx` helper) stores googtrans on the bare host AND on the last two labels
+    // of the hostname, while older builds of this switcher used the full host.
+    // Miss any one of those and the widget re-reads it after the reload below
+    // and translates the page straight back, which is the "English won't
+    // stick" bug.
+    setGoogTransCookie("", "Max-Age=0", ["", ...suffixes]);
+    return;
+  }
+
+  // Write the same scopes Google uses, so both sides stay in sync.
+  const googleScope =
+    suffixes.length > 0 ? [suffixes[suffixes.length - 1]] : [];
+  setGoogTransCookie(`/en/${code}`, `Max-Age=${maxAge}`, ["", ...googleScope]);
+}
+
+// Google Translate checks the URL for `#googtrans/en/xx` before it checks the
+// cookie, so a shared or bookmarked translated link outranks the clear above.
+function reloadAsEnglish() {
+  if (/googtrans/i.test(window.location.hash)) {
+    const clean = window.location.href.replace(/#.*googtrans.*$/i, "");
+    window.location.replace(clean || window.location.pathname);
+    return;
+  }
+
+  window.location.reload();
 }
 
 function activeGoogleCode() {
@@ -91,7 +128,7 @@ export function LanguageSwitcher({ light = false }: { light?: boolean }) {
       // Real EN/MR render: set the next-intl cookie, drop any Google overlay.
       writeLocaleCookie(code);
       writeGoogTrans("en");
-      window.location.reload();
+      reloadAsEnglish();
       return;
     }
 
