@@ -9,6 +9,7 @@ import { ClientMotionRoot } from "@/components/client-motion-root";
 import { MaterialSpotlight } from "@/components/sections/material-spotlight";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 import {
   absoluteUrl,
   defaultOgImage,
@@ -210,6 +211,7 @@ export default async function RootLayout({
             </main>
             <MaterialSpotlight />
             <SiteFooter />
+            <WhatsAppButton />
             <AccessibilitySettingsPanel />
           </ClientMotionRoot>
         </NextIntlClientProvider>
